@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+#STM32 Cube
+Code/.settings/
+Code/Release/
+Code/Debug/
