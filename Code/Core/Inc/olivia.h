@@ -9,12 +9,29 @@
 #define INC_OLIVIA_H_
 #include "main.h"
 
-class Waves()
+class Waves
 {
-	uint32_t Shape;
-	uint32_t Freq;
-	uint32_t Amp;
+	public:
+		Waves();
+		~Waves();
+    	void setChannel(WaveShape shape, uint32_t freq, uint32_t amp, bool followerMode, uint32_t delay);
+    	int32_t setDelay(uint8_t k);
+
+	private:
+    	enum WaveShape{SINE, SQUARE, PULSE}shape;
+    	uint32_t frequency;
+    	uint32_t amplitude;
+    	bool followerMode;
+    	uint32_t delay;
 };
+class Semaphor
+{
+	public:
+		Semaphor();
+		~Semaphor();
+};
+
+
 
 
 
