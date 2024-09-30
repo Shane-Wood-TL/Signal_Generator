@@ -44,14 +44,14 @@
 //Core includes
 #include "main.h"
 
-enum functionType{SINE,SQUARE,PULSE};
+enum WaveShape{SINE, SQUARE, PULSE};
 
 struct signalInfo{
 	uint32_t signalLocations[scopeRes] = {0}; //the data array to be written
 	uint32_t frequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t amp = 0; //0-3.3 represented as 0 -4095
 	uint8_t shiftAmount = 0; //shift amount from - 255
-	functionType wave = SINE;
+	WaveShape wave = SINE;
 };
 
 struct displayInfo{
