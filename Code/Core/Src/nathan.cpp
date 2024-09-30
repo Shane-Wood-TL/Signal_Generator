@@ -6,61 +6,56 @@
  */
 
 #include "allIncludes.h"
-
-class ButtonSwitchQueue
+class InputDriver
 {
 public:
-	void enqueue(uint8_t in_dat);
+	struct
+	{
+		bool ChannelSel;
+		uint8_t ModeSel;
+		uint32_t AmpValue1;
+		uint32_t FreqValue1;
+		uint32_t DelayValue1;
+		uint32_t AmpValue2;
+		uint32_t FreqValue2;
+		uint32_t DelayValue2;
+	};
 
-	void dequeue(uint8_t out_dat);
+	class KnobDriver
+	{
+	private:
+		GPIO_TypeDef* gpio_name_1;
+		uint8_t pin_number_1;
+		GPIO_TypeDef* gpio_name_2;
+		uint8_t pin_number_2;
 
-	ButtonSwitchQueue();
+	public:
+		void KnobStateMachine(uint32_t* KnobValue);
 
-	uint32_t buffer[4] = {0};
+		KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
+	};
 
-private:
-	uint8_t tail = 0;
-	uint8_t head = 0;
-};
+	class ButtonDriver
+	{
+	private:
+		GPIO_TypeDef* gpio_name;
+		uint8_t pin_number;
 
-class KnobQueue
-{
-public:
-	void enqueue(uint32_t in_dat);
+	public:
+		void ButtonStateMachine(uint8_t* ButtonValue);
 
-	void dequeue(uint32_t out_dat);
+		ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber);
+	};
 
-	KnobQueue();
+	class SwitchDriver
+	{
+	private:
+		GPIO_TypeDef* gpio_name;
+		uint8_t pin_number;
 
-	uint32_t buffer[4] = {0};
+	public:
+		void SwitchStateMachine(bool* SwitchState);
 
-private:
-	uint8_t tail = 0;
-	uint8_t head = 0;
-};
-
-class KnobDriver
-{
-private:
-	GPIO_TypeDef* gpio_name_1;
-	uint8_t pin_number_1;
-	GPIO_TypeDef* gpio_name_2;
-	uint8_t pin_number_2;
-
-public:
-	void KnobStateMachine(KnobQueue* input_queue);
-
-	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
-};
-
-class ButtonSwitchDriver
-{
-private:
-	GPIO_TypeDef* gpio_name;
-	uint8_t pin_number;
-
-public:
-	void KnobStateMachine(ButtonSwitchQueue* input_queue);
-
-	ButtonSwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber);
+		SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber);
+	};
 };
