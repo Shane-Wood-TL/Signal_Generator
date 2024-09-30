@@ -11,12 +11,13 @@ Waves::Waves(){}
 
 Waves::~Waves(){}
 
-void Waves::setChannel(WaveShape shape, uint32_t freq, uint32_t amp, bool followerMode, uint32_t delay){}
+void Waves::setSine(){}
 
-uint32_t Waves::setDelay(uint8_t k)
-{
-	return delay;
-}
+void Waves::setSquare(){}
+
+void Waves::setPulse(){}
+
+void Waves::setDelay(uint8_t k){}
 
 //Semaphore Class
 Semaphore::Semaphore(){}

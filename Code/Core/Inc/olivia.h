@@ -12,14 +12,13 @@
 class Waves
 {
 	public:
-		//enum WaveShape{SINE, SQUARE, PULSE}shape;
+		enum WaveShape{SINE, SQUARE, PULSE}shape;
 		Waves();
 		~Waves();
-    	void setSine(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
-    	void setSquare(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
-    	void setPulse(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
-    	//add other parameters so that it creates a delayed wave(same as Echo wave)
-    	void setDelay(uint8_t k, uint32_t freq);
+    	void setSine();
+    	void setSquare();
+    	void setPulse();
+    	void setDelay(uint8_t k);
 
 	private:
 
@@ -39,9 +38,5 @@ class Semaphore
 	private:
 		int32_t count;
 };
-
-
-
-
 
 #endif /* INC_OLIVIA_H_ */
