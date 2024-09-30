@@ -18,21 +18,6 @@ uint32_t Waves::setDelay(uint8_t k)
 	return delay;
 }
 
-//Signal Queue Class
-signalQueue::signalQueue(){}
-
-signalQueue::~signalQueue(){}
-
-bool signalQueue::signalEnqueue(int32_t msg)
-{
-	return true;
-}
-
-bool signalQueue::signalDequeue(int32_t* msg)
-{
-    return false;
-}
-
 //Semaphore Class
 Semaphore::Semaphore(){}
 

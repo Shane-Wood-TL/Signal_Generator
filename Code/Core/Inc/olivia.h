@@ -9,38 +9,24 @@
 #define INC_OLIVIA_H_
 #include "main.h"
 
-#define Q_SIZE 3
-
 class Waves
 {
 	public:
-		enum WaveShape{SINE, SQUARE, PULSE}shape;
+		//enum WaveShape{SINE, SQUARE, PULSE}shape;
 		Waves();
 		~Waves();
-    	void setChannel(WaveShape shape, uint32_t freq, uint32_t amp, bool followerMode, uint32_t delay);
-    	uint32_t setDelay(uint8_t k);
+    	void setSine(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
+    	void setSquare(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
+    	void setPulse(WaveShape shape, uint32_t freq, uint16_t amp, bool followerMode, uint32_t delay);
+    	//add other parameters so that it creates a delayed wave(same as Echo wave)
+    	void setDelay(uint8_t k, uint32_t freq);
 
 	private:
 
     	uint32_t frequency;
-    	uint32_t amplitude;
+    	uint16_t amplitude;
     	bool followerMode;
     	uint32_t delay;
-};
-
-class signalQueue
-{
-	public:
-		signalQueue();
-		~signalQueue();
-    	bool signalEnqueue(int32_t msg);
-    	bool signalDequeue(int32_t *msg);
-
-	private:
-    	int32_t head;
-    	int32_t tail;
-    	int32_t buffer[Q_SIZE];
-
 };
 
 class Semaphore
