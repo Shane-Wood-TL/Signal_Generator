@@ -44,7 +44,7 @@
 //Core includes
 #include "main.h"
 
-enum WaveShape{SINE, SQUARE, PULSE};
+enum WaveShape{SINE, SQUARE, PULSE, ECHO};
 
 struct signalInfo{
 	uint32_t signalLocations[scopeRes] = {0}; //the data array to be written
