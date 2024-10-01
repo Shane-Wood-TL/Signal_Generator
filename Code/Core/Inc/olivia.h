@@ -12,8 +12,8 @@
 class Waves
 {
 	public:
-		enum WaveShape{SINE, SQUARE, PULSE}shape;
-		Waves();
+		//enum WaveShape{SINE, SQUARE, PULSE}shape;
+		Waves(inputQueue *InputQueue, signalQueue *SignalQueue);
 		~Waves();
     	void setSine();
     	void setSquare();
@@ -21,7 +21,8 @@ class Waves
     	void setDelay(uint8_t k);
 
 	private:
-
+    	inputQueue *InputQueueInstance;
+    	signalQueue *SignalQueueInstance;
     	uint32_t frequency;
     	uint16_t amplitude;
     	bool followerMode;
