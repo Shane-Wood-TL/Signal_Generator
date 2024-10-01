@@ -46,6 +46,17 @@
 
 enum WaveShape{SINE, SQUARE, PULSE, ECHO};
 
+struct inputValues
+	{
+		bool ChannelSel;
+		uint8_t ModeSel;
+		uint32_t AmpValue1;
+		uint32_t FreqValue1;
+		uint32_t AmpValue2;
+		uint32_t FreqValue2;
+		uint32_t DelayValue2;
+	};
+
 struct signalInfo{
 	uint32_t signalLocations[scopeRes] = {0}; //the data array to be written
 	uint32_t frequency = 0; //signal was tested to 80khz, 65k is not enough

@@ -46,8 +46,7 @@ void cpp_main(void){
 	outputDriver outputDriverI(&DriverCh1, &DriverCh2, &DACchannel1, &DACchannel2, &displayInfo);
 
 	//draw freq + amp to the display
-	mainDisplay.drawWords();
-	mainDisplay.writeBuffer();
+	mainDisplay.getNewValues();
 
 	while(1){
 

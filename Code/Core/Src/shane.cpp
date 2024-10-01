@@ -204,7 +204,8 @@ void display::initializeFontMap(){
 }
 
 void display::getNewValues(){
-
+	drawWords(); //temporary
+	writeBuffer();
 }
 
 dacDriver::dacDriver(dacSetup *dacValues){
