@@ -7,7 +7,7 @@
 #include "olivia.h"
 
 //Waves Class (Application Class 1)
-Waves::Waves(){}
+Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue){}
 
 Waves::~Waves(){}
 
