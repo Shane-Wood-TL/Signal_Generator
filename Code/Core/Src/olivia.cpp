@@ -4,7 +4,7 @@
  *  Created on: Sep 24, 2024
  *      Author: townl
  */
-#include "olivia.h"
+#include "allIncludes.h"
 
 //Waves Class (Application Class 1)
 Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue){}

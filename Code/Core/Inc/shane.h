@@ -58,11 +58,12 @@ private:
 	//empties buffer so that new data can be put into it
 	void clearBuffer();
 
+	void writeBuffer();
+	void drawWords();
 public:
 	display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI);//dacDriver *dac0I,dacDriver *dac1I);
 	//writes buffer to the display
-	void writeBuffer();
-	void drawWords();
+
 	void getNewValues();
 
 };
