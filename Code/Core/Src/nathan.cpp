@@ -24,7 +24,7 @@ void KnobDriver::checkForInput(){
 
 
 
-ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber){}
+ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){}
 void ButtonDriver::ButtonStateMachine(uint8_t* ButtonValue){
 	return;
 }
@@ -42,7 +42,7 @@ void ButtonDriver::checkForInput(){
 
 
 
-SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber){
+SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI){
 
 }
 
@@ -66,7 +66,7 @@ void SwitchDriver::checkForInput(){
 
 
 
-InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI,ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI){
+InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI,ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI, Semaphore *KnobSemaphoreI){
 
 }
 

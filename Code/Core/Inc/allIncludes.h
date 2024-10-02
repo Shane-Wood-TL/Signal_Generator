@@ -85,8 +85,9 @@ struct dacSetup{
 };
 
 //Our includes
-#include "nathan.h"
 #include "olivia.h"
+#include "nathan.h"
+
 
 #include "shane.h"
 #include "16pixelFont.h"
