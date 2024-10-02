@@ -29,15 +29,18 @@ class Waves
     	uint32_t delay;
 };
 
-class Semaphore
-{
-	public:
-		Semaphore();
-		~Semaphore();
-		int32_t wait();
-		int32_t post();
-	private:
-		int32_t count;
+
+class Semaphore{
+	bool buffer[1]; //the buffer of messages
+    uint8_t head = 0; //the head of the active queue region
+    uint8_t tail = 0; //the tail of the active queue region
+    uint32_t activeValues = 0; //the amount of active values
+
+public:
+    Semaphore(); //constructor
+    bool enqueue(bool msg); //add values
+    bool dequeue(bool* msg); //remove values
+    void rollingMath(uint8_t *position); //does the math to handle rollovers
 };
 
 #endif /* INC_OLIVIA_H_ */
