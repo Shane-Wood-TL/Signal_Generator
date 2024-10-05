@@ -19,14 +19,19 @@ class Waves
     	void setSquare();
     	void setPulse();
     	void setDelay(uint8_t k);
+    	void update();
 
 	private:
     	inputQueue *InputQueueInstance;
     	signalQueue *SignalQueueInstance;
-    	uint32_t frequency;
-    	uint16_t amplitude;
+    	uint32_t frequency1;
+    	uint16_t amplitude1;
+    	uint16_t frequency2;
+    	uint16_t amplitude2;
     	bool followerMode;
     	uint32_t delay;
+    	enum WaveShape waveType1;
+    	enum WaveShape waveType2;
 };
 
 class Semaphore
