@@ -7,37 +7,33 @@
 
 #include "allIncludes.h"
 
-KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2){
+KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, Semaphore *KnobSemaphoreI){
 
 }
 
-void KnobDriver::KnobStateMachine(bool* KnobChange, bool ActivatedPin1, bool ActivatedPin2){
+void KnobDriver::KnobStateMachine(){
 
 	static bool PreviousStatePin1 = false;
 	static bool PreviousStatePin2 = false;
-	bool CurrentStatePin1 = false;
-	bool CurrentStatePin2 = false;
+	bool KnobChangeA = false;
+	bool KnobChangeB = false;
 
-	if ((gpio_name_1 -> IDR & (1<<pin_number_1)) == 1) CurrentStatePin1 = true;
-	else CurrentStatePin1 = false;
-	if ((gpio_name_2 -> IDR & (1<<pin_number_2)) == 1) CurrentStatePin2 = true;
-	else CurrentStatePin2 = false;
+	if ((gpio_name_1 -> IDR & (1<<pin_number_1)) == 0) KnobCurrentStatePin1 = true;
+	else KnobCurrentStatePin1 = false;
+	if ((gpio_name_2 -> IDR & (1<<pin_number_2)) == 0) KnobCurrentStatePin2 = true;
+	else KnobCurrentStatePin2 = false;
 
-	if ((CurrentStatePin1 == true) && (PreviousStatePin1 == false)) ActivatedPin1 = true;
-	else ActivatedPin1 = false;
-	if ((CurrentStatePin2 == true) && (PreviousStatePin2 == false)) ActivatedPin2 = true;
-	else ActivatedPin2 = false;
+	if ((KnobCurrentStatePin1 == true) && (PreviousStatePin1 == false) && (KnobCurrentStatePin2 == false)) KnobChangeA = true;
+	else KnobChangeA = false;
+	if ((KnobCurrentStatePin2 == true) && (PreviousStatePin2 == false) && (KnobCurrentStatePin1 == false)) KnobChangeB = true;
+	else KnobChangeB = false;
 
-	if (ActivatedPin1 != ActivatedPin2) *KnobChange = true;
-	else *KnobChange = false;
+	PreviousStatePin1 = KnobCurrentStatePin1;
+	PreviousStatePin2 = KnobCurrentStatePin2;
 
-	return;
-}
-uint8_t KnobDriver::getCurrentOutput(){
-	return 0;
-}
+	if (KnobChangeA == true); //enqueue true
+	if (KnobChangeB == true); //enqueue false
 
-void KnobDriver::checkForInput(){
 	return;
 }
 
@@ -50,27 +46,21 @@ ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 
 }
 
-void ButtonDriver::ButtonStateMachine(bool* ButtonChange, bool CurrentState){
+void ButtonDriver::ButtonStateMachine(){
 
 	static bool ButtonPreviousState = false;
+	bool ButtonChange = false;
 
-	if ((gpio_name -> IDR & (1<<pin_number)) == 0) CurrentState = true;
-	else CurrentState = false;
+	if ((gpio_name -> IDR & (1<<pin_number)) == 0) ButtonCurrentState = true;
+	else ButtonCurrentState = false;
 
-	if ((CurrentState == true) && (ButtonPreviousState == false)){
-		*ButtonChange = true;
-		ButtonPreviousState = CurrentState;
-	}
-	else *ButtonChange = false;
+	if ((ButtonCurrentState == true) && (ButtonPreviousState == false)) ButtonChange = true;
+	else ButtonChange = false;
 
-	return;
-}
+	ButtonPreviousState = ButtonCurrentState;
 
-bool ButtonDriver::getCurrentOutput(){
-	return true;
-}
+	if (ButtonChange == true); //enqueue true
 
-void ButtonDriver::checkForInput(){
 	return;
 }
 
@@ -83,23 +73,23 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 
 }
 
-void SwitchDriver::SwitchStateMachine(bool* SwitchChange, bool CurrentState){
+void SwitchDriver::SwitchStateMachine(){
 
 	static bool SwitchPreviousState = false;
+	bool SwitchChange = false;
 
-	if ((gpio_name -> IDR & (1<<pin_number)) == 1) CurrentState = true;
-	else CurrentState = false;
+	if ((gpio_name -> IDR & (1<<pin_number)) == 1) SwitchCurrentState = true;
+	else SwitchCurrentState = false;
 
-	if (CurrentState != SwitchPreviousState){
-		*SwitchChange = true;
-		SwitchPreviousState = CurrentState;
-	}
-	else *SwitchChange = false;
+	if (SwitchCurrentState != SwitchPreviousState) SwitchChange = true;
+	else SwitchChange = false;
+
+	SwitchPreviousState = SwitchCurrentState;
+
+	if (SwitchChange == true); //enqueue SwitchCurrentState
 
 	return;
 }
-
-
 
 
 
