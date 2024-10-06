@@ -29,10 +29,10 @@ class dacDriver{
 
 class display{
 private:
-	const uint16_t *fontMap[128] = {0}; //ASCII table
 	I2C_HandleTypeDef *hi2c1;
 	displayQueue *displayQueueInstance;
 	uint8_t buffer[1024] = {0};
+	font mainFont;
 	//dacDriver *dac0;
 	//dacDriver *dac1;
 	void initializeFontMap();
@@ -79,5 +79,9 @@ public:
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI);
 	void update();
 };
+
+
+
+
 
 #endif /* INC_SHANE_H_ */

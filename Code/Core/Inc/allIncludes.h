@@ -43,6 +43,7 @@
 
 //Core includes
 #include "main.h"
+#include "font.h"
 
 enum WaveShape{SINE, SQUARE, PULSE, ECHO};
 
