@@ -13,45 +13,40 @@
 class KnobDriver
 {
 private:
+	Semaphore *KnobSemaphoreInstance;
 	GPIO_TypeDef* gpio_name_1;
 	uint8_t pin_number_1;
 	GPIO_TypeDef* gpio_name_2;
 	uint8_t pin_number_2;
-	inputValues currentInput;
-	uint8_t CurrentOutput;
-	void KnobStateMachine(uint32_t* KnobValue);
+	bool KnobCurrentStatePin1 = false;
+	bool KnobCurrentStatePin2 = false;
 public:
-	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
-	uint8_t getCurrentOutput();
-	void checkForInput();
+	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, Semaphore *KnobSemaphoreI);
+	void KnobStateMachine();
 };
 
 class ButtonDriver
 {
 private:
+	Semaphore *ButtonSemaphoreInstance;
 	GPIO_TypeDef* gpio_name;
 	uint8_t pin_number;
-	bool currentOutput;
-	Semaphore *ButtonSemaphoreInstance;
-	void ButtonStateMachine(uint8_t* ButtonValue);
+	bool ButtonCurrentState = false;
 public:
-	ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber,Semaphore *ButtonSemaphoreI);
-	bool getCurrentOutput();
-	void checkForInput();
+	ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI);
+	void ButtonStateMachine();
 };
 
 class SwitchDriver
 {
 private:
+	Semaphore *SwitchSemaphoreInstance;
 	GPIO_TypeDef* gpio_name;
 	uint8_t pin_number;
-	uint8_t CurrentOutput;
-	Semaphore *SwitchSemaphoreInstance;
-	void SwitchStateMachine(bool* SwitchState);
+	bool SwitchCurrentState = false;
 public:
-	SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber,Semaphore *SwitchSemaphoreI);
-	void checkForInput();
-	uint8_t getCurrentOutput();
+	SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI);
+	void SwitchStateMachine();
 };
 
 class InputDriver
