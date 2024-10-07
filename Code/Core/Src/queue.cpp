@@ -8,6 +8,7 @@
 #include "allIncludes.h"
 
 
+
 signalQueue::signalQueue() {
 	//set all values to 0
 	head = 0;
@@ -44,19 +45,13 @@ bool signalQueue::dequeue(signalInfo *msg) {
 
 void signalQueue::rollingMath(uint8_t *position){
     //if it is at the max value go back to 0
-    if((*position) >= QUEUE_BUFFER_SIZE-1){ //fail safe it position somehow gets larger
+    if((*position) >= SIGNAL_QUEUE_SIZE-1){ //fail safe it position somehow gets larger
         *position = 0;
     }else{
         //if not at max increase like normal
         *position+=1;
     }
 }
-
-
-
-
-
-
 
 
 
@@ -97,7 +92,7 @@ bool displayQueue::dequeue(displayInfo *msg) {
 
 void displayQueue::rollingMath(uint8_t *position){
     //if it is at the max value go back to 0
-    if((*position) >= QUEUE_BUFFER_SIZE-1){ //fail safe it position somehow gets larger
+    if((*position) >= DISPLAY_QUEUE_SIZE-1){ //fail safe it position somehow gets larger
         *position = 0;
     }else{
         //if not at max increase like normal
@@ -107,6 +102,13 @@ void displayQueue::rollingMath(uint8_t *position){
 
 
 
+
+
+inputQueue::inputQueue() {
+	//set all values to 0
+	head = 0;
+	tail = 0;
+}
 
 bool inputQueue::enqueue(inputValues msg) {
 	bool ok = false;
@@ -138,7 +140,7 @@ bool inputQueue::dequeue(inputValues *msg) {
 
 void inputQueue::rollingMath(uint8_t *position){
     //if it is at the max value go back to 0
-    if((*position) >= QUEUE_BUFFER_SIZE-1){ //fail safe it position somehow gets larger
+    if((*position) >= INPUT_QUEUE_SIZE-1){ //fail safe it position somehow gets larger
         *position = 0;
     }else{
         //if not at max increase like normal

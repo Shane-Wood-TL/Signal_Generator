@@ -9,7 +9,7 @@
 
 
 
-
+extern bool update1;
 
 
 void display::initDisplay(){
@@ -131,24 +131,27 @@ void display::getNewValues(){
 	writeBuffer();
 }
 
-dacDriver::dacDriver(dacSetup *dacValues){
+dacDriver::dacDriver(dacSetup *dacValues, DMA_HandleTypeDef *DMAchI){
 	hdac = dacValues->hdacI;
 	DacChannel = dacValues->DacChannel1I;
 	timerInstance = dacValues->timer1I;
 	signalQueueInstance = dacValues->channel1I;
+	DMAch = DMAchI;
 
 	//ensure that something is in current signal
-	HAL_DAC_Start_DMA(hdac, DacChannel, (&currentSignal)->signalLocations, scopeRes, DAC_ALIGN_12B_R);
+	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	//HAL_DMA_Start_IT(DMAch,*(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
 }
 
 void dacDriver::checkQueue(){
 	if(signalQueueInstance->dequeue(&currentSignal)){
 			setReload(); //set new period
 	}
+	return;
 }
 
 void dacDriver::setReload(){
-	currentReloadValue = (uint32_t) FCLK/((timerPSC+1)*(currentSignal.frequency)*scopeRes);
+	currentReloadValue = (uint32_t) FCLK/((timerPSC+1)*(currentSignal.frequency)*waveFormRes);
 	//currentReloadValue = 1000;
 	//timerInstance->Init.AutoReloadPreload = currentReloadValue;
 	__HAL_TIM_SET_AUTORELOAD(timerInstance,currentReloadValue);
@@ -158,7 +161,25 @@ signalInfo* dacDriver::getSignalInfo(){
 	return &currentSignal; //returns signal that is currently being displayed
 }
 
+void dacDriver::update(){
+	if(DMAch->Instance == DMA1_Channel3){// and update1){
+			HAL_DMA_Start_IT(DMAch,(uint32_t)(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
+			//update1=false;
+			//HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	}
+	checkQueue();
+//	HAL_DAC_Stop_DMA(hdac, DacChannel);
+//	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	//
+	//HAL_DMA_Start_IT(DMAch,(uint32_t)(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
 
+
+	if(DMAch->Instance == DMA1_Channel4){
+		//HAL_DMA_Start_IT(DMAch,*(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R2),waveFormRes);
+		//HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	}
+
+};
 
 outputDriver::outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI){
 	DACChannel1Setup = DACchannel1SetupI;
@@ -180,8 +201,8 @@ outputDriver::outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacS
 }
 
 void outputDriver::update(){
-	DACchannel1->checkQueue();
-	DACchannel2->checkQueue();
+	DACchannel1->update();
+	DACchannel2->update();
 	//displayInfo toWrite = {DACchannel1->getSignalInfo(),DACchannel2->getSignalInfo()};
 	//displayInfoQ->enqueue(toWrite);
 }

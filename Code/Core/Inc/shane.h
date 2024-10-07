@@ -16,14 +16,15 @@ class dacDriver{
 	uint32_t DacChannel;
 	TIM_HandleTypeDef *timerInstance;
 	signalQueue *signalQueueInstance;
-
+	DMA_HandleTypeDef *DMAch;
 	signalInfo currentSignal;
 	uint32_t currentReloadValue = 0;
 	public:
-		dacDriver(dacSetup *dacValues);
+		dacDriver(dacSetup *dacValues, DMA_HandleTypeDef *DMAchI);
 		void checkQueue();
 		void setReload();
 		signalInfo* getSignalInfo();
+		void update();
 };
 
 
@@ -75,6 +76,8 @@ class outputDriver{
 	dacDriver *DACchannel1;
 	dacDriver *DACchannel2;
 	displayQueue *displayInfoQ;
+	DMA_HandleTypeDef DMAch1;
+	DMA_HandleTypeDef DMAch2;
 public:
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI);
 	void update();

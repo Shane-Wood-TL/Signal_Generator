@@ -13,11 +13,17 @@ extern I2C_HandleTypeDef hi2c1;
 extern DAC_HandleTypeDef hdac1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
+extern DMA_HandleTypeDef hdma_dac_ch1;
+extern DMA_HandleTypeDef hdma_dac_ch2;
 
+//baseWaves waves;
 
+//bool update1 = true;
+//bool update2 = true;
 
 void cpp_main(void){
-	//baseWaves waves;
+	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1); // Start the DAC
+	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
 
 	//set up the queues
 	signalQueue channel1;
@@ -40,15 +46,22 @@ void cpp_main(void){
 	struct dacSetup DACchannel2 = {&hdac1,DAC_CHANNEL_2,&htim6,&channel2};
 
 
-	dacDriver DriverCh1(&DACchannel1);
-	dacDriver DriverCh2(&DACchannel2);
+	dacDriver DriverCh1(&DACchannel1, &hdma_dac_ch1);
+	dacDriver DriverCh2(&DACchannel2, &hdma_dac_ch2);
 
-	outputDriver outputDriverI(&DriverCh1, &DriverCh2, &DACchannel1, &DACchannel2, &displayInfo);
+	static outputDriver outputDriverI(&DriverCh1, &DriverCh2, &DACchannel1, &DACchannel2, &displayInfo);
 
 	//draw freq + amp to the display
 	mainDisplay.getNewValues();
 
 	while(1){
-
+		//outputDriverI.update();
 	}
+}
+
+void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac) {
+	//update1 = true;
+}
+
+void HAL_DAC_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac) {
 }

@@ -23,8 +23,15 @@
 #define shiftKnobA PA_7 //A6
 #define shiftKnobB PA_6 //
 
+//Constants
+#define M_PI 3.14159
+
+
 //Variables
-#define QUEUE_BUFFER_SIZE 3
+#define DISPLAY_QUEUE_SIZE 3
+#define INPUT_QUEUE_SIZE 3
+#define SIGNAL_QUEUE_SIZE 3
+#define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
 
 //SSD1306 setup
 #define SSD1306Address 0x3C<<1           // SSD1306 I2C address
@@ -33,17 +40,24 @@
 #define SSD1306Pages SSD1306VerticalRes/8 //each page is a vertical 8 bits
 
 
-#define scopeRes 255
-#define FCLK 80000000
-#define timerPSC 0
+#define waveFormRes 255 //how many steps per wavelength
 
-#define squareLength scopeRes / 2
-#define pulseLenght scopeRes / 12
+#define FCLK 80000000UL //system clock speed
+
+#define timerPSC 0 //timer prescaling value
+
+#define squareLength waveFormRes / 2
+#define pulseLenght waveFormRes / 12
 
 
 //Core includes
 #include "main.h"
-#include "font.h"
+
+
+
+
+
+
 
 enum WaveShape{SINE, SQUARE, PULSE, ECHO};
 
@@ -59,7 +73,7 @@ struct inputValues
 	};
 
 struct signalInfo{
-	uint32_t signalLocations[scopeRes] = {0}; //the data array to be written
+	uint32_t signalLocations[waveFormRes] = {0}; //the data array to be written
 	uint32_t frequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t amp = 0; //0-3.3 represented as 0 -4095
 	uint8_t shiftAmount = 0; //shift amount from - 255
@@ -73,11 +87,6 @@ struct displayInfo{
 
 
 #include "queue.h"
-#include "math.h"
-#define M_PI 3.14159
-
-
-
 struct dacSetup{
 	DAC_HandleTypeDef *hdacI;
 	uint32_t DacChannel1I;
@@ -85,13 +94,18 @@ struct dacSetup{
 	signalQueue *channel1I;
 };
 
+
+
 //Our includes
+#include "math.h"
+#include "font.h"
+
 #include "olivia.h"
 #include "nathan.h"
 
 
 #include "shane.h"
-#include "16pixelFont.h"
+
 
 
 #endif /* SRC_ALLINCLUDES_H_ */
