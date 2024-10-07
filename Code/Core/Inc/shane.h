@@ -16,23 +16,24 @@ class dacDriver{
 	uint32_t DacChannel;
 	TIM_HandleTypeDef *timerInstance;
 	signalQueue *signalQueueInstance;
-
+	DMA_HandleTypeDef *DMAch;
 	signalInfo currentSignal;
 	uint32_t currentReloadValue = 0;
 	public:
-		dacDriver(dacSetup *dacValues);
+		dacDriver(dacSetup *dacValues, DMA_HandleTypeDef *DMAchI);
 		void checkQueue();
 		void setReload();
 		signalInfo* getSignalInfo();
+		void update();
 };
 
 
 class display{
 private:
-	const uint16_t *fontMap[128] = {0}; //ASCII table
 	I2C_HandleTypeDef *hi2c1;
 	displayQueue *displayQueueInstance;
 	uint8_t buffer[1024] = {0};
+	font mainFont;
 	//dacDriver *dac0;
 	//dacDriver *dac1;
 	void initializeFontMap();
@@ -75,9 +76,15 @@ class outputDriver{
 	dacDriver *DACchannel1;
 	dacDriver *DACchannel2;
 	displayQueue *displayInfoQ;
+	DMA_HandleTypeDef DMAch1;
+	DMA_HandleTypeDef DMAch2;
 public:
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI);
 	void update();
 };
+
+
+
+
 
 #endif /* INC_SHANE_H_ */

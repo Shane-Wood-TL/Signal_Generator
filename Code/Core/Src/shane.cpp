@@ -9,7 +9,7 @@
 
 
 
-
+extern bool update1;
 
 
 void display::initDisplay(){
@@ -64,7 +64,7 @@ void display::drawPixel(uint8_t x, uint8_t y,bool color){
 
 //write a letter to the display buffer
 void display::writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos){
-	    const uint16_t* matrix = getLetter(letter);
+	    const uint16_t* matrix = mainFont.getLetter(letter);
 	    for (int i = 0; i < 16; i++) { //16 tall
 	        for (int j = 0; j < 12; j++) { // 12 wide
 	            if ((matrix[i]) & (1 << (12 - j))) {
@@ -73,11 +73,6 @@ void display::writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos){
 	        }
 	    }
 	return;
-}
-
-//get a letter from the font
-const uint16_t* display::getLetter(uint8_t letter){
-    return fontMap[(int)letter];
 }
 
 //empties buffer so that new data can be put into it
@@ -94,7 +89,6 @@ display::display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI) {
     hi2c1 = hi2c1I;
     displayQueueInstance = displayQueueI;
     initDisplay();
-    initializeFontMap();
 }
 
 
@@ -132,8 +126,89 @@ void display::drawWords(){
 		writeLetter('p',31,47);
 }
 
-//map the letters to the consts in 16pixelFont.h
-void display::initializeFontMap(){
+void display::getNewValues(){
+	drawWords(); //temporary
+	writeBuffer();
+}
+
+dacDriver::dacDriver(dacSetup *dacValues, DMA_HandleTypeDef *DMAchI){
+	hdac = dacValues->hdacI;
+	DacChannel = dacValues->DacChannel1I;
+	timerInstance = dacValues->timer1I;
+	signalQueueInstance = dacValues->channel1I;
+	DMAch = DMAchI;
+
+	//ensure that something is in current signal
+	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	//HAL_DMA_Start_IT(DMAch,*(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
+}
+
+void dacDriver::checkQueue(){
+	if(signalQueueInstance->dequeue(&currentSignal)){
+			setReload(); //set new period
+	}
+	return;
+}
+
+void dacDriver::setReload(){
+	currentReloadValue = (uint32_t) FCLK/((timerPSC+1)*(currentSignal.frequency)*waveFormRes);
+	//currentReloadValue = 1000;
+	//timerInstance->Init.AutoReloadPreload = currentReloadValue;
+	__HAL_TIM_SET_AUTORELOAD(timerInstance,currentReloadValue);
+}
+
+signalInfo* dacDriver::getSignalInfo(){
+	return &currentSignal; //returns signal that is currently being displayed
+}
+
+void dacDriver::update(){
+	if(DMAch->Instance == DMA1_Channel3){// and update1){
+			HAL_DMA_Start_IT(DMAch,(uint32_t)(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
+			//update1=false;
+			//HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	}
+	checkQueue();
+//	HAL_DAC_Stop_DMA(hdac, DacChannel);
+//	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	//
+	//HAL_DMA_Start_IT(DMAch,(uint32_t)(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
+
+
+	if(DMAch->Instance == DMA1_Channel4){
+		//HAL_DMA_Start_IT(DMAch,*(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R2),waveFormRes);
+		//HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
+	}
+
+};
+
+outputDriver::outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI){
+	DACChannel1Setup = DACchannel1SetupI;
+	DACChannel2Setup = DACchannel2SetupI;
+	DACchannel1=DACchannel1I;
+	DACchannel2=DACchannel2I;
+
+
+	update();
+
+
+	HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
+	HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
+	//non hal method
+//	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
+//	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN;
+//	TIM2->CR1 |= TIM_CR1_CEN;
+//	TIM6->CR1 |= TIM_CR1_CEN;
+}
+
+void outputDriver::update(){
+	DACchannel1->update();
+	DACchannel2->update();
+	//displayInfo toWrite = {DACchannel1->getSignalInfo(),DACchannel2->getSignalInfo()};
+	//displayInfoQ->enqueue(toWrite);
+}
+
+
+void font::initializeFontMap(){
     fontMap['0'] = zero;
     fontMap['1'] = one;
     fontMap['2'] = two;
@@ -203,62 +278,11 @@ void display::initializeFontMap(){
     fontMap['|'] = verticalBar;
 }
 
-void display::getNewValues(){
-	drawWords(); //temporary
-	writeBuffer();
+
+font::font(){
+	initializeFontMap();
 }
 
-dacDriver::dacDriver(dacSetup *dacValues){
-	hdac = dacValues->hdacI;
-	DacChannel = dacValues->DacChannel1I;
-	timerInstance = dacValues->timer1I;
-	signalQueueInstance = dacValues->channel1I;
-
-	//ensure that something is in current signal
-	HAL_DAC_Start_DMA(hdac, DacChannel, (&currentSignal)->signalLocations, scopeRes, DAC_ALIGN_12B_R);
-}
-
-void dacDriver::checkQueue(){
-	if(signalQueueInstance->dequeue(&currentSignal)){
-			setReload(); //set new period
-	}
-}
-
-void dacDriver::setReload(){
-	currentReloadValue = (uint32_t) FCLK/((timerPSC+1)*(currentSignal.frequency)*scopeRes);
-	//currentReloadValue = 1000;
-	//timerInstance->Init.AutoReloadPreload = currentReloadValue;
-	__HAL_TIM_SET_AUTORELOAD(timerInstance,currentReloadValue);
-}
-
-signalInfo* dacDriver::getSignalInfo(){
-	return &currentSignal; //returns signal that is currently being displayed
-}
-
-
-
-outputDriver::outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI){
-	DACChannel1Setup = DACchannel1SetupI;
-	DACChannel2Setup = DACchannel2SetupI;
-	DACchannel1=DACchannel1I;
-	DACchannel2=DACchannel2I;
-
-
-	update();
-
-
-	HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
-	HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
-	//non hal method
-//	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
-//	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN;
-//	TIM2->CR1 |= TIM_CR1_CEN;
-//	TIM6->CR1 |= TIM_CR1_CEN;
-}
-
-void outputDriver::update(){
-	DACchannel1->checkQueue();
-	DACchannel2->checkQueue();
-	//displayInfo toWrite = {DACchannel1->getSignalInfo(),DACchannel2->getSignalInfo()};
-	//displayInfoQ->enqueue(toWrite);
+const uint16_t* font::getLetter(uint8_t letter){
+	return fontMap[(uint8_t)letter];
 }
