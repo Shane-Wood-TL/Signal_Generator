@@ -12,7 +12,6 @@
 class Waves
 {
 	public:
-		//enum WaveShape{SINE, SQUARE, PULSE}shape;
 		Waves(inputQueue *InputQueue, signalQueue *SignalQueue);
 		~Waves();
     	void setSine();

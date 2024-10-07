@@ -60,7 +60,13 @@ void Waves::setSine()
 		}
 	}
 }
-void Waves::setSquare(){}
+void Waves::setSquare()
+{
+	double period;
+	double halfPeriod;
+	period = 1/frequency;
+	halfPeriod = period/2;
+}
 
 void Waves::setPulse(){}
 
