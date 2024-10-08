@@ -40,10 +40,10 @@ void Waves::setSine()
 	//Channel 1 Sine Wave
 	if(waveType1 == SINE and followerMode == false)
 	{
-		for (uint32_t i = 0; i < scopeRes; i++)
+		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 			// Calculate the angle in radians
-		    angle1 = 2 * M_PI * frequency1 * static_cast<double>(i) / scopeRes;
+		    angle1 = 2 * M_PI * frequency1 * static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
 		    sample.signalLocations[i] = (amplitude1 * std::sin(angle1));
 		}
@@ -51,10 +51,10 @@ void Waves::setSine()
 	//Channel 2 Sine Wave
 	if(waveType2 == SINE and followerMode == false)
 	{
-		for (uint32_t i = 0; i < scopeRes; i++)
+		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 			// Calculate the angle in radians
-		    angle2 = 2 * M_PI * frequency2 * static_cast<double>(i) / scopeRes;
+		    angle2 = 2 * M_PI * frequency2 * static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
 		    sample.signalLocations[i] = (amplitude2 * std::sin(angle2));
 		}
@@ -64,7 +64,7 @@ void Waves::setSquare()
 {
 	double period;
 	double halfPeriod;
-	period = 1/frequency;
+	period = 1/frequency1;
 	halfPeriod = period/2;
 }
 
