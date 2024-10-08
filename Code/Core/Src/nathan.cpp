@@ -9,9 +9,15 @@
 
 KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2){
 
+	gpio_name_1 = GpioName1;
+	pin_number_1 = PinNumber1;
+	gpio_name_2 = GpioName2;
+	pin_number_2 = PinNumber2;
+	KnobCurrentStatePin1 = false;
+	KnobCurrentStatePin2 = false;
 }
 
-void KnobDriver::KnobStateMachine(){
+void KnobDriver::UpdateKnob(){
 
 	static bool PreviousStatePin1 = false;
 	static bool PreviousStatePin2 = false;
@@ -43,10 +49,13 @@ void KnobDriver::KnobStateMachine(){
 
 
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
-
+	ButtonSemaphoreInstance = ButtonSemaphoreI;
+	gpio_name = GpioName;
+	pin_number = PinNumber;
+	ButtonCurrentState = false;
 }
 
-void ButtonDriver::ButtonStateMachine(){
+void ButtonDriver::UpdateButton(){
 
 	static bool ButtonPreviousState = false;
 	bool ButtonChange = false;
@@ -70,10 +79,13 @@ void ButtonDriver::ButtonStateMachine(){
 
 
 SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI){
-
+	SwitchSemaphoreInstance = SwitchSemaphoreI;
+	gpio_name = GpioName;
+	pin_number = PinNumber;
+	SwitchCurrentState = false;
 }
 
-void SwitchDriver::SwitchStateMachine(){
+void SwitchDriver::UpdateSwitch(){
 
 	static bool SwitchPreviousState = false;
 	bool SwitchChange = false;
