@@ -16,15 +16,15 @@ Waves::~Waves(){}
 void Waves::update()
 {
 	inputValues values;
-	followerMode = values.ChannelSel;
+	followerMode = values.Switch;
 	//figure out modeSel(enum WaveShape
 	//enum WaveShape waveType1;
 	//waveType1 = values.ModeSel;
-	amplitude1 = values.AmpValue1;
-	amplitude2 = values.AmpValue2;
-	frequency1 = values.FreqValue1;
-	frequency2 = values.FreqValue2;
-	delay = values.DelayValue2;
+	amplitude1 = values.AmpKnob1;
+	amplitude2 = values.AmpKnob2;
+	frequency1 = values.FreqKnob1;
+	frequency2 = values.FreqKnob2;
+	delay = values.DelayKnob2;
 }
 
 void Waves::setSine()
