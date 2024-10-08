@@ -16,6 +16,12 @@ Waves::~Waves(){}
 void Waves::update()
 {
 	inputValues values;
+	values.Switch = false;
+	values.AmpKnob1 = 0;
+	values.AmpKnob2 = 0;
+	values.FreqKnob1 = 0;
+	values.FreqKnob2 = 0;
+	values.DelayKnob2 = 0;
 	followerMode = values.Switch;
 	//figure out modeSel(enum WaveShape
 	//enum WaveShape waveType1;
@@ -25,6 +31,10 @@ void Waves::update()
 	frequency1 = values.FreqKnob1;
 	frequency2 = values.FreqKnob2;
 	delay = values.DelayKnob2;
+	//switch{waveShape}
+	//case SINE:
+		//default
+
 }
 
 void Waves::setSine()
@@ -32,8 +42,8 @@ void Waves::setSine()
 	signalInfo sample;
 	//enum WaveShape waveType1 = SINE;
 	//enum WaveShape waveType2 = SINE;
-	double angle1;
-	double angle2;
+	uint32_t angle1;
+	uint32_t angle2;
 
 	update();
 
@@ -43,7 +53,7 @@ void Waves::setSine()
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 			// Calculate the angle in radians
-		    angle1 = 2 * M_PI * frequency1 * static_cast<double>(i) / waveFormRes;
+		    angle1 = 2 * M_PI * frequency1 * (i/waveFormRes);//static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
 		    sample.signalLocations[i] = (amplitude1 * std::sin(angle1));
 		}
@@ -54,7 +64,7 @@ void Waves::setSine()
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 			// Calculate the angle in radians
-		    angle2 = 2 * M_PI * frequency2 * static_cast<double>(i) / waveFormRes;
+		    angle2 = 2 * M_PI * frequency2 * (i/waveFormRes);//static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
 		    sample.signalLocations[i] = (amplitude2 * std::sin(angle2));
 		}
@@ -62,13 +72,34 @@ void Waves::setSine()
 }
 void Waves::setSquare()
 {
-	double period;
+	signalInfo sample;
+	/*double period;
 	double halfPeriod;
 	period = 1/frequency1;
-	halfPeriod = period/2;
+	halfPeriod = period/2;*/
+	//don't use period or frequency only use amplitude to control height
+	//only goes down to zero
+	//pass frequency to shane
+	if(waveType1 == SQUARE and followerMode == false)
+		{
+			for (uint32_t i = 0; i < waveFormRes; i++)
+			{
+				if(i<=(waveFormRes/2))
+				{
+					sample.signalLocations[i] = amplitude1;
+				}
+				else
+				{
+					sample.signalLocations[i] = 0;
+				}
+			}
+		}
 }
 
-void Waves::setPulse(){}
+void Waves::setPulse()
+{
+	//waveFormRes*.1 = amplitude1;
+}
 
 void Waves::setDelay(uint8_t k){}
 
