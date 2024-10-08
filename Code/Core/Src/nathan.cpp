@@ -7,7 +7,7 @@
 
 #include "allIncludes.h"
 
-KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, Semaphore *KnobSemaphoreI){
+KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2){
 
 }
 

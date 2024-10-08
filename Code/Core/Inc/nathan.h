@@ -13,7 +13,6 @@
 class KnobDriver
 {
 private:
-	Semaphore *KnobSemaphoreInstance;
 	GPIO_TypeDef* gpio_name_1;
 	uint8_t pin_number_1;
 	GPIO_TypeDef* gpio_name_2;
@@ -21,7 +20,7 @@ private:
 	bool KnobCurrentStatePin1 = false;
 	bool KnobCurrentStatePin2 = false;
 public:
-	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, Semaphore *KnobSemaphoreI);
+	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
 	void KnobStateMachine();
 };
 
@@ -59,7 +58,7 @@ class InputDriver
 	inputQueue *inputQueueInstance;
 	Semaphore *KnobSemaphoreInstance;
 public:
-	InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI,ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI,Semaphore *KnobSemaphoreI);
+	InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI,Semaphore *KnobSemaphoreI);
 	void checkForUpdates();
 };
 
