@@ -63,13 +63,13 @@ enum WaveShape{SINE, SQUARE, PULSE, ECHO};
 
 struct inputValues
 	{
-		bool ChannelSel;
-		uint8_t ModeSel;
-		uint32_t AmpValue1;
-		uint32_t FreqValue1;
-		uint32_t AmpValue2;
-		uint32_t FreqValue2;
-		uint32_t DelayValue2;
+		int8_t Switch;
+		bool isButtonPressed;
+		int8_t AmpKnob1;
+		int8_t FreqKnob1;
+		int8_t AmpKnob2;
+		int8_t FreqKnob2;
+		int8_t DelayKnob2;
 	};
 
 struct signalInfo{
