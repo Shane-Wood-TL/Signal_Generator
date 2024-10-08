@@ -130,16 +130,14 @@ void display::getNewValues(){
 	writeBuffer();
 }
 
-dacDriver::dacDriver(dacSetup *dacValues, DMA_HandleTypeDef *DMAchI){
+dacDriver::dacDriver(dacSetup *dacValues){
 	hdac = dacValues->hdacI;
 	DacChannel = dacValues->DacChannel1I;
 	timerInstance = dacValues->timer1I;
 	signalQueueInstance = dacValues->channel1I;
-	DMAch = DMAchI;
 
 	//ensure that something is in current signal
 	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations, waveFormRes, DAC_ALIGN_12B_R);
-	//HAL_DMA_Start_IT(DMAch,*(currentSignal.signalLocations), (uint32_t)&(DAC1->DHR12R1),waveFormRes);
 }
 
 void dacDriver::checkQueue(){
