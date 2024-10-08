@@ -17,11 +17,11 @@ private:
 	uint8_t pin_number_1;
 	GPIO_TypeDef* gpio_name_2;
 	uint8_t pin_number_2;
-	bool KnobCurrentStatePin1 = false;
-	bool KnobCurrentStatePin2 = false;
+	bool KnobCurrentStatePin1;
+	bool KnobCurrentStatePin2;
 public:
 	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
-	void KnobStateMachine();
+	void UpdateKnob();
 };
 
 class ButtonDriver
@@ -30,10 +30,10 @@ private:
 	Semaphore *ButtonSemaphoreInstance;
 	GPIO_TypeDef* gpio_name;
 	uint8_t pin_number;
-	bool ButtonCurrentState = false;
+	bool ButtonCurrentState;
 public:
 	ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI);
-	void ButtonStateMachine();
+	void UpdateButton();
 };
 
 class SwitchDriver
@@ -42,10 +42,10 @@ private:
 	Semaphore *SwitchSemaphoreInstance;
 	GPIO_TypeDef* gpio_name;
 	uint8_t pin_number;
-	bool SwitchCurrentState = false;
+	bool SwitchCurrentState;
 public:
 	SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI);
-	void SwitchStateMachine();
+	void UpdateSwitch();
 };
 
 class InputDriver
