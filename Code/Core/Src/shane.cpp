@@ -74,6 +74,17 @@ void display::writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos){
 	return;
 }
 
+void display::writeSymbol(const uint32_t *symbol, uint8_t xPos, uint8_t yPos){
+	for (int i = 0; i < 14; i++) { //14 tall
+		        for (int j = 0; j < 20; j++) { // 20 wide
+		            if ((symbol[i]) & (1 << (20 - j))) {
+		                drawPixel(xPos+j,yPos+i,true);
+		            }
+		        }
+		    }
+		return;
+}
+
 //empties buffer so that new data can be put into it
 void display::clearBuffer(){
 	for(uint16_t i = 0; i <1024;i++){
@@ -124,9 +135,91 @@ void display::drawWords(){
 		writeLetter('m',15,47);
 		writeLetter('p',31,47);
 }
+void display::convertAmp(signalInfo *signal, uint8_t Channel){
+	uint8_t row;
+	if(Channel==0){
+		row = 0;
+	}else{
+		row = 31;
+	}
+	uint16_t place0 = uint16_t(signal->amp*3300/4095);
+	uint8_t place1= (uint8_t)(place0/1000);
+	uint8_t place2 = (uint8_t)((place0-place1*1000)/100);
+	uint8_t place3 = (uint8_t)((place0-place1*1000-place2*100)/10);
 
+	writeLetter('0'+(place1),47,row+16);
+	writeLetter('.',59,row+16);
+	writeLetter('0'+(place2),71,row+16);
+	writeLetter('0'+(place3),83,row+16);
+}
+
+
+
+void display::convertFreq(signalInfo *signal, uint8_t Channel){
+	uint8_t row;
+	if(Channel==0){
+		row = 0;
+	}else{
+		row = 31;
+	}
+
+	uint32_t currentFreq = signal->frequency;
+	uint32_t tempSums[4];
+	uint8_t finalValues[5];
+
+	finalValues[0] = uint8_t(currentFreq/10000);
+	tempSums[0]=finalValues[0]*10000;
+
+	finalValues[1] = uint8_t((currentFreq-tempSums[0])/1000);
+	tempSums[1] = tempSums[0] + finalValues[1]*1000;
+	finalValues[2] = uint8_t((currentFreq-tempSums[1])/100);
+	tempSums[2] = tempSums[1] + finalValues[2]*100;
+	finalValues[3] = uint8_t((currentFreq-tempSums[2])/10);
+	tempSums[3] = tempSums[2] + finalValues[3]*10;
+	finalValues[4] = uint8_t((currentFreq-tempSums[3]));
+
+	uint8_t firstPlace = 4;
+	uint8_t freqNumberPositions[] = {67,79,91,103,115};
+	for(uint8_t i = 0;i<5;i++){
+		if(finalValues[i]!=0){
+			firstPlace = i;
+			break;
+		}
+	}
+	for (int i = firstPlace; i < 5; i++) {
+	        writeLetter('0' + finalValues[i], freqNumberPositions[i], row);
+	}
+}
+
+
+
+
+void display::displaySignalType(signalInfo *signal, uint8_t Channel){
+	uint8_t row = 16;
+	if (Channel == 1){
+		row = 48;
+	}
+	if(signal->wave==SINE){
+		writeSymbol(mainFont.getSineVis(), 102, row);
+	}else if(signal->wave==SQUARE){
+		writeSymbol(mainFont.getSquareVis(), 102, row);
+	}else if(signal->wave==PULSE){
+		writeSymbol(mainFont.getPulseVis(), 102, row);
+	}
+}
 void display::getNewValues(){
+	displayInfo displayedInfo;
+	displayQueueInstance->dequeue(&displayedInfo);
+	convertFreq(displayedInfo.ChannelAInfo, 0);
+	convertAmp(displayedInfo.ChannelAInfo, 0);
+	displaySignalType(displayedInfo.ChannelAInfo,0);
+
+	convertFreq(displayedInfo.ChannelBInfo, 1);
+	convertAmp(displayedInfo.ChannelBInfo, 1);
+	displaySignalType(displayedInfo.ChannelBInfo,1);
+
 	drawWords(); //temporary
+
 	writeBuffer();
 }
 
@@ -176,6 +269,8 @@ outputDriver::outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacS
 
 	HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
 	HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
+	soonDisplayInfo={DACchannel1->getSignalInfo(),DACchannel2->getSignalInfo()};
+	displayInfoQI->enqueue(soonDisplayInfo);
 	//non hal method
 //	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 //	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN;
@@ -269,3 +364,15 @@ font::font(){
 const uint16_t* font::getLetter(uint8_t letter){
 	return fontMap[(uint8_t)letter];
 }
+
+const uint32_t* font::getSineVis(){
+	return sineWaveVis;
+}
+const uint32_t* font::getSquareVis(){
+	return squareWaveVis;
+}
+const uint32_t* font::getPulseVis(){
+	return pulseWaveVis;
+}
+
+

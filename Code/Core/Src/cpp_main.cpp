@@ -16,10 +16,12 @@ extern TIM_HandleTypeDef htim6;
 
 
 
+
 void cpp_main(void){
 	//baseWaves waves;
 
 	//set up the queues
+	inputQueue inputQueueInstance;
 	signalQueue channel1;
 	signalQueue channel2;
 
@@ -32,7 +34,7 @@ void cpp_main(void){
 	//a starting signal will need to be created + enqueued here
 	//this will need to occur in someone else's code at some point
 	//channel1.enqueue(*(waves.getSinePlot()));
-	//channel2.enqueue(*(waves.getSinePlot()));
+	//channel2.enqueue(*(waves.getSquarePlot()));
 
 
 

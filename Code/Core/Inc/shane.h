@@ -53,6 +53,7 @@ private:
 
 	//write a letter to the display buffer
 	void writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos);
+	void writeSymbol(const uint32_t *symbol, uint8_t xPos, uint8_t yPos);
 
 
 	//empties buffer so that new data can be put into it
@@ -60,6 +61,10 @@ private:
 
 	void writeBuffer();
 	void drawWords();
+	void convertFreq(signalInfo *signal, uint8_t Channel);
+	void convertAmp(signalInfo *signal, uint8_t Channel);
+
+	void displaySignalType(signalInfo *signal, uint8_t Channel);
 public:
 	display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI);//dacDriver *dac0I,dacDriver *dac1I);
 	//writes buffer to the display
@@ -75,6 +80,7 @@ class outputDriver{
 	dacDriver *DACchannel1;
 	dacDriver *DACchannel2;
 	displayQueue *displayInfoQ;
+	displayInfo soonDisplayInfo;
 public:
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI);
 	void update();
