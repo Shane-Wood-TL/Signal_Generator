@@ -73,32 +73,71 @@ void Waves::setSine()
 void Waves::setSquare()
 {
 	signalInfo sample;
-	/*double period;
-	double halfPeriod;
-	period = 1/frequency1;
-	halfPeriod = period/2;*/
-	//don't use period or frequency only use amplitude to control height
-	//only goes down to zero
-	//pass frequency to shane
+	update();
 	if(waveType1 == SQUARE and followerMode == false)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-			for (uint32_t i = 0; i < waveFormRes; i++)
+			if(i<=(waveFormRes/2))
 			{
-				if(i<=(waveFormRes/2))
-				{
-					sample.signalLocations[i] = amplitude1;
-				}
-				else
-				{
-					sample.signalLocations[i] = 0;
-				}
+				sample.signalLocations[i] = amplitude1;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
 			}
 		}
+	}
+
+	if(waveType2 == SQUARE and followerMode == false)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes/2))
+			{
+				sample.signalLocations[i] = amplitude2;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
 }
 
 void Waves::setPulse()
 {
-	//waveFormRes*.1 = amplitude1;
+	signalInfo sample;
+	update();
+	if(waveType1 == PULSE and followerMode == false)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes*0.1))
+			{
+				sample.signalLocations[i] = amplitude1;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
+
+	if(waveType2 == PULSE and followerMode == false)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes*0.1))
+			{
+				sample.signalLocations[i] = amplitude2;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
 }
 
 void Waves::setDelay(uint8_t k){}
@@ -118,7 +157,6 @@ bool Semaphore::enqueue(bool msg) {
 	}
 	return ok;
 }
-
 
 bool Semaphore::dequeue(bool *msg) {
 	bool ok = false;
