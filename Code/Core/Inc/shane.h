@@ -60,7 +60,8 @@ private:
 	void clearBuffer();
 
 	void writeBuffer();
-	void drawWords();
+	void drawWordsNorm();
+	void drawWordsShift();
 	void convertFreq(signalInfo *signal, uint8_t Channel);
 	void convertAmp(signalInfo *signal, uint8_t Channel);
 

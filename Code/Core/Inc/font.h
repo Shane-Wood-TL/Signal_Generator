@@ -9,10 +9,12 @@
 #define INC_FONT_H_
 #include "allIncludes.h"
 
-
+/**
+ * @brief 12x16 pixel font.
+ */
 class font{
 private:
-	//all letters
+
 	const uint16_t zero[16] = {
 	0x03F0, //001111110000,
 	0x03F0, //001111110000,
@@ -1340,13 +1342,56 @@ private:
 	0x0000, //00000000000000000000
 	};
 
-	const uint16_t *fontMap[128] = {0}; //ASCII table
+	//starting at all 0's so that if a non-existant char is attempted to be used
+	//it will just display a blank
+	const uint16_t *fontMap[128] = {nullptr}; //ASCII table
+	/**
+		* @brief Populates the fontMap array with values for each
+		* letter in the font using the private member variables
+		* , where the indexes are ASCII values.
+	 	*
+	 	* This allows for fontMap to be indexed using chars (uint8_t) to acquire
+	 	* the font data for a single letter or symbol
+	 	*/
 	void initializeFontMap();
+    /**
+    * @brief Populates the font map
+    */
 public:
+	/**
+	* @brief The constructor for the font class
+	*/
 	font();
+
+	/**
+	* @brief returns the font data for a single letter
+	*
+	*
+	* @param letter : uint8_t Is the ASCII value for a letter in the font
+	* @return const uint16_t*, A pointer to the data where the font for letter is located
+	*/
 	const uint16_t* getLetter(uint8_t letter);
+
+	/**
+	* @brief returns the font data needed to draw a sine wave
+	*
+	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	*/
 	const uint32_t* getSineVis();
+
+	/**
+	* @brief returns the font data needed to draw a square wave
+	*
+	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	*/
 	const uint32_t* getSquareVis();
+
+
+	/**
+	* @brief returns the font data needed to draw a pulse wave
+	*
+	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	*/
 	const uint32_t* getPulseVis();
 };
 
