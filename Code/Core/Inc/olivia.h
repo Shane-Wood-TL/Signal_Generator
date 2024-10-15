@@ -27,7 +27,8 @@ class Waves
     	uint16_t amplitude1;
     	uint16_t frequency2;
     	uint16_t amplitude2;
-    	bool followerMode;
+    	int8_t followerMode;//switch
+    	bool waveSelect;//button
     	uint32_t delay;
     	enum WaveShape waveType1;
     	enum WaveShape waveType2;

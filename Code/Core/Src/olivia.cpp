@@ -16,25 +16,70 @@ Waves::~Waves(){}
 void Waves::update()
 {
 	inputValues values;
-	values.Switch = false;
+
+	values.Switch = 0;
 	values.AmpKnob1 = 0;
 	values.AmpKnob2 = 0;
 	values.FreqKnob1 = 0;
 	values.FreqKnob2 = 0;
 	values.DelayKnob2 = 0;
-	followerMode = values.Switch;
-	//figure out modeSel(enum WaveShape
-	//enum WaveShape waveType1;
-	//waveType1 = values.ModeSel;
+	values.isButtonPressed = false;
+	followerMode = values.Switch;//-1 = no change, 0 = false(independent), 1 = true(follow)
 	amplitude1 = values.AmpKnob1;
 	amplitude2 = values.AmpKnob2;
 	frequency1 = values.FreqKnob1;
 	frequency2 = values.FreqKnob2;
 	delay = values.DelayKnob2;
-	//switch{waveShape}
-	//case SINE:
-		//default
+	waveSelect = values.isButtonPressed;
+	if(waveType1 == SINE and waveSelect == false)
+	{
+		waveType1 = SINE;
+	}
+	else if(waveType1 == SQUARE and waveSelect == false)
+	{
+		waveType1 =SQUARE;
+	}
+	else if(waveType1 == PULSE and waveSelect == false)
+	{
+		waveType1 = PULSE;
+	}
+	else if(waveType1 == SINE and waveSelect == true)
+	{
+		waveType1 = SQUARE;
+	}
+	else if(waveType1 == SQUARE and waveSelect == true)
+	{
+		waveType1 = PULSE;
+	}
+	else//(waveType1 == PULSE and waveSelect == true)
+	{
+		waveType1 = SINE;
+	}
 
+	if(waveType2 == SINE and waveSelect == false)
+	{
+		waveType2 = SINE;
+	}
+	else if(waveType2 == SQUARE and waveSelect == false)
+	{
+		waveType2 =SQUARE;
+	}
+	else if(waveType2 == PULSE and waveSelect == false)
+	{
+		waveType2 = PULSE;
+	}
+	else if(waveType2 == SINE and waveSelect == true)
+	{
+		waveType2 = SQUARE;
+	}
+	else if(waveType2 == SQUARE and waveSelect == true)
+	{
+		waveType2 = PULSE;
+	}
+	else//(waveType2 == PULSE and waveSelect == true)
+	{
+		waveType2 = SINE;
+	}
 }
 
 void Waves::setSine()
@@ -42,63 +87,96 @@ void Waves::setSine()
 	signalInfo sample;
 	//enum WaveShape waveType1 = SINE;
 	//enum WaveShape waveType2 = SINE;
-	uint32_t angle1;
-	uint32_t angle2;
 
 	update();
 
 	//Channel 1 Sine Wave
-	if(waveType1 == SINE and followerMode == false)
+	if(waveType1 == SINE and followerMode == 0)
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-			// Calculate the angle in radians
-		    angle1 = 2 * M_PI * frequency1 * (i/waveFormRes);//static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
-		    sample.signalLocations[i] = (amplitude1 * std::sin(angle1));
+		    sample.signalLocations[i] = (amplitude1 * std::sin(2 * M_PI * frequency1 * ((double)i / waveFormRes)));
 		}
 	}
 	//Channel 2 Sine Wave
-	if(waveType2 == SINE and followerMode == false)
+	if(waveType2 == SINE and followerMode == 0)
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-			// Calculate the angle in radians
-		    angle2 = 2 * M_PI * frequency2 * (i/waveFormRes);//static_cast<double>(i) / waveFormRes;
 		    // Calculate the sine value and scale by amplitude
-		    sample.signalLocations[i] = (amplitude2 * std::sin(angle2));
+		    sample.signalLocations[i] = (amplitude2 * std::sin(2 * M_PI * frequency2 * ((double)i / waveFormRes)));
 		}
 	}
 }
 void Waves::setSquare()
 {
 	signalInfo sample;
-	/*double period;
-	double halfPeriod;
-	period = 1/frequency1;
-	halfPeriod = period/2;*/
-	//don't use period or frequency only use amplitude to control height
-	//only goes down to zero
-	//pass frequency to shane
-	if(waveType1 == SQUARE and followerMode == false)
+	update();
+	if(waveType1 == SQUARE and followerMode == 0)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-			for (uint32_t i = 0; i < waveFormRes; i++)
+			if(i<=(waveFormRes/2))
 			{
-				if(i<=(waveFormRes/2))
-				{
-					sample.signalLocations[i] = amplitude1;
-				}
-				else
-				{
-					sample.signalLocations[i] = 0;
-				}
+				sample.signalLocations[i] = amplitude1;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
 			}
 		}
+	}
+
+	if(waveType2 == SQUARE and followerMode == 0)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes/2))
+			{
+				sample.signalLocations[i] = amplitude2;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
 }
 
 void Waves::setPulse()
 {
-	//waveFormRes*.1 = amplitude1;
+	signalInfo sample;
+	update();
+	if(waveType1 == PULSE and followerMode == 0)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes*0.1))
+			{
+				sample.signalLocations[i] = amplitude1;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
+
+	if(waveType2 == PULSE and followerMode == 0)
+	{
+		for (uint32_t i = 0; i < waveFormRes; i++)
+		{
+			if(i<=(waveFormRes*0.1))
+			{
+				sample.signalLocations[i] = amplitude2;
+			}
+			else
+			{
+				sample.signalLocations[i] = 0;
+			}
+		}
+	}
 }
 
 void Waves::setDelay(uint8_t k){}
@@ -118,7 +196,6 @@ bool Semaphore::enqueue(bool msg) {
 	}
 	return ok;
 }
-
 
 bool Semaphore::dequeue(bool *msg) {
 	bool ok = false;
