@@ -45,7 +45,11 @@ void cpp_main(void){
 	dacDriver DriverCh1(&DACchannel1);
 	dacDriver DriverCh2(&DACchannel2);
 
-	static outputDriver outputDriverI(&DriverCh1, &DriverCh2, &DACchannel1, &DACchannel2, &displayInfo);
+	outputDriver outputDriverI(&DriverCh1, &DriverCh2, &DACchannel1, &DACchannel2, &displayInfo);
+
+	//simple memory barrier to catch memory issues (indexing past where another objects were allocated to)
+	uint32_t memoryBarrier[32] = {1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111};
+	memoryChecker mainMemoryChecker(memoryBarrier);
 
 	//draw freq + amp to the display
 	mainDisplay.getNewValues();

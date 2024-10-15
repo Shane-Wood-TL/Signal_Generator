@@ -2,7 +2,7 @@
  * shane.h
  *
  *  Created on: Sep 24, 2024
- *      Author: townl
+ *      Author: Shane Wood
  */
 
 #ifndef INC_SHANE_H_
@@ -49,22 +49,23 @@ private:
 	void sendData(uint8_t *data, size_t len);
 
 	//draw a pixel to the display buffer
-	void drawPixel(uint8_t x, uint8_t y,bool color);
+	void drawPixel(const uint8_t x, const uint8_t y,const bool color);
 
 	//write a letter to the display buffer
-	void writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos);
-	void writeSymbol(const uint32_t *symbol, uint8_t xPos, uint8_t yPos);
+	void writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_t yPos);
+	void writeSymbol(const uint32_t *symbol, const uint8_t xPos, const uint8_t yPos);
 
 
 	//empties buffer so that new data can be put into it
 	void clearBuffer();
 
 	void writeBuffer();
-	void drawWords();
-	void convertFreq(signalInfo *signal, uint8_t Channel);
-	void convertAmp(signalInfo *signal, uint8_t Channel);
-
-	void displaySignalType(signalInfo *signal, uint8_t Channel);
+	void drawWordsNorm();
+	void drawWordsShift();
+	void convertFreq(const signalInfo *signal, const uint8_t Channel);
+	void convertAmp(const signalInfo *signal, const uint8_t Channel);
+	void displaySignalType(const signalInfo *signal, const uint8_t Channel);
+	void convertShift(const signalInfo *signal);
 public:
 	display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI);//dacDriver *dac0I,dacDriver *dac1I);
 	//writes buffer to the display

@@ -2,7 +2,7 @@
  * queue.h
  *
  *  Created on: Sep 26, 2024
- *      Author: townl
+ *      Author: Shane Wood
  */
 
 #ifndef INC_QUEUE_H_
@@ -10,11 +10,6 @@
 
 
 #include "allIncludes.h"
-
-//Title: Circular Queue in C++
-//Name:  Shane Wood
-//Class: ECE 373 Embedded Systems
-//Date:  9/19/2024
 
 
 

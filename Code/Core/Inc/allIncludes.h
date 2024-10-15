@@ -106,6 +106,6 @@ struct dacSetup{
 
 #include "shane.h"
 
-
+#include "memoryBarrier.h"
 
 #endif /* SRC_ALLINCLUDES_H_ */
