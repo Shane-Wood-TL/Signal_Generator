@@ -2,7 +2,8 @@
  * shane.cpp
  *
  *  Created on: Sep 24, 2024
- *      Author: townl
+ *      Author: Shane Wood
+ *
  */
 
 #include "allIncludes.h"
@@ -34,18 +35,37 @@ void display::initDisplay() {
 
 //send commands to the display
 void display::sendCommand(uint8_t command) {
-	HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x00, 1, &command, 1,
+	HAL_StatusTypeDef writing = HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x00, 1, &command, 1,
 			HAL_MAX_DELAY);
-
+	switch(writing){
+	case HAL_ERROR:{
+		NVIC_SystemReset();
+		break;
+	}
+	default:{
+		return;
+		break;
+	}
+	}
 }
 
 //set write data to the display
 void display::sendData(uint8_t *data, size_t len) {
-	HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x40, 1, data, len, HAL_MAX_DELAY);
+	HAL_StatusTypeDef writing = HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x40, 1, data, len, HAL_MAX_DELAY);
+	switch(writing){
+	case HAL_ERROR:{
+		NVIC_SystemReset();
+		break;
+	}
+	default:{
+		return;
+		break;
+	}
+	}
 }
 
 //draw a pixel to the display buffer
-void display::drawPixel(uint8_t x, uint8_t y, bool color) {
+void display::drawPixel(const uint8_t x, const uint8_t y, const bool color) {
 	if (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes) {
 		return;  //drawing a pixel out of range
 	}
@@ -59,7 +79,7 @@ void display::drawPixel(uint8_t x, uint8_t y, bool color) {
 }
 
 //write a letter to the display buffer
-void display::writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos) {
+void display::writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_t yPos) {
 	const uint16_t *matrix = mainFont.getLetter(letter);
 	if (matrix != nullptr) { //ensure that font exists before writing
 		for (int i = 0; i < 16; i++) { //16 tall
@@ -73,7 +93,7 @@ void display::writeLetter(uint8_t letter, uint8_t xPos, uint8_t yPos) {
 	return;
 }
 
-void display::writeSymbol(const uint32_t *symbol, uint8_t xPos, uint8_t yPos) {
+void display::writeSymbol(const uint32_t *symbol, const uint8_t xPos, const uint8_t yPos) {
 	for (int i = 0; i < 14; i++) { //14 tall
 		for (int j = 0; j < 20; j++) { // 20 wide
 			if ((symbol[i]) & (1 << (20 - j))) {
@@ -93,7 +113,7 @@ void display::clearBuffer() {
 }
 
 //set up the display
-display::display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI) {
+display::display(I2C_HandleTypeDef *hi2c1I,displayQueue *displayQueueI) {
 	hi2c1 = hi2c1I;
 	displayQueueInstance = displayQueueI;
 	initDisplay();
@@ -148,7 +168,7 @@ void display::drawWordsShift() {
 	writeLetter('t', 63, 31);
 }
 
-void display::convertAmp(signalInfo *signal, uint8_t Channel) {
+void display::convertAmp(const signalInfo *signal, const uint8_t Channel) {
 	uint8_t row;
 	if (Channel == 0) {
 		row = 0;
@@ -166,7 +186,7 @@ void display::convertAmp(signalInfo *signal, uint8_t Channel) {
 	writeLetter('0' + (place3), 83, row + 16);
 }
 
-void display::convertFreq(signalInfo *signal, uint8_t Channel) {
+void display::convertFreq(const signalInfo *signal, const uint8_t Channel) {
 	uint8_t row;
 	if (Channel == 0) { //handle ch1 and ch2 frequencies
 		row = 0;
@@ -174,7 +194,7 @@ void display::convertFreq(signalInfo *signal, uint8_t Channel) {
 		row = 31;
 	}
 
-	uint32_t currentFreq = signal->frequency;
+	const uint32_t currentFreq = signal->frequency;
 	uint32_t tempSums[4];
 	uint8_t finalValues[5];
 
@@ -190,20 +210,48 @@ void display::convertFreq(signalInfo *signal, uint8_t Channel) {
 	finalValues[4] = uint8_t((currentFreq - tempSums[3]));
 
 	uint8_t firstPlace = 4;
-	uint8_t freqNumberPositions[] = { 67, 79, 91, 103, 115 };
+	const uint8_t freqNumberPositions[] = { 67, 79, 91, 103, 115 };
 	for (uint8_t i = 0; i < 5; i++) {
 		if (finalValues[i] != 0) {
 			firstPlace = i;
 			break;
 		}
 	}
-	for (int i = firstPlace; i < 5; i++) {
+	for (uint8_t i = firstPlace; i < 5; i++) {
 		writeLetter('0' + finalValues[i], freqNumberPositions[i], row);
 	}
 	return;
 }
 
-void display::displaySignalType(signalInfo *signal, uint8_t Channel) {
+void display::convertShift(const signalInfo *signal){
+	if(signal->wave == ECHO){
+		//attempting to keep as much resolution as possible
+		//180 * 360 < 2^16 -1 therefore the uint16_t will not be fully used
+		//but it will also allow for slightly more resolution than just whole numbers
+		uint16_t currentShift = (uint16_t)((signal->shiftAmount)*(360.0/waveFormRes));
+		if(currentShift > 360){
+			return;
+		}
+		uint8_t finalValues[3];
+		finalValues[0] = (uint8_t)(currentShift/100);
+		finalValues[1] = (uint8_t)((currentShift-finalValues[0]*100) / 10);
+		finalValues[2] = (uint8_t)(currentShift-finalValues[0]*100-finalValues[1]*10);
+		uint8_t firstPlace = 2;
+		const uint8_t shiftNumberPositions[] = {75, 87, 99};
+		for (uint8_t i = 0; i < 3; i++) {
+			if (finalValues[i] != 0) {
+				firstPlace = i;
+				break;
+			}
+		}
+		for (uint8_t i = firstPlace; i < 3; i++) {
+			writeLetter('0' + finalValues[i], shiftNumberPositions[i], 31);
+		}
+	}else{
+		return;
+	}
+}
+void display::displaySignalType(const signalInfo *signal, const uint8_t Channel) {
 	uint8_t row = 16;
 	if (Channel == 1) {
 		row = 48;
@@ -237,6 +285,7 @@ void display::getNewValues() {
 			displaySignalType(displayedInfo.ChannelBInfo, 1);
 			drawWordsNorm(); //temporary
 		} else {
+			convertShift(displayedInfo.ChannelBInfo);
 			drawWordsShift();
 			assert(
 					displayedInfo.ChannelAInfo->amp
@@ -259,8 +308,19 @@ dacDriver::dacDriver(dacSetup *dacValues) {
 	signalQueueInstance = dacValues->channel1I;
 
 	//ensure that something is in current signal
-	HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations,
+	HAL_StatusTypeDef DMA =  HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations,
 			waveFormRes, DAC_ALIGN_12B_R);
+	switch(DMA){
+	case HAL_ERROR:{
+		//DMA failed to start, not recoverable
+		NVIC_SystemReset();
+		break;
+	}
+	default:{
+		return;
+		break;
+	}
+	}
 }
 
 void dacDriver::checkQueue() {
@@ -300,8 +360,21 @@ outputDriver::outputDriver(dacDriver *DACchannel1I, dacDriver *DACchannel2I,
 
 	update();
 
-	HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
-	HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
+	//hal version
+	//HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
+	//HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
+
+	//non hal version, TOO MANY ->
+	//DACChannel1Setup->timer1I->Instance->CR1 |= TIM_CR1_CEN;
+	//DACChannel2Setup->timer1I->Instance->CR1 |= TIM_CR1_CEN;
+
+
+	TIM_HandleTypeDef *Channel1Timer = DACChannel1Setup->timer1I;
+	TIM_HandleTypeDef *Channel2Timer = DACChannel2Setup->timer1I;
+	Channel1Timer->Instance->CR1 |= TIM_CR1_CEN;
+	Channel2Timer->Instance->CR1 |= TIM_CR1_CEN;
+
+
 
 	signalInfo* channel1Info = DACchannel1->getSignalInfo();
 	signalInfo* channel2Info = DACchannel2->getSignalInfo();
@@ -398,7 +471,7 @@ font::font() {
 	initializeFontMap();
 }
 
-const uint16_t* font::getLetter(uint8_t letter) {
+const uint16_t* font::getLetter(const uint8_t letter) {
 	return fontMap[(uint8_t) letter];
 }
 

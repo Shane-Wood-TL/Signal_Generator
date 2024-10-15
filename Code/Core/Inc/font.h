@@ -2,7 +2,7 @@
  * font.h
  *
  *  Created on: Oct 6, 2024
- *      Author: townl
+ *      Author: Shane Wood
  */
 
 #ifndef INC_FONT_H_
@@ -1367,10 +1367,10 @@ public:
 	* @brief returns the font data for a single letter
 	*
 	*
-	* @param letter : uint8_t Is the ASCII value for a letter in the font
+	* @param letter : const uint8_t Is the ASCII value for a letter in the font
 	* @return const uint16_t*, A pointer to the data where the font for letter is located
 	*/
-	const uint16_t* getLetter(uint8_t letter);
+	const uint16_t* getLetter(const uint8_t letter);
 
 	/**
 	* @brief returns the font data needed to draw a sine wave
