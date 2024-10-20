@@ -21,7 +21,7 @@
 #define ampKnobA PA_11 //D10
 #define ampKnobB PB_5 //D11
 #define shiftKnobA PA_7 //A6
-#define shiftKnobB PA_6 //
+#define shiftKnobB PA_6 //A5
 
 //Constants
 #define M_PI 3.14159
@@ -103,7 +103,7 @@ struct dacSetup{
 #include "olivia.h"
 #include "nathan.h"
 
-
+#include "stm32l4xx_ll_i2c.h"
 #include "shane.h"
 
 #include "memoryBarrier.h"

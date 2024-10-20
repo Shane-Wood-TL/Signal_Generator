@@ -9,6 +9,7 @@
 #include "allIncludes.h"
 
 void display::initDisplay() {
+	//LL_I2C_GenerateStartCondition(I2C1);
 	sendCommand(0xAE);
 	sendCommand(0xA8);  //Set MUX ratio
 	sendCommand(0x3F);  //Set MUX ratio, 0x1F for 128x32 and 0x3F for 128x64
