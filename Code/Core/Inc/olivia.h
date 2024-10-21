@@ -17,7 +17,7 @@ class Waves
     	void setSine();
     	void setSquare();
     	void setPulse();
-    	void setDelay(uint8_t k);
+    	uint16_t setDelay(uint8_t k);
     	void update();
 
 	private:
@@ -27,7 +27,7 @@ class Waves
     	uint16_t amplitude1;
     	uint16_t frequency2;
     	uint16_t amplitude2;
-    	int8_t followerMode;//switch
+    	int8_t channelSelect;//switch
     	bool waveSelect;//button
     	uint32_t delay;
     	enum WaveShape waveType1;
