@@ -24,121 +24,97 @@ void Waves::update()
 	values.FreqKnob2 = 0;
 	values.DelayKnob2 = 0;
 	values.isButtonPressed = false;
-	followerMode = values.Switch;//-1 = no change, 0 = false(independent), 1 = true(follow)
+	channelSelect = values.Switch;//0= ch 1, 1 = ch 2
 	amplitude1 = values.AmpKnob1;
 	amplitude2 = values.AmpKnob2;
 	frequency1 = values.FreqKnob1;
 	frequency2 = values.FreqKnob2;
 	delay = values.DelayKnob2;
 	waveSelect = values.isButtonPressed;
-	if(waveType1 == SINE and waveSelect == false)
-	{
+
+	if(waveType1 == SINE and waveSelect == false and channelSelect == 0){
 		waveType1 = SINE;
-	}
-	else if(waveType1 == SQUARE and waveSelect == false)
-	{
+	}else if(waveType1 == SQUARE and waveSelect == false and channelSelect == 0){
 		waveType1 =SQUARE;
-	}
-	else if(waveType1 == PULSE and waveSelect == false)
-	{
+	}else if(waveType1 == PULSE and waveSelect == false and channelSelect == 0){
 		waveType1 = PULSE;
-	}
-	else if(waveType1 == SINE and waveSelect == true)
-	{
+	}else if(waveType1 == SINE and waveSelect == true and channelSelect == 0){
 		waveType1 = SQUARE;
-	}
-	else if(waveType1 == SQUARE and waveSelect == true)
-	{
+	}else if(waveType1 == SQUARE and waveSelect == true and channelSelect == 0){
 		waveType1 = PULSE;
-	}
-	else//(waveType1 == PULSE and waveSelect == true)
-	{
+	}else{//(waveType1 == PULSE and waveSelect == true)
 		waveType1 = SINE;
 	}
 
-	if(waveType2 == SINE and waveSelect == false)
-	{
+	if(waveType2 == SINE and waveSelect == false and channelSelect == 1){
 		waveType2 = SINE;
-	}
-	else if(waveType2 == SQUARE and waveSelect == false)
-	{
-		waveType2 =SQUARE;
-	}
-	else if(waveType2 == PULSE and waveSelect == false)
-	{
-		waveType2 = PULSE;
-	}
-	else if(waveType2 == SINE and waveSelect == true)
-	{
+	}else if(waveType2 == SQUARE and waveSelect == false and channelSelect == 1){
 		waveType2 = SQUARE;
-	}
-	else if(waveType2 == SQUARE and waveSelect == true)
-	{
+	}else if(waveType2 == PULSE and waveSelect == false and channelSelect == 1){
 		waveType2 = PULSE;
-	}
-	else//(waveType2 == PULSE and waveSelect == true)
-	{
+	}else if(waveType2 == ECHO and waveSelect == false and channelSelect == 1){
+		waveType2 = ECHO;
+	}else if(waveType2 == SINE and waveSelect == true and channelSelect == 1){
+		waveType2 = SQUARE;
+	}else if(waveType2 == SQUARE and waveSelect == true and channelSelect == 1){
+		waveType2 = PULSE;
+	}else if(waveType2 == PULSE and waveSelect == true and channelSelect == 1){
+		waveType2 = ECHO;
+	}else{//(waveType2 == PULSE and waveSelect == true)
 		waveType2 = SINE;
 	}
 }
 
 void Waves::setSine()
 {
-	signalInfo sample;
+	signalInfo sample1;
+	signalInfo sample2;
 	//enum WaveShape waveType1 = SINE;
 	//enum WaveShape waveType2 = SINE;
 
 	update();
+	sample2.shiftAmount = setDelay(delay);
 
 	//Channel 1 Sine Wave
-	if(waveType1 == SINE and followerMode == 0)
+	if(waveType1 == SINE)
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 		    // Calculate the sine value and scale by amplitude
-		    sample.signalLocations[i] = (amplitude1 * std::sin(2 * M_PI * frequency1 * ((double)i / waveFormRes)));
+		    sample1.signalLocations[i] = (amplitude1 * std::sin(2 * M_PI * frequency1 * ((double)i / waveFormRes)));
 		}
 	}
 	//Channel 2 Sine Wave
-	if(waveType2 == SINE and followerMode == 0)
+	if(waveType2 == SINE)
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
 		    // Calculate the sine value and scale by amplitude
-		    sample.signalLocations[i] = (amplitude2 * std::sin(2 * M_PI * frequency2 * ((double)i / waveFormRes)));
+		    sample2.signalLocations[i] = (amplitude2 * std::sin(2 * M_PI * frequency2 * ((double)i / waveFormRes))+sample2.shiftAmount);
 		}
 	}
 }
 void Waves::setSquare()
 {
-	signalInfo sample;
+	signalInfo sample1;
+	signalInfo sample2;
 	update();
-	if(waveType1 == SQUARE and followerMode == 0)
-	{
-		for (uint32_t i = 0; i < waveFormRes; i++)
-		{
-			if(i<=(waveFormRes/2))
-			{
-				sample.signalLocations[i] = amplitude1;
-			}
-			else
-			{
-				sample.signalLocations[i] = 0;
+	sample2.shiftAmount = setDelay(delay);
+	if(waveType1 == SQUARE){
+		for (uint32_t i = 0; i < waveFormRes; i++){
+			if(i<=(waveFormRes*0.5)){
+				sample1.signalLocations[i] = amplitude1;
+			}else{
+				sample1.signalLocations[i] = 0;
 			}
 		}
 	}
-
-	if(waveType2 == SQUARE and followerMode == 0)
-	{
-		for (uint32_t i = 0; i < waveFormRes; i++)
-		{
-			if(i<=(waveFormRes/2))
-			{
-				sample.signalLocations[i] = amplitude2;
-			}
-			else
-			{
-				sample.signalLocations[i] = 0;
+	if(waveType2 == SQUARE){
+		for (uint32_t i = 0; i < waveFormRes; i++){
+			if(i<=(waveFormRes*0.5)){
+				sample2.signalLocations[i] = amplitude2;
+			}else{
+				sample2.signalLocations[i] = 0;
 			}
 		}
 	}
@@ -146,40 +122,47 @@ void Waves::setSquare()
 
 void Waves::setPulse()
 {
-	signalInfo sample;
+	signalInfo sample1;
+	signalInfo sample2;
 	update();
-	if(waveType1 == PULSE and followerMode == 0)
-	{
-		for (uint32_t i = 0; i < waveFormRes; i++)
-		{
-			if(i<=(waveFormRes*0.1))
-			{
-				sample.signalLocations[i] = amplitude1;
-			}
-			else
-			{
-				sample.signalLocations[i] = 0;
+	sample2.shiftAmount = setDelay(delay);
+	if(waveType1 == PULSE){
+		for (uint32_t i = 0; i < waveFormRes; i++){
+			if(i<=(waveFormRes*0.1)){
+				sample1.signalLocations[i] = amplitude1;
+			}else{
+				sample1.signalLocations[i] = 0;
 			}
 		}
 	}
-
-	if(waveType2 == PULSE and followerMode == 0)
-	{
-		for (uint32_t i = 0; i < waveFormRes; i++)
-		{
-			if(i<=(waveFormRes*0.1))
-			{
-				sample.signalLocations[i] = amplitude2;
-			}
-			else
-			{
-				sample.signalLocations[i] = 0;
+	if(waveType2 == PULSE){
+		for (uint32_t i = 0; i < waveFormRes; i++){
+			if(i<=(waveFormRes*0.1)){
+				sample2.signalLocations[i] = amplitude2;
+			}else{
+				sample2.signalLocations[i] = 0;
 			}
 		}
 	}
 }
 
-void Waves::setDelay(uint8_t k){}
+uint16_t Waves::setDelay(uint8_t k)
+{
+	uint16_t shift;
+	if(waveType1 == SINE and waveType2 == ECHO){
+		waveType2 = SINE;
+		shift = k/8;
+	}else if(waveType1 == SQUARE and waveType2 == ECHO){
+		waveType2 = SQUARE;
+		shift = k/8;
+	}else if(waveType1 == PULSE and waveType2 == ECHO){
+		waveType2 = PULSE;
+		shift = k/8;
+	}else{
+		shift = 0;
+	}
+	return shift;
+}
 
 //Semaphore Class
 bool Semaphore::enqueue(bool msg) {
