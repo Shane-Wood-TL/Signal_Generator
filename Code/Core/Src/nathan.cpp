@@ -69,11 +69,6 @@ void KnobDriver::UpdateKnob(struct inputValues *queue_data){
 	return;
 }
 
-
-
-
-
-
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
 	ButtonSemaphoreInstance = ButtonSemaphoreI;
 	gpio_name = GpioName;
@@ -100,11 +95,6 @@ void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 	return;
 }
 
-
-
-
-
-
 SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI){
 	SwitchSemaphoreInstance = SwitchSemaphoreI;
 	gpio_name = GpioName;
@@ -113,30 +103,20 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 
 void SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 
-	static bool SwitchPreviousState = false;
 	bool SwitchCurrentState;
 
-	if ((gpio_name -> IDR & (1<<pin_number)) == 1) SwitchCurrentState = true;
+	if ((gpio_name -> IDR & (1<<pin_number)) == 0) SwitchCurrentState = true;
 	else SwitchCurrentState = false;
 
-	if ((SwitchCurrentState == true) && (SwitchPreviousState == false)){
+	if (SwitchCurrentState == true){
 		queue_data -> Switch = 1;
-	}
-	else if ((SwitchCurrentState == false) && (SwitchPreviousState == true)){
-		queue_data -> Switch = -1;
 	}
 	else{
 		queue_data -> Switch = 0;
 	}
 
-	SwitchPreviousState = SwitchCurrentState;
-
 	return;
 }
-
-
-
-
 
 InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI, inputQueue *inputQueueInstanceI, Semaphore *KnobSemaphoreI){
 	AmpKnob = AmpKnobI;
@@ -150,13 +130,16 @@ InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver
 
 void InputDriver::checkForUpdates(){
 
-	AmpKnob -> UpdateKnob(queue_data);
-	FreqKnob -> UpdateKnob(queue_data);
-	ShiftKnob -> UpdateKnob(queue_data);
-	channelSwitcher -> UpdateSwitch(queue_data);
-	modeSwitcher -> UpdateButton(queue_data);
-	inputQueueInstance -> enqueue(*queue_data);
-	*queue_data = {0};
+    inputValues queue_data = {0};
+
+	AmpKnob -> UpdateKnob(&queue_data);
+    FreqKnob -> UpdateKnob(&queue_data);
+    ShiftKnob -> UpdateKnob(&queue_data);
+	channelSwitcher->UpdateSwitch(&queue_data);
+	modeSwitcher -> UpdateButton(&queue_data);
+
+	inputQueueInstance -> enqueue(queue_data);
+
 
 	return;
 }

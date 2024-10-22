@@ -34,10 +34,72 @@ void display::initDisplay() {
 	return;
 }
 
+
 //send commands to the display
 void display::sendCommand(uint8_t command) {
 	HAL_StatusTypeDef writing = HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x00, 1, &command, 1,
-			HAL_MAX_DELAY);
+				HAL_MAX_DELAY);
+//	uint32_t delay = HAL_MAX_DELAY;
+//
+//	// Start I2C communication to write to the SSD1306
+//	LL_I2C_HandleTransfer(hi2c1, SSD1306Address, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_SOFTEND, LL_I2C_GENERATE_START_WRITE);
+//
+//	// Wait for the address flag (indicating address is sent)
+//	while (!LL_I2C_IsActiveFlag_ADDR(hi2c1) && delay != 0) {
+//	    delay--;
+//	}
+//	if (delay == 0) {
+//	    // Handle timeout
+//	    return;
+//	}
+//
+//	// Clear the ADDR flag by reading SR registers (specific to STM32, consult the reference manual)
+//	LL_I2C_ClearFlag_ADDR(hi2c1);
+//
+//	// Transmit the control byte (indicating command mode for SSD1306)
+//	LL_I2C_TransmitData8(hi2c1, 0x00);
+//
+//	// Wait for the transmit buffer to be empty
+//	delay = HAL_MAX_DELAY;  // Reset delay
+//	while (!LL_I2C_IsActiveFlag_TXE(hi2c1) && delay != 0) {
+//	    delay--;
+//	}
+//	if (delay == 0) {
+//	    // Handle timeout
+//	    return;
+//	}
+//
+//	// Transmit the command byte (the actual SSD1306 command)
+//	LL_I2C_TransmitData8(hi2c1, command);
+//
+//	// Wait for the transmit buffer to be empty
+//	delay = HAL_MAX_DELAY;
+//	while (!LL_I2C_IsActiveFlag_TXE(hi2c1) && delay != 0) {
+//	    delay--;
+//	}
+//	if (delay == 0) {
+//	    // Handle timeout
+//	    return;
+//	}
+//
+//	// Wait for transfer to complete (the STOP flag)
+//	LL_I2C_GenerateStopCondition(hi2c1);
+//
+//	// Wait until stop condition is generated
+//	delay = HAL_MAX_DELAY;
+//	while (!LL_I2C_IsActiveFlag_STOP(hi2c1) && delay != 0) {
+//	    delay--;
+//	}
+//	if (delay == 0) {
+//	    // Handle timeout
+//	    return;
+//	}
+//
+//	// Clear the STOP flag
+//	LL_I2C_ClearFlag_STOP(hi2c1);
+
+//https://community.st.com/t5/stm32-mcus-products/busy-bus-after-i2c-reading/td-p/327215
+
 	switch(writing){
 	case HAL_ERROR:{
 		NVIC_SystemReset();
@@ -67,9 +129,7 @@ void display::sendData(uint8_t *data, size_t len) {
 
 //draw a pixel to the display buffer
 void display::drawPixel(const uint8_t x, const uint8_t y, const bool color) {
-	if (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes) {
-		return;  //drawing a pixel out of range
-	}
+	assert (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes);
 
 	if (color) {
 		buffer[x + (y / 8) * SSD1306HorizontalRes] |= (1 << (y % 8));
@@ -110,6 +170,7 @@ void display::clearBuffer() {
 	for (uint16_t i = 0; i < 1024; i++) {
 		buffer[i] = 0;
 	}
+	assert(buffer[1023]==0);
 	return;
 }
 
@@ -176,6 +237,8 @@ void display::convertAmp(const signalInfo *signal, const uint8_t Channel) {
 	} else {
 		row = 31;
 	}
+	assert(row == 0 or row==31);
+
 	uint16_t place0 = uint16_t(signal->amp * 3300 / 4095);
 	uint8_t place1 = (uint8_t) (place0 / 1000);
 	uint8_t place2 = (uint8_t) ((place0 - place1 * 1000) / 100);
@@ -194,6 +257,7 @@ void display::convertFreq(const signalInfo *signal, const uint8_t Channel) {
 	} else {
 		row = 31;
 	}
+	assert(row == 0 or row==31);
 
 	const uint32_t currentFreq = signal->frequency;
 	uint32_t tempSums[4];
