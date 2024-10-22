@@ -113,23 +113,20 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 
 void SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 
-	static bool SwitchPreviousState = false;
 	bool SwitchCurrentState;
 
 	if ((gpio_name -> IDR & (1<<pin_number)) == 1) SwitchCurrentState = true;
 	else SwitchCurrentState = false;
 
-	if ((SwitchCurrentState == true) && (SwitchPreviousState == false)){
+	if (SwitchCurrentState == true){
 		queue_data -> Switch = 1;
 	}
-	else if ((SwitchCurrentState == false) && (SwitchPreviousState == true)){
-		queue_data -> Switch = -1;
-	}
-	else{
+	else if (SwitchCurrentState == false){
 		queue_data -> Switch = 0;
 	}
-
-	SwitchPreviousState = SwitchCurrentState;
+	else {
+		queue_data -> Switch = 0;
+	}
 
 	return;
 }
@@ -149,14 +146,14 @@ InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver
 }
 
 void InputDriver::checkForUpdates(){
+    inputValues queue_data = {0};
+	AmpKnob -> UpdateKnob(&queue_data);
+    FreqKnob -> UpdateKnob(&queue_data);
+    ShiftKnob -> UpdateKnob(&queue_data);
+	channelSwitcher->UpdateSwitch(&queue_data);
+	modeSwitcher -> UpdateButton(&queue_data);
+	inputQueueInstance -> enqueue(queue_data);
 
-	AmpKnob -> UpdateKnob(queue_data);
-	FreqKnob -> UpdateKnob(queue_data);
-	ShiftKnob -> UpdateKnob(queue_data);
-	channelSwitcher -> UpdateSwitch(queue_data);
-	modeSwitcher -> UpdateButton(queue_data);
-	inputQueueInstance -> enqueue(*queue_data);
-	*queue_data = {0};
 
 	return;
 }

@@ -66,7 +66,7 @@ class InputDriver
 public:
 	InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI,Semaphore *KnobSemaphoreI);
 	void checkForUpdates();
-	inputValues *queue_data{};
+	inputValues queue_data{};
 };
 
 
