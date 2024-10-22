@@ -5,32 +5,46 @@
  *      Author: townl
  */
 #include "allIncludes.h"
-#include <vector>
+//#include <vector>
 #include <cmath>
 
 //Waves Class (Application Class 1)
-Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue){}
+Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *SignalQueue2)
+{
+	InputQueueInstance = InputQueue;
+	SignalQueueInstance1 = SignalQueue1;
+	SignalQueueInstance2 = SignalQueue2;
+}
 
 Waves::~Waves(){}
 
 void Waves::update()
 {
+	//add sample1 and sample2
 	inputValues values;
-
-	values.Switch = 0;
-	values.AmpKnob1 = 0;
-	values.AmpKnob2 = 0;
-	values.FreqKnob1 = 0;
-	values.FreqKnob2 = 0;
-	values.DelayKnob2 = 0;
-	values.isButtonPressed = false;
-	channelSelect = values.Switch;//0= ch 1, 1 = ch 2
+	//rushes to return if no change
+	if(InputQueueInstance->dequeue(&values)){
+		channelSelect = values.Switch;//0= ch 1, 1 = ch 2
+		//amplitude1 = values.AmpKnob1;
+		//setAmplitude();
+		amplitude2 = values.AmpKnob2;
+		frequency1 = values.FreqKnob1;
+		frequency2 = values.FreqKnob2;
+		delay = values.DelayKnob2;
+		waveSelect = values.isButtonPressed;
+	}else{
+		return;
+	}
+	//update is mini main
+	//this is where you are going to enqueue the signal values
+	//change the knob values to useable values
+	/*channelSelect = values.Switch;//0= ch 1, 1 = ch 2
 	amplitude1 = values.AmpKnob1;
 	amplitude2 = values.AmpKnob2;
 	frequency1 = values.FreqKnob1;
 	frequency2 = values.FreqKnob2;
 	delay = values.DelayKnob2;
-	waveSelect = values.isButtonPressed;
+	waveSelect = values.isButtonPressed;*/
 
 	if(waveType1 == SINE and waveSelect == false and channelSelect == 0){
 		waveType1 = SINE;
@@ -74,7 +88,7 @@ void Waves::setSine()
 
 	update();
 	sample2.shiftAmount = setDelay(delay);
-
+	//pass the frequency to sample1 and sample2
 	//Channel 1 Sine Wave
 	if(waveType1 == SINE)
 	{
@@ -151,7 +165,7 @@ uint16_t Waves::setDelay(uint8_t k)
 	uint16_t shift;
 	if(waveType1 == SINE and waveType2 == ECHO){
 		waveType2 = SINE;
-		shift = k/8;
+		shift = k/8;//32
 	}else if(waveType1 == SQUARE and waveType2 == ECHO){
 		waveType2 = SQUARE;
 		shift = k/8;

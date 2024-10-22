@@ -12,7 +12,7 @@
 class Waves
 {
 	public:
-		Waves(inputQueue *InputQueue, signalQueue *SignalQueue);
+		Waves(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *SignalQueue2);
 		~Waves();
     	void setSine();
     	void setSquare();
@@ -22,7 +22,8 @@ class Waves
 
 	private:
     	inputQueue *InputQueueInstance;
-    	signalQueue *SignalQueueInstance;
+    	signalQueue *SignalQueueInstance1;
+    	signalQueue *SignalQueueInstance2;
     	uint32_t frequency1;
     	uint16_t amplitude1;
     	uint16_t frequency2;
