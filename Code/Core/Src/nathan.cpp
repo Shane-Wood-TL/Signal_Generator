@@ -27,9 +27,14 @@ KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef
 	amp_knob_dec2 = AmpKnobDec2;
 	freq_knob_dec2 = FreqKnobDec2;
 	delay_knob_dec2 = DelayKnobDec2;
+
+	assert(gpio_name_1 != nullptr);
+	assert(gpio_name_2 != nullptr);
 }
 
 void KnobDriver::UpdateKnob(struct inputValues *queue_data){
+
+	assert(queue_data != nullptr);
 
 	static bool PreviousStatePin1 = false;
 	static bool PreviousStatePin2 = false;
