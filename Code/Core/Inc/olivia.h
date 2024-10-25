@@ -2,7 +2,7 @@
  * olivia.h
  *
  *  Created on: Sep 24, 2024
- *      Author: townl
+ *      Author: Olivia Cunningham
  */
 
 #ifndef INC_OLIVIA_H_
@@ -17,20 +17,27 @@ class Waves
     	void setSine();
     	void setSquare();
     	void setPulse();
-    	uint16_t setDelay(uint8_t k);
+    	void setAmplitude();
+    	void setFrequency();
+    	void setDelay();
     	void update();
 
 	private:
     	inputQueue *InputQueueInstance;
     	signalQueue *SignalQueueInstance1;
     	signalQueue *SignalQueueInstance2;
-    	uint32_t frequency1;
-    	uint16_t amplitude1;
-    	uint16_t frequency2;
-    	uint16_t amplitude2;
+    	int8_t frequency1;
+    	int8_t amplitude1;
+    	int8_t frequency2;
+    	int8_t amplitude2;
+    	uint16_t ampValue1;
+    	uint16_t ampValue2;
+       	uint16_t freqValue1;
+       	uint16_t freqValue2;
+       	uint16_t delayValue;
     	int8_t channelSelect;//switch
     	bool waveSelect;//button
-    	uint32_t delay;
+    	int8_t delay;
     	enum WaveShape waveType1;
     	enum WaveShape waveType2;
 };
