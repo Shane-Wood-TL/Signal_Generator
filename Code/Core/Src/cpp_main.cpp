@@ -26,6 +26,8 @@ void cpp_main(void){
 
 	displayQueue displayInfo;
 
+	Waves waves(&inputQueueInstance, &channel1, &channel2);
+
 	//start i2c + setup display
 	display mainDisplay(&hi2c1, &displayInfo);
 	//signalInfo channelB = waves.shift(*waves.getSinePlot(), 128);
@@ -55,5 +57,7 @@ void cpp_main(void){
 
 	while(1){
 		//outputDriverI.update();
+		//waves.update();
+		break;
 	}
 }

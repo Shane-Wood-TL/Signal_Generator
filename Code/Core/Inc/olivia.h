@@ -26,18 +26,20 @@ class Waves
     	inputQueue *InputQueueInstance;
     	signalQueue *SignalQueueInstance1;
     	signalQueue *SignalQueueInstance2;
-    	int8_t frequency1;
-    	int8_t amplitude1;
-    	int8_t frequency2;
-    	int8_t amplitude2;
-    	uint16_t ampValue1;
-    	uint16_t ampValue2;
-       	uint16_t freqValue1;
-       	uint16_t freqValue2;
-       	uint16_t delayValue;
+    	int8_t frequency1 = 0;
+    	int8_t amplitude1 = 0;
+    	int8_t frequency2 = 0;
+    	int8_t amplitude2 = 0;
+    	uint16_t ampValue1 = 0;
+    	uint16_t ampValue2 = 0;
+       	uint16_t freqValue1 = 0;
+       	uint16_t freqValue2 = 0;
+       	uint16_t delayValue = 0;
     	int8_t channelSelect;//switch
+    	uint32_t waveValues1[waveFormRes] = {};
+    	uint32_t waveValues2[waveFormRes] = {};
     	bool waveSelect;//button
-    	int8_t delay;
+    	int8_t delay = 0;
     	enum WaveShape waveType1;
     	enum WaveShape waveType2;
 };
