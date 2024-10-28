@@ -6,6 +6,7 @@
  */
 #include "allIncludes.h"
 #include <cmath>
+#include <cassert>
 
 //Waves Class (Application Class 1)
 Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *SignalQueue2)
@@ -22,6 +23,8 @@ void Waves::update()
 	inputValues values;
 	signalInfo sample1;
 	signalInfo sample2;
+	uint16_t shiftVal = 0;
+	double shift = 0;
 
 	//rushes to return if no change
 	if(InputQueueInstance->dequeue(&values)){
@@ -38,6 +41,8 @@ void Waves::update()
 
 	setAmplitude();
 	setFrequency();
+	waveType1 = SQUARE;
+	waveType2 = PULSE;
 
 	//Channel 1 wave type select
 	//Button is false don't change the wave type
@@ -53,7 +58,7 @@ void Waves::update()
 		waveType1 = SQUARE;
 	}else if(waveType1 == SQUARE and waveSelect == true and channelSelect == 0){
 		waveType1 = PULSE;
-	}else{
+	}else if(waveType1 == SQUARE and waveSelect == true and channelSelect == 0){
 		waveType1 = SINE;
 	}
 	//Channel 2 wave type select
@@ -74,33 +79,64 @@ void Waves::update()
 		waveType2 = PULSE;
 	}else if(waveType2 == PULSE and waveSelect == true and channelSelect == 1){
 		waveType2 = ECHO;
-	}else{
+	}else if(waveType2 == ECHO and waveSelect == true and channelSelect == 1){
 		waveType2 = SINE;
 	}
-
-	//Update the signalInfo struct
+	/*else{
+		waveType2 = SINE;
+	}*/
 	sample1.frequency = freqValue1;
 	sample2.frequency = freqValue2;
 	sample1.amp = ampValue1;
 	sample2.amp = ampValue2;
-	sample1.shiftAmount = 0;
-	sample2.shiftAmount = delayValue;
+
+	setDelay();
+	shift = delayValue/8.0;
+	shiftVal = waveFormRes*shift;//2*M_PI*freqValue1;//32
+
+	//change channel 2 wave type and add the delay
+	if(waveType1 == SINE and waveType2 == ECHO){
+		waveType2 = SINE;
+		sample2.frequency = sample1.frequency;
+		sample2.amp = sample2.amp;
+
+	}else if(waveType1 == SQUARE and waveType2 == ECHO){
+		waveType2 = SQUARE;
+		sample2.frequency = sample1.frequency;
+		sample2.amp = sample1.amp;
+		//shift = (delayValue/8)*2*M_PI*freqValue1;
+	}else if(waveType1 == PULSE and waveType2 == ECHO){
+		waveType2 = PULSE;
+		sample2.frequency = sample1.frequency;
+		sample2.amp = sample2.amp;
+		//shift = (delayValue/8)*2*M_PI*freqValue1;
+	}/*else{
+		shiftVal = 0;
+	}*/
 	sample1.wave = waveType1;
 	sample2.wave = waveType2;
 
-	setDelay();
+	sample1.shiftAmount = 0;
+	sample2.shiftAmount = shiftVal;
 	setSine();
 	setSquare();
 	setPulse();
+	for(uint16_t i = 0; i<waveFormRes; i++){
+		sample1.signalLocations[i] = waveValues1[i];
+		sample2.signalLocations[i] = waveValues2[i];
+	}
+
+	//Update the signalInfo struct
+	SignalQueueInstance1->enqueue(sample1);
+	SignalQueueInstance2->enqueue(sample2);
 }
 void Waves::setAmplitude()
 {
     uint16_t count1 = 0;
     uint16_t count2 = 0;
     //int32_t rotation = 0;
-
     //Set channel 1 Amplitude based on knob values
-	if(amplitude1 == 1 && ampValue1 <= 4094){
+	if(amplitude1 == 1 && ampValue1 <= 4095){
 		count1+=1;
 	}else if(amplitude1 == -1 && ampValue1 >= 0){
 		count1-=1;
@@ -109,9 +145,9 @@ void Waves::setAmplitude()
 	}
 
 	//Set channel 2 Amplitude based on knob values
-	if(amplitude2 == 1 && ampValue2 <= 4094){
+	if(amplitude2 == 1 && ampValue2 <= 4095){
 		count2+=1;
-	}else if(amplitude2 == -1 && ampValue2 >= 0){
+	}else if(amplitude2 == -1 &&  ampValue2 >= 0){
 		count2-=1;
 	}else{
 	    count2+=0;
@@ -119,8 +155,8 @@ void Waves::setAmplitude()
 
 	//Update the amplitude values
 	//rotation = (count/3);
-	ampValue1 = ampValue1+count1;//rotation;
-	ampValue2 = ampValue2+count2;//rotation;
+	ampValue1 = ampValue1+count1;
+	ampValue2 = ampValue2+count2;
 }
 
 void Waves::setFrequency()
@@ -149,15 +185,12 @@ void Waves::setFrequency()
 
 	//Update the frequency values
 	//rotation = (count/3);
-	freqValue1 = freqValue1+count1;//rotation;
-	freqValue2 = freqValue2+count2;//rotation;
+	freqValue1 = freqValue1+count1;
+	freqValue2 = freqValue2+count2;
 }
 
 void Waves::setSine()
 {
-	signalInfo sample1;
-	signalInfo sample2;
-
 	double invWaveRes = 1.0/waveFormRes;
 
 	//Channel 1 Sine Wave
@@ -165,7 +198,10 @@ void Waves::setSine()
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-		    sample1.signalLocations[i] = (ampValue1 * std::sin(invWaveRes*2*M_PI*freqValue1*i)+ampValue1);
+		    waveValues1[i] = (ampValue1 * std::sin(invWaveRes*2*M_PI*freqValue1*i)+ampValue1);
+
+		    //assertion to ensure signal values remain within expected range
+		    assert(waveValues1[i] >= 0 && waveValues1[i] <= 2 * ampValue1);
 		}
 	}
 
@@ -174,17 +210,16 @@ void Waves::setSine()
 	{
 		for (uint32_t i = 0; i < waveFormRes; i++)
 		{
-		    sample2.signalLocations[i] = (ampValue2 * std::sin((invWaveRes*2*M_PI*freqValue2*i)+delayValue)+ampValue2);
+		    waveValues2[i] = (ampValue2 * std::sin((invWaveRes*2*M_PI*freqValue2*i)+delayValue)+ampValue2);
+
+		    //assertion to ensure signal values remain within expected range
+		    assert(waveValues1[i] >= 0 && waveValues2[i] <= 2 * ampValue2);
 		}
 	}
 }
 
 void Waves::setSquare()
 {
-	//add the delay
-	signalInfo sample1;
-	signalInfo sample2;
-
 	uint16_t delaySquareVal = 0;
 	delaySquareVal = (waveFormRes*0.5)-delayValue;
 
@@ -192,10 +227,12 @@ void Waves::setSquare()
 	if(waveType1 == SQUARE){
 		for (uint32_t i = 0; i < waveFormRes; i++){
 			if(i<=(waveFormRes*0.5)){
-				sample1.signalLocations[i] = ampValue1;
+				waveValues1[i] = ampValue1;
 			}else{
-				sample1.signalLocations[i] = 0;
+				waveValues1[i] = 0;
 			}
+			//assertion to ensure generated signal is valid
+			assert(waveValues1[i] >= 0 && waveValues2[i] <= 4095);
 		}
 	}
 
@@ -203,29 +240,27 @@ void Waves::setSquare()
 	if(waveType2 == SQUARE){
 		for (uint32_t i = 0; i < waveFormRes; i++){
 			if(i<=(delaySquareVal)){
-				sample2.signalLocations[i] = ampValue2;
+				waveValues2[i] = ampValue2;
 			}else{
-				sample2.signalLocations[i] = 0;
+				waveValues2[i] = 0;
 			}
+            //assertion to ensure generated signal is valid
+            assert(waveValues2[i] >= 0 && waveValues2[i] <= 4095);
 		}
 	}
 }
 
 void Waves::setPulse()
 {
-	//Add delay
-	signalInfo sample1;
-	signalInfo sample2;
-
 	uint16_t delayPulseVal = 0;
 	delayPulseVal = (waveFormRes*0.1)-delayValue;
 	//Channel 1 Pulse wave
 	if(waveType1 == PULSE){
 		for (uint32_t i = 0; i < waveFormRes; i++){
 			if(i<=(waveFormRes*0.1)){
-				sample1.signalLocations[i] = ampValue1;
+				waveValues1[i] = ampValue1;
 			}else{
-				sample1.signalLocations[i] = 0;
+				waveValues1[i] = 0;
 			}
 		}
 	}
@@ -234,9 +269,9 @@ void Waves::setPulse()
 	if(waveType2 == PULSE){
 		for (uint32_t i = 0; i < waveFormRes; i++){
 			if(i<=(delayPulseVal)){
-				sample2.signalLocations[i] = ampValue2;
+				waveValues2[i] = ampValue2;
 			}else{
-				sample2.signalLocations[i] = 0;
+				waveValues2[i] = 0;
 			}
 		}
 	}
@@ -245,7 +280,6 @@ void Waves::setPulse()
 void Waves::setDelay()
 {
     uint16_t count = 0;
-    double shift = 0;
 
     //Set the delay based on knob values
     if(delay == 1 && delayValue < 8){
@@ -257,21 +291,7 @@ void Waves::setDelay()
     }
 
     //Update the delay value
-	shift = shift+count;
-
-	//change channel 2 wave type and add the delay
-	if(waveType1 == SINE and waveType2 == ECHO){
-		waveType2 = SINE;
-		delayValue = (shift/8)*2*M_PI*freqValue1;//32
-	}else if(waveType1 == SQUARE and waveType2 == ECHO){
-		waveType2 = SQUARE;
-		delayValue = (shift/8)*2*M_PI*freqValue1;
-	}else if(waveType1 == PULSE and waveType2 == ECHO){
-		waveType2 = PULSE;
-		delayValue = (shift/8)*2*M_PI*freqValue1;
-	}else{
-		delayValue = 0;
-	}
+	delayValue = delayValue+count;
 }
 
 //Semaphore Class
