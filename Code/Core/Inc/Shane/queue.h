@@ -11,7 +11,10 @@
 
 #include "allIncludes.h"
 
-
+#define DISPLAY_QUEUE_SIZE 3
+#define INPUT_QUEUE_SIZE 3
+#define SIGNAL_QUEUE_SIZE 3
+#define QUEUE_BUFFER_SIZE 3 //currently only the semaphore is using this
 
 
 class signalQueue {

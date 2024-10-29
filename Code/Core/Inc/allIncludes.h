@@ -7,114 +7,55 @@
 
 #ifndef SRC_ALLINCLUDES_H_
 #define SRC_ALLINCLUDES_H_
-//Pinout
-#define ch1Out PA_4 //A3
-#define ch2Out PA_5 //A4
-#define i2cSDA PB_7 //D4
-#define i2cSCL PB_6 //D5
 
-#define channelSwitch PA_12 //D2
-#define modeSwitch PB_0 //D3
 
-#define freqKnobA PB_1 //D6
-#define freqKnobB PA_8 //D9
-#define ampKnobA PA_11 //D10
-#define ampKnobB PB_5 //D11
-#define shiftKnobA PA_7 //A6
-#define shiftKnobB PA_6 //A5
+//Pin definitions
+#include "pinout.h"
 
 //Constants
 #define M_PI 3.14159
 
 
 //Variables
-#define DISPLAY_QUEUE_SIZE 10
-#define INPUT_QUEUE_SIZE 3
-#define SIGNAL_QUEUE_SIZE 3
-#define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
-
-//SSD1306 setup
-#define SSD1306Address 0x3C<<1           // SSD1306 I2C address
-#define SSD1306VerticalRes 64           //64 pixels tall
-#define SSD1306HorizontalRes 128    //128 pixels across
-#define SSD1306Pages SSD1306VerticalRes/8 //each page is a vertical 8 bits
-
-
 #define waveFormRes 255 //how many steps per wavelength
-
-#define FCLK 80000000UL //system clock speed
-
-#define timerPSC 0 //timer prescaling value
-
 #define squareLength waveFormRes / 2
 #define pulseLenght waveFormRes / 12
 
+//Device Setup
+#define FCLK 80000000UL //system clock speed
+#define timerPSC 0 //timer prescaling value
 
-//Core includes
+
+
+
+//C includes
+#include "math.h"
+
+//Core STM includes
 #include "main.h"
-
-
-
 #include "stm32l4xx_ll_spi.h"
 #include "stm32l4xx_ll_gpio.h"
 #include "stm32l4xx_ll_bus.h"
 #include "stm32l4xx_ll_utils.h"
 
-
-
-enum WaveShape{SINE, SQUARE, PULSE, ECHO};
-enum letterMappngs{l0,l1,l2,l3,l4,l5,l6,l7,l8,l9,A,F,S,e,f,h,i,m,p,q,r,t,ldecimal};
-
-struct inputValues
-	{
-		int8_t Switch;
-		bool isButtonPressed;
-		int8_t AmpKnob1;
-		int8_t FreqKnob1;
-		int8_t AmpKnob2;
-		int8_t FreqKnob2;
-		int8_t DelayKnob2;
-	};
-
-struct signalInfo{
-	uint32_t signalLocations[waveFormRes] = {0}; //the data array to be written
-	uint32_t frequency = 0; //signal was tested to 80khz, 65k is not enough
-	uint16_t amp = 0; //0-3.3 represented as 0 -4095
-	uint8_t shiftAmount = 0; //shift amount from - 255
-	WaveShape wave = SINE;
-};
-
-struct displayInfoValues{
-	uint32_t Afrequency = 0; //signal was tested to 80khz, 65k is not enough
-	uint16_t Aamp = 0; //0-3.3 represented as 0 -4095
-	WaveShape Awave = SINE;
-	uint32_t Bfrequency = 0; //signal was tested to 80khz, 65k is not enough
-	uint16_t Bamp = 0; //0-3.3 represented as 0 -4095
-	uint8_t BshiftAmount = 0; //shift amount from - 255
-	WaveShape Bwave = SINE;
-};
-
-
-#include "queue.h"
-struct dacSetup{
-	DAC_HandleTypeDef *hdacI;
-	uint32_t DacChannel1I;
-	TIM_HandleTypeDef *timer1I;
-	signalQueue *channel1I;
-};
-
-
-
 //Our includes
-#include "math.h"
-#include "font.h"
 
+//structures and enum definitions (shared)
+#include "structsAndEnums.h"
+
+//Shane's Files
+#include "Shane/queue.h"
+#include "Shane/font.h"
+#include "Shane/display.h"
+#include "Shane/memoryBarrier.h"
+#include "Shane/dacDriver.h"
+#include "Shane/outputDriver.h"
+
+//Olivia's Files
 #include "olivia.h"
+
+//Nathan's Files
 #include "nathan.h"
 
-
-#include "shane.h"
-
-#include "memoryBarrier.h"
 
 #endif /* SRC_ALLINCLUDES_H_ */

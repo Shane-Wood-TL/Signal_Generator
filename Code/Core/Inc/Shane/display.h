@@ -1,35 +1,12 @@
-/*
- * shane.h
- *
- *  Created on: Sep 24, 2024
- *      Author: Shane Wood
- */
+#ifndef INC_SHANE_DISPLAY_H_
+#define INC_SHANE_DISPLAY_H_
 
-#ifndef INC_SHANE_H_
-#define INC_SHANE_H_
 #include "allIncludes.h"
-//https://github.com/STMicroelectronics/STM32CubeL4/blob/master/Projects/NUCLEO-L432KC/Examples/DAC/DAC_SignalsGeneration/readme.txt
-//https://deepbluembedded.com/stm32-dac-sine-wave-generation-stm32-dac-dma-timer-example/
 
-class dacDriver{
-	DAC_HandleTypeDef *hdac;
-	uint32_t DacChannel;
-	TIM_HandleTypeDef *timerInstance;
-	signalQueue *signalQueueInstance;
-	signalInfo currentSignal;
-	uint32_t currentReloadValue = 0;
-	void setReload();
-	public:
-		dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I, TIM_HandleTypeDef *timer1Il, signalQueue *channel1I);
-		//signalInfo* getSignalInfo();
-		void update();
-		void enableTimer();
-		uint32_t getFreq();
-		uint16_t getAmp();
-		uint8_t getShift();
-		WaveShape getWave();
-};
-
+//SSD1306 setup
+#define SSD1306VerticalRes 64           //64 pixels tall
+#define SSD1306HorizontalRes 128    //128 pixels across
+#define SSD1306Pages SSD1306VerticalRes/8 //each page is a vertical 8 bits
 
 class display{
 private:
@@ -78,19 +55,4 @@ public:
 
 };
 
-
-class outputDriver{
-	dacDriver *DACchannel1;
-	dacDriver *DACchannel2;
-	displayQueue *displayInfoQ;
-	struct displayInfoValues soonDisplayInfo;
-public:
-	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, displayQueue *displayInfoQI);
-	void update();
-};
-
-
-
-
-
-#endif /* INC_SHANE_H_ */
+#endif /*INC_SHANE_DISPLAY_H_ */
