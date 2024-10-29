@@ -41,8 +41,8 @@ void Waves::update()
 
 	setAmplitude();
 	setFrequency();
-	waveType1 = SQUARE;
-	waveType2 = PULSE;
+	//waveType1 = SQUARE;
+	//waveType2 = PULSE;
 
 	//Channel 1 wave type select
 	//Button is false don't change the wave type
@@ -82,9 +82,7 @@ void Waves::update()
 	}else if(waveType2 == ECHO and waveSelect == true and channelSelect == 1){
 		waveType2 = SINE;
 	}
-	/*else{
-		waveType2 = SINE;
-	}*/
+
 	sample1.frequency = freqValue1;
 	sample2.frequency = freqValue2;
 	sample1.amp = ampValue1;
@@ -110,9 +108,7 @@ void Waves::update()
 		sample2.frequency = sample1.frequency;
 		sample2.amp = sample2.amp;
 		//shift = (delayValue/8)*2*M_PI*freqValue1;
-	}/*else{
-		shiftVal = 0;
-	}*/
+	}
 	sample1.wave = waveType1;
 	sample2.wave = waveType2;
 
@@ -295,6 +291,8 @@ void Waves::setDelay()
 }
 
 //Semaphore Class
+Semaphore::Semaphore(){}
+
 bool Semaphore::enqueue(bool msg) {
 	bool ok = false;
 	uint8_t nextTail = tail;
@@ -331,4 +329,5 @@ void Semaphore::rollingMath(uint8_t *position){
         *position+=1;
     }
 }
+
 
