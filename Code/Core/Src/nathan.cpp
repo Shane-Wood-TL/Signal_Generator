@@ -108,12 +108,18 @@ void InputDriver::checkForUpdates(){
 
     inputValues queue_data = {0};
 
-    queue_data.AmpKnob1 = AmpKnob -> UpdateKnob();
-	//AmpKnob -> UpdateKnob(&queue_data);
-    //FreqKnob -> UpdateKnob(&queue_data);
-    //ShiftKnob -> UpdateKnob(&queue_data);
-	channelSwitcher->UpdateSwitch(&queue_data);
+    int8_t freq_value = FreqKnob -> UpdateKnob();
+    queue_data.FreqKnob1 = freq_value;
+    queue_data.FreqKnob2 = freq_value;
+
+    int8_t amp_value = AmpKnob -> UpdateKnob();
+    queue_data.AmpKnob1 = amp_value;
+    queue_data.AmpKnob2 = amp_value;
+
+    queue_data.DelayKnob2 = ShiftKnob -> UpdateKnob();
+
 	modeSwitcher -> UpdateButton(&queue_data);
+	channelSwitcher->UpdateSwitch(&queue_data);
 
 	inputQueueInstance -> enqueue(queue_data);
 
