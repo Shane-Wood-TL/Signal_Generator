@@ -15,10 +15,6 @@ extern TIM_HandleTypeDef htim6;
 
 
 
-
-
-
-
 void cpp_main(void){
 	//set up the queues
 	inputQueue inputQueueInstance;
@@ -48,7 +44,7 @@ void cpp_main(void){
 
 	uint8_t wasteofTime = 0;
 	while(1){
-		struct inputValues test = {1,true,0,0,0,0,0};
+		struct inputValues test = {0,true,0,0,0,0,0};
 		wasteofTime = 0;
 		inputQueueInstance.enqueue(test);
 		//mainHandler.update();
