@@ -18,27 +18,31 @@ class dacDriver{
 	signalQueue *signalQueueInstance;
 	signalInfo currentSignal;
 	uint32_t currentReloadValue = 0;
+	void setReload();
 	public:
-		dacDriver(dacSetup *dacValues);
-		void checkQueue();
-		void setReload();
-		signalInfo* getSignalInfo();
+		dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I, TIM_HandleTypeDef *timer1Il, signalQueue *channel1I);
+		//signalInfo* getSignalInfo();
 		void update();
+		void enableTimer();
+		uint32_t getFreq();
+		uint16_t getAmp();
+		uint8_t getShift();
+		WaveShape getWave();
 };
 
 
 class display{
 private:
-	I2C_HandleTypeDef *hi2c1;
+	SPI_HandleTypeDef *hspi1;
 	displayQueue *displayQueueInstance;
 	uint8_t buffer[1024] = {0};
 	font mainFont;
-	//dacDriver *dac0;
-	//dacDriver *dac1;
-	void initializeFontMap();
+	uint8_t count = 0;
+	const uint8_t letterPositions[5] = {0,15,31,47,63}; //constant positions of letters written to the screen
+	const uint8_t freqList[4] = {'F', 'r','e','q'}; //ASCII for F,r,e,q
+	const uint8_t ampList[3] = {'A','m','p'}; //ASCII for A,m,p
+	const uint8_t shiftList[5] = {83, 104,105,102,116};//ASCII for S,h,i,f,t
 
-
-	const uint16_t *getLetter(uint8_t letter);
 	//set up the i2c display (ssd1306)
 	void initDisplay();
 
@@ -46,7 +50,7 @@ private:
 	void sendCommand(uint8_t command);
 
 	//set write data to the display
-	void sendData(uint8_t *data, size_t len);
+	void sendData(uint8_t *data, uint16_t len);
 
 	//draw a pixel to the display buffer
 	void drawPixel(const uint8_t x, const uint8_t y,const bool color);
@@ -62,12 +66,12 @@ private:
 	void writeBuffer();
 	void drawWordsNorm();
 	void drawWordsShift();
-	void convertFreq(const signalInfo *signal, const uint8_t Channel);
-	void convertAmp(const signalInfo *signal, const uint8_t Channel);
-	void displaySignalType(const signalInfo *signal, const uint8_t Channel);
-	void convertShift(const signalInfo *signal);
+	void convertFreq(const uint32_t currentFreq, const uint8_t Channel);
+	void convertAmp(const uint16_t amp, const uint8_t Channel);
+	void displaySignalType(const WaveShape shape, const uint8_t Channel);
+	void convertShift(const uint8_t signal);
 public:
-	display(I2C_HandleTypeDef *hi2c1I, displayQueue *displayQueueI);//dacDriver *dac0I,dacDriver *dac1I);
+	display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI);//dacDriver *dac0I,dacDriver *dac1I);
 	//writes buffer to the display
 
 	void getNewValues();
@@ -76,14 +80,12 @@ public:
 
 
 class outputDriver{
-	dacSetup *DACChannel1Setup;
-	dacSetup *DACChannel2Setup;
 	dacDriver *DACchannel1;
 	dacDriver *DACchannel2;
 	displayQueue *displayInfoQ;
-	displayInfo soonDisplayInfo;
+	struct displayInfoValues soonDisplayInfo;
 public:
-	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI, displayQueue *displayInfoQI);
+	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, displayQueue *displayInfoQI);
 	void update();
 };
 

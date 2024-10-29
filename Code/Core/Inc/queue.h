@@ -15,40 +15,40 @@
 
 
 class signalQueue {
-	signalInfo buffer[SIGNAL_QUEUE_SIZE]; //the buffer of messages
+	struct signalInfo buffer[SIGNAL_QUEUE_SIZE]; //the buffer of messages
 	uint8_t head = 0; //the head of the active queue region
 	uint8_t tail = 0; //the tail of the active queue region
     void rollingMath(uint8_t *position); //does the math to handle rollovers
 public:
     signalQueue(); //constructor
-	bool enqueue(signalInfo msg); //add values
-	bool dequeue(signalInfo* msg); //remove values
+	bool enqueue(struct signalInfo msg); //add values
+	bool dequeue(struct signalInfo* msg); //remove values
 };
 
 
 
 class displayQueue {
-	displayInfo buffer[DISPLAY_QUEUE_SIZE]; //the buffer of messages
+	struct displayInfoValues buffer[DISPLAY_QUEUE_SIZE]; //the buffer of messages
 	uint8_t head = 0; //the head of the active queue region
 	uint8_t tail = 0; //the tail of the active queue region
     void rollingMath(uint8_t *position); //does the math to handle rollovers
 public:
     displayQueue(); //constructor
-	bool enqueue(displayInfo msg); //add values
-	bool dequeue(displayInfo* msg); //remove values
+	bool enqueue(struct displayInfoValues msg); //add values
+	bool dequeue(struct displayInfoValues* msg); //remove values
 };
 
 
 
 class inputQueue {
-	inputValues buffer[INPUT_QUEUE_SIZE]; //the buffer of messages
+	struct inputValues buffer[INPUT_QUEUE_SIZE]; //the buffer of messages
 	uint8_t head = 0; //the head of the active queue region
 	uint8_t tail = 0; //the tail of the active queue region
     void rollingMath(uint8_t *position); //does the math to handle rollovers
 public:
     inputQueue(); //constructor
-	bool enqueue(inputValues msg); //add values
-	bool dequeue(inputValues* msg); //remove values
+	bool enqueue(struct inputValues msg); //add values
+	bool dequeue(struct inputValues* msg); //remove values
 };
 
 #endif /* INC_QUEUE_H_ */

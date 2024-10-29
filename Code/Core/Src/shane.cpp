@@ -7,12 +7,22 @@
  */
 
 #include "allIncludes.h"
+//D/C D4 PB_7
+// RST D5 PB_6
 
+#define dcPort GPIOB
+#define dcPin LL_GPIO_PIN_7
+
+#define rstPort GPIOB
+#define rstPin LL_GPIO_PIN_6
 void display::initDisplay() {
-	//LL_I2C_GenerateStartCondition(I2C1);
-	sendCommand(0xAE);
+	LL_SPI_Enable(hspi1->Instance); //make sure that SPI is on
+    LL_GPIO_SetOutputPin(rstPort, rstPin); //set = not in reset mode
+
+    //list of init commands
+	sendCommand(0xAE);	//Turn Display off
 	sendCommand(0xA8);  //Set MUX ratio
-	sendCommand(0x3F);  //Set MUX ratio, 0x1F for 128x32 and 0x3F for 128x64
+	sendCommand(0x3F);  //Set MUX ratio,0x3F for 128x64
 	sendCommand(0xD3);  //Set Display Offset
 	sendCommand(0x00);  //Set Display Offset
 	sendCommand(0x40);  //Set Display Start Line
@@ -21,7 +31,7 @@ void display::initDisplay() {
 	sendCommand(0xA1);  //Set Segment Re-map
 	sendCommand(0xC8);  //Set COM Output Scan Direction
 	sendCommand(0xDA);  //Set COM Pins hardware configuration
-	sendCommand(0x12); //Set COM Pins hardware configuration, 0x02 for 128x32 and 0x12 for 128x64
+	sendCommand(0x12); //Set COM Pins hardware configuration, 0x12 for 128x64
 	sendCommand(0x81);  //Set Contrast Control
 	sendCommand(0x9F); //Set Contrast Control Value from 0x00 to 0xFF minimum to maximum
 	sendCommand(0xA4);  //Disable Entire Display
@@ -37,112 +47,71 @@ void display::initDisplay() {
 
 //send commands to the display
 void display::sendCommand(uint8_t command) {
-	HAL_StatusTypeDef writing = HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x00, 1, &command, 1,
-				HAL_MAX_DELAY);
-//	uint32_t delay = HAL_MAX_DELAY;
-//
-//	// Start I2C communication to write to the SSD1306
-//	LL_I2C_HandleTransfer(hi2c1, SSD1306Address, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_SOFTEND, LL_I2C_GENERATE_START_WRITE);
-//
-//	// Wait for the address flag (indicating address is sent)
-//	while (!LL_I2C_IsActiveFlag_ADDR(hi2c1) && delay != 0) {
-//	    delay--;
-//	}
-//	if (delay == 0) {
-//	    // Handle timeout
-//	    return;
-//	}
-//
-//	// Clear the ADDR flag by reading SR registers (specific to STM32, consult the reference manual)
-//	LL_I2C_ClearFlag_ADDR(hi2c1);
-//
-//	// Transmit the control byte (indicating command mode for SSD1306)
-//	LL_I2C_TransmitData8(hi2c1, 0x00);
-//
-//	// Wait for the transmit buffer to be empty
-//	delay = HAL_MAX_DELAY;  // Reset delay
-//	while (!LL_I2C_IsActiveFlag_TXE(hi2c1) && delay != 0) {
-//	    delay--;
-//	}
-//	if (delay == 0) {
-//	    // Handle timeout
-//	    return;
-//	}
-//
-//	// Transmit the command byte (the actual SSD1306 command)
-//	LL_I2C_TransmitData8(hi2c1, command);
-//
-//	// Wait for the transmit buffer to be empty
-//	delay = HAL_MAX_DELAY;
-//	while (!LL_I2C_IsActiveFlag_TXE(hi2c1) && delay != 0) {
-//	    delay--;
-//	}
-//	if (delay == 0) {
-//	    // Handle timeout
-//	    return;
-//	}
-//
-//	// Wait for transfer to complete (the STOP flag)
-//	LL_I2C_GenerateStopCondition(hi2c1);
-//
-//	// Wait until stop condition is generated
-//	delay = HAL_MAX_DELAY;
-//	while (!LL_I2C_IsActiveFlag_STOP(hi2c1) && delay != 0) {
-//	    delay--;
-//	}
-//	if (delay == 0) {
-//	    // Handle timeout
-//	    return;
-//	}
-//
-//	// Clear the STOP flag
-//	LL_I2C_ClearFlag_STOP(hi2c1);
-
-//https://community.st.com/t5/stm32-mcus-products/busy-bus-after-i2c-reading/td-p/327215
-
-	switch(writing){
-	case HAL_ERROR:{
-		NVIC_SystemReset();
-		break;
-	}
-	default:{
-		return;
-		break;
-	}
+	LL_GPIO_ResetOutputPin(dcPort, dcPin);
+	if(count != 1){
+		LL_SPI_TransmitData8(hspi1->Instance, command); // Send the command
+		while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
+        //max time for while loop
+        //Need to find bits / s based on SPI speed
+        // 10 Mbits / s, Data size = 8 bits
+        // 10,000,000 / 8 = 1,250,000 messages per second
+        //8 x 10^-7 s
+        // 0.8 uS max time per message / while loop
+	}else{
+		HAL_SPI_Transmit(hspi1, &command, 1, HAL_MAX_DELAY); //let HAL set up the SPI port for the first time
+		count=1;
 	}
 }
 
 //set write data to the display
-void display::sendData(uint8_t *data, size_t len) {
-	HAL_StatusTypeDef writing = HAL_I2C_Mem_Write(hi2c1, SSD1306Address, 0x40, 1, data, len, HAL_MAX_DELAY);
-	switch(writing){
-	case HAL_ERROR:{
-		NVIC_SystemReset();
-		break;
-	}
-	default:{
-		return;
-		break;
-	}
-	}
+void display::sendData(uint8_t *data, uint16_t len) {
+	assert(len >= 1);
+    LL_GPIO_SetOutputPin(dcPort, dcPin);
+
+    for (uint16_t i = 0; i < len; i++) {
+        LL_SPI_TransmitData8(hspi1->Instance, data[i]); // Send each byte
+        while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
+        //max time for while loop
+        //Need to find bits / s based on SPI speed
+        // 10 Mbits / s, Data size = 8 bits
+        // 10,000,000 / 8 = 1,250,000 messages per second
+        //8 x 10^-7 s
+        // 0.8 uS max time per message / while loop
+
+    }
 }
+
 
 //draw a pixel to the display buffer
 void display::drawPixel(const uint8_t x, const uint8_t y, const bool color) {
-	assert (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes);
+	if (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes) {
+			return;  //drawing a pixel out of range
+	}
 
+	assert (x < SSD1306HorizontalRes && y < SSD1306VerticalRes);
+
+	uint8_t pixelInPage = (1 << (y % 8)); //limit the pixel from 0 to 7 with a 1 in the position 0000_0001, 0000_0010, etc
+
+	//buffer is indexed as such
+	// x straight across 0-127
+	//each one of these is 8 pixels bits tall, or 1 page
+	//repeat for pages 0-8
+	//leading to a total size of 128*8 = 1024 page "strips" each containing the data for 8 pixels
+	uint16_t bufferIndex = uint16_t(x + (y / 8) * SSD1306HorizontalRes);
 	if (color) {
-		buffer[x + (y / 8) * SSD1306HorizontalRes] |= (1 << (y % 8));
+		buffer[bufferIndex] |= pixelInPage;
 	} else {
-		buffer[x + (y / 8) * SSD1306HorizontalRes] &= ~(1 << (y % 8));
+		buffer[bufferIndex] &= ~pixelInPage;
 	}
 	return;
 }
 
 //write a letter to the display buffer
 void display::writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_t yPos) {
+
 	const uint16_t *matrix = mainFont.getLetter(letter);
 	if (matrix != nullptr) { //ensure that font exists before writing
+		assert(matrix !=nullptr);
 		for (int i = 0; i < 16; i++) { //16 tall
 			for (int j = 0; j < 12; j++) { // 12 wide
 				if ((matrix[i]) & (1 << (12 - j))) {
@@ -150,11 +119,15 @@ void display::writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_
 				}
 			}
 		}
+	}else{
+		return;
 	}
 	return;
 }
 
 void display::writeSymbol(const uint32_t *symbol, const uint8_t xPos, const uint8_t yPos) {
+	assert(symbol != nullptr);
+
 	for (int i = 0; i < 14; i++) { //14 tall
 		for (int j = 0; j < 20; j++) { // 20 wide
 			if ((symbol[i]) & (1 << (20 - j))) {
@@ -175,91 +148,79 @@ void display::clearBuffer() {
 }
 
 //set up the display
-display::display(I2C_HandleTypeDef *hi2c1I,displayQueue *displayQueueI) {
-	hi2c1 = hi2c1I;
+display::display(SPI_HandleTypeDef *hspi1I,displayQueue *displayQueueI) {
+	hspi1 = hspi1I;
 	displayQueueInstance = displayQueueI;
 	initDisplay();
 }
 
 //writes buffer to the display
 void display::writeBuffer() {
-	for (uint8_t i = 0; i < 8; i++) {  // Send each page
-		sendCommand(0xB0 + i);  // Set page start address
-		sendCommand(0x00);      // Set lower column address
-		sendCommand(0x10);      // Set higher column address
-
-		sendData(&buffer[128 * i], 128);
+	for (uint8_t i = 0; i < 8; i++) { //send each page
+		sendCommand(0xB0 + i);  //page address
+		sendCommand(0x00);      //bottom of page
+		sendCommand(0x10);      //top of page
+		sendData(&buffer[128 * i], 128); //send an entire row
 	}
 	return;
 }
 
 void display::drawWordsNorm() {
-	writeLetter('F', 0, 0);
-	writeLetter('r', 15, 0);
-	writeLetter('e', 31, 0);
-	writeLetter('q', 47, 0);
-
-	writeLetter('A', 0, 15);
-	writeLetter('m', 15, 15);
-	writeLetter('p', 31, 15);
-
-	writeLetter('F', 0, 31);
-	writeLetter('r', 15, 31);
-	writeLetter('e', 31, 31);
-	writeLetter('q', 47, 31);
-
-	writeLetter('A', 0, 47);
-	writeLetter('m', 15, 47);
-	writeLetter('p', 31, 47);
+	//Write Freq, and Amp to the display
+	for(uint8_t i = 0; i < 2; i++){
+		for(uint8_t j = 0; j < 4;j++){
+			writeLetter(freqList[j],letterPositions[j],letterPositions[i*2]);
+		}
+		for(uint8_t k = 0; k < 3;k++){
+			writeLetter(ampList[k],letterPositions[k],letterPositions[(i*2)+1]);
+		}
+	}
 }
 
 void display::drawWordsShift() {
-	writeLetter('F', 0, 0);
-	writeLetter('r', 15, 0);
-	writeLetter('e', 31, 0);
-	writeLetter('q', 47, 0);
-
-	writeLetter('A', 0, 15);
-	writeLetter('m', 15, 15);
-	writeLetter('p', 31, 15);
-
-	writeLetter('S', 0, 31);
-	writeLetter('h', 15, 31);
-	writeLetter('i', 31, 31);
-	writeLetter('f', 47, 31);
-	writeLetter('t', 63, 31);
+	//Write Freq, and Amp to the display
+		for(uint8_t i = 0; i < 4;i++){
+			writeLetter(freqList[i],letterPositions[i],letterPositions[0]);
+		}
+		for(uint8_t i = 0; i < 3;i++){
+			writeLetter(ampList[i],letterPositions[i],letterPositions[1]);
+		}
+		for(uint8_t i = 0; i < 5;i++){
+			writeLetter(shiftList[i],letterPositions[i],letterPositions[2]);
+		}
 }
 
-void display::convertAmp(const signalInfo *signal, const uint8_t Channel) {
+void display::convertAmp(const uint16_t amp, const uint8_t Channel) {
 	uint8_t row;
 	if (Channel == 0) {
-		row = 0;
-	} else {
-		row = 31;
+		row = 15;
+	}else if(Channel == 1){
+		row = 47;
+	}else{
+		return; //Channel is not valid
 	}
-	assert(row == 0 or row==31);
+	assert(row == 15 || row==47);
 
-	uint16_t place0 = uint16_t(signal->amp * 3300 / 4095);
+	uint16_t place0 = uint16_t(amp * 3300 / 4095);
 	uint8_t place1 = (uint8_t) (place0 / 1000);
 	uint8_t place2 = (uint8_t) ((place0 - place1 * 1000) / 100);
 	uint8_t place3 = (uint8_t) ((place0 - place1 * 1000 - place2 * 100) / 10);
 
-	writeLetter('0' + (place1), 47, row + 16);
-	writeLetter('.', 59, row + 16);
-	writeLetter('0' + (place2), 71, row + 16);
-	writeLetter('0' + (place3), 83, row + 16);
+	writeLetter('0' + (place1), 47, row);
+	writeLetter('.', 59, row);
+	writeLetter('0' + (place2), 71, row);
+	writeLetter('0' + (place3), 83, row);
 }
 
-void display::convertFreq(const signalInfo *signal, const uint8_t Channel) {
+void display::convertFreq(const uint32_t currentFreq, const uint8_t Channel) {
 	uint8_t row;
 	if (Channel == 0) { //handle ch1 and ch2 frequencies
 		row = 0;
 	} else {
 		row = 31;
 	}
-	assert(row == 0 or row==31);
+	assert(row == 0 || row==31);
 
-	const uint32_t currentFreq = signal->frequency;
 	uint32_t tempSums[4];
 	uint8_t finalValues[5];
 
@@ -288,12 +249,11 @@ void display::convertFreq(const signalInfo *signal, const uint8_t Channel) {
 	return;
 }
 
-void display::convertShift(const signalInfo *signal){
-	if(signal->wave == ECHO){
+void display::convertShift(const uint8_t signal){
 		//attempting to keep as much resolution as possible
 		//180 * 360 < 2^16 -1 therefore the uint16_t will not be fully used
 		//but it will also allow for slightly more resolution than just whole numbers
-		uint16_t currentShift = (uint16_t)((signal->shiftAmount)*(360.0/waveFormRes));
+		uint16_t currentShift = (uint16_t)((signal)*(360.0/waveFormRes));
 		if(currentShift > 360){
 			return;
 		}
@@ -312,21 +272,20 @@ void display::convertShift(const signalInfo *signal){
 		for (uint8_t i = firstPlace; i < 3; i++) {
 			writeLetter('0' + finalValues[i], shiftNumberPositions[i], 31);
 		}
-	}else{
-		return;
-	}
 }
-void display::displaySignalType(const signalInfo *signal, const uint8_t Channel) {
+void display::displaySignalType(const WaveShape shape, const uint8_t Channel) {
 	uint8_t row = 16;
 	if (Channel == 1) {
 		row = 48;
 	}
+	assert((row==16) ||(row==48));
+
 	const uint32_t *symbolToWrite = nullptr;
-	if (signal->wave == SINE) {
+	if (shape == SINE) {
 		symbolToWrite = mainFont.getSineVis();
-	} else if (signal->wave == SQUARE) {
+	} else if (shape == SQUARE) {
 		symbolToWrite = mainFont.getSquareVis();
-	} else if (signal->wave == PULSE) {
+	} else if (shape == PULSE) {
 		symbolToWrite = mainFont.getPulseVis();
 	} else {
 		//wave not valild, display nothing
@@ -339,25 +298,26 @@ void display::displaySignalType(const signalInfo *signal, const uint8_t Channel)
 }
 
 void display::getNewValues() {
-	displayInfo displayedInfo;
+	displayInfoValues displayedInfo;
 	if (displayQueueInstance->dequeue(&displayedInfo)) {
-		convertFreq(displayedInfo.ChannelAInfo, 0);
-		convertAmp(displayedInfo.ChannelAInfo, 0);
-		displaySignalType(displayedInfo.ChannelAInfo, 0);
-		if (displayedInfo.ChannelBInfo->wave != ECHO) {
-			convertFreq(displayedInfo.ChannelBInfo, 1);
-			convertAmp(displayedInfo.ChannelBInfo, 1);
-			displaySignalType(displayedInfo.ChannelBInfo, 1);
+		clearBuffer();
+		convertFreq(displayedInfo.Afrequency, 0);
+		convertAmp(displayedInfo.Aamp, 0);
+		displaySignalType(displayedInfo.Awave, 0);
+		if (displayedInfo.Bwave != ECHO) {
+			convertFreq(displayedInfo.Bfrequency, 1);
+			convertAmp(displayedInfo.Bamp, 1);
+			displaySignalType(displayedInfo.Bwave, 1);
 			drawWordsNorm(); //temporary
 		} else {
-			convertShift(displayedInfo.ChannelBInfo);
+			convertShift(displayedInfo.BshiftAmount);
 			drawWordsShift();
 			assert(
-					displayedInfo.ChannelAInfo->amp
-							== displayedInfo.ChannelBInfo->amp);
+					displayedInfo.Aamp
+							== displayedInfo.Bamp);
 			assert(
-					displayedInfo.ChannelAInfo->frequency
-							== displayedInfo.ChannelBInfo->frequency);
+					displayedInfo.Afrequency
+							== displayedInfo.Bfrequency);
 		}
 		writeBuffer();
 		return;
@@ -366,11 +326,11 @@ void display::getNewValues() {
 	}
 }
 
-dacDriver::dacDriver(dacSetup *dacValues) {
-	hdac = dacValues->hdacI;
-	DacChannel = dacValues->DacChannel1I;
-	timerInstance = dacValues->timer1I;
-	signalQueueInstance = dacValues->channel1I;
+dacDriver::dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I, TIM_HandleTypeDef *timer1I, signalQueue *channel1I) {
+	hdac = hdacI;
+	DacChannel = DacChannel1I;
+	timerInstance = timer1I;
+	signalQueueInstance = channel1I;
 
 	//ensure that something is in current signal
 	HAL_StatusTypeDef DMA =  HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations,
@@ -388,12 +348,6 @@ dacDriver::dacDriver(dacSetup *dacValues) {
 	}
 }
 
-void dacDriver::checkQueue() {
-	if (signalQueueInstance->dequeue(&currentSignal)) {
-		setReload(); //set new period
-	}
-	return;
-}
 
 void dacDriver::setReload() {
 	currentReloadValue = (uint32_t) FCLK
@@ -406,130 +360,82 @@ void dacDriver::setReload() {
 	timerInstance->Instance->ARR = currentReloadValue;
 }
 
-signalInfo* dacDriver::getSignalInfo() {
-	return &currentSignal; //returns signal that is currently being displayed
+
+uint32_t dacDriver::getFreq(){
+	return currentSignal.frequency;
+}
+uint16_t dacDriver::getAmp(){
+	return currentSignal.amp;
+}
+uint8_t dacDriver::getShift(){
+	return currentSignal.shiftAmount;
+}
+WaveShape dacDriver::getWave(){
+	return currentSignal.wave;
 }
 
 void dacDriver::update() {
-	checkQueue();
+	if (signalQueueInstance->dequeue(&currentSignal)) {
+			setReload(); //set new period
+	}
 	//ensure that something is in current signal
 }
 
+void dacDriver::enableTimer(){
+	timerInstance->Instance->CR1 |= TIM_CR1_CEN;
+}
+
 outputDriver::outputDriver(dacDriver *DACchannel1I, dacDriver *DACchannel2I,
-		dacSetup *DACchannel1SetupI, dacSetup *DACchannel2SetupI,
 		displayQueue *displayInfoQI) {
-	DACChannel1Setup = DACchannel1SetupI;
-	DACChannel2Setup = DACchannel2SetupI;
+	displayInfoQ = displayInfoQI;
 	DACchannel1 = DACchannel1I;
 	DACchannel2 = DACchannel2I;
-
+	DACchannel1->enableTimer();
+	DACchannel2->enableTimer();
 	update();
-
-	//hal version
-	//HAL_TIM_Base_Start(DACChannel1Setup->timer1I);
-	//HAL_TIM_Base_Start(DACChannel2Setup->timer1I);
-
-	//non hal version, TOO MANY ->
-	//DACChannel1Setup->timer1I->Instance->CR1 |= TIM_CR1_CEN;
-	//DACChannel2Setup->timer1I->Instance->CR1 |= TIM_CR1_CEN;
-
-
-	TIM_HandleTypeDef *Channel1Timer = DACChannel1Setup->timer1I;
-	TIM_HandleTypeDef *Channel2Timer = DACChannel2Setup->timer1I;
-	Channel1Timer->Instance->CR1 |= TIM_CR1_CEN;
-	Channel2Timer->Instance->CR1 |= TIM_CR1_CEN;
-
-
-
-	signalInfo* channel1Info = DACchannel1->getSignalInfo();
-	signalInfo* channel2Info = DACchannel2->getSignalInfo();
-	if(channel1Info != nullptr and channel2Info != nullptr){
-		soonDisplayInfo = { channel1Info,channel2Info};
-		if (displayInfoQI->enqueue(soonDisplayInfo) == false) {
-			//something is very wrong if it cannot enqueue during constructor,
-			//restarting now as DMA will fail later
-			NVIC_SystemReset();
-		}
-	}else{
-		NVIC_SystemReset();
-	}
 }
 
 void outputDriver::update() {
 	DACchannel1->update();
 	DACchannel2->update();
-	//displayInfo toWrite = {DACchannel1->getSignalInfo(),DACchannel2->getSignalInfo()};
-	//displayInfoQ->enqueue(toWrite);
+	displayInfoValues toWrite = {DACchannel1->getFreq(),DACchannel1->getAmp(),DACchannel1->getWave(),
+			DACchannel2->getFreq(),DACchannel2->getAmp(),DACchannel2->getShift(),DACchannel2->getWave()};
+	displayInfoQ->enqueue(toWrite);
+
+	//	displayInfoValues toWrite = {DACchannel1->getFreq(),
+	//			DACchannel1->getAmp(),
+	//			DACchannel1->getWave(),
+	//			DACchannel2->getFreq(),
+	//			DACchannel2->getAmp(),
+	//			DACchannel2->getShift(),
+	//			DACchannel2->getWave()};
+
 }
 
 void font::initializeFontMap() {
-	fontMap['0'] = zero;
-	fontMap['1'] = one;
-	fontMap['2'] = two;
-	fontMap['3'] = three;
-	fontMap['4'] = four;
-	fontMap['5'] = five;
-	fontMap['6'] = six;
-	fontMap['7'] = seven;
-	fontMap['8'] = eight;
-	fontMap['9'] = nine;
-	fontMap['#'] = hash;
-	fontMap['A'] = capA;
-	fontMap['B'] = capB;
-	fontMap['C'] = capC;
-	fontMap['D'] = capD;
-	fontMap['E'] = capE;
-	fontMap['F'] = capF;
-	fontMap['G'] = capG;
-	fontMap['H'] = capH;
-	fontMap['I'] = capI;
-	fontMap['J'] = capJ;
-	fontMap['K'] = capK;
-	fontMap['L'] = capL;
-	fontMap['M'] = capM;
-	fontMap['N'] = capN;
-	fontMap['O'] = capO;
-	fontMap['P'] = capP;
-	fontMap['Q'] = capQ;
-	fontMap['R'] = capR;
-	fontMap['S'] = capS;
-	fontMap['T'] = capT;
-	fontMap['U'] = capU;
-	fontMap['V'] = capV;
-	fontMap['W'] = capW;
-	fontMap['X'] = capX;
-	fontMap['Y'] = capY;
-	fontMap['Z'] = capZ;
-	fontMap['a'] = lowA;
-	fontMap['b'] = lowB;
-	fontMap['c'] = lowC;
-	fontMap['d'] = lowD;
-	fontMap['e'] = lowE;
-	fontMap['f'] = lowF;
-	fontMap['g'] = lowG;
-	fontMap['h'] = lowH;
-	fontMap['i'] = lowI;
-	fontMap['j'] = lowJ;
-	fontMap['k'] = lowK;
-	fontMap['l'] = lowL;
-	fontMap['m'] = lowM;
-	fontMap['n'] = lowN;
-	fontMap['o'] = lowO;
-	fontMap['p'] = lowP;
-	fontMap['q'] = lowQ;
-	fontMap['r'] = lowR;
-	fontMap['s'] = lowS;
-	fontMap['t'] = lowT;
-	fontMap['u'] = lowU;
-	fontMap['v'] = lowV;
-	fontMap['w'] = lowW;
-	fontMap['x'] = lowX;
-	fontMap['y'] = lowY;
-	fontMap['z'] = lowZ;
-	fontMap['-'] = Dash;
-	fontMap['.'] = Decimal;
-	fontMap['%'] = percent;
-	fontMap['|'] = verticalBar;
+	fontMap[l0] = zero;
+	fontMap[l1] = one;
+	fontMap[l2] = two;
+	fontMap[l3] = three;
+	fontMap[l4] = four;
+	fontMap[l5] = five;
+	fontMap[l6] = six;
+	fontMap[l7] = seven;
+	fontMap[l8] = eight;
+	fontMap[l9] = nine;
+	fontMap[A] = capA;
+	fontMap[F] = capF;
+	fontMap[S] = capS;
+	fontMap[e] = lowE;
+	fontMap[f] = lowF;
+	fontMap[h] = lowH;
+	fontMap[i] = lowI;
+	fontMap[m] = lowM;
+	fontMap[p] = lowP;
+	fontMap[q] = lowQ;
+	fontMap[r] = lowR;
+	fontMap[t] = lowT;
+	fontMap[ldecimal] = Decimal;
 }
 
 font::font() {
@@ -537,7 +443,82 @@ font::font() {
 }
 
 const uint16_t* font::getLetter(const uint8_t letter) {
-	return fontMap[(uint8_t) letter];
+	uint8_t convertLetter = 0;
+	switch (letter){
+	case(48): // ascii 0
+		convertLetter = l0;
+		break;
+	case(49): // ascii 1
+		convertLetter = l1;
+		break;
+	case(50): // ascii 2
+		convertLetter = l2;
+		break;
+	case(51): // ascii 3
+		convertLetter = l3;
+		break;
+	case(52): // ascii 4
+		convertLetter = l4;
+		break;
+	case(53): // ascii 5
+		convertLetter = l5;
+		break;
+	case(54): // ascii 6
+		convertLetter = l6;
+		break;
+	case(55): // ascii 7
+		convertLetter = l7;
+		break;
+	case(56): // ascii 8
+		convertLetter = l8;
+		break;
+	case(57): // ascii 9
+		convertLetter = l9;
+		break;
+	case(65): // ascii A
+		convertLetter = A;
+		break;
+	case(70): // ascii F
+		convertLetter = F;
+		break;
+	case(83): // ascii S
+		convertLetter = S;
+		break;
+	case(101): // ascii e
+		convertLetter = e;
+		break;
+	case(102): // ascii f
+		convertLetter = f;
+		break;
+	case(104): // ascii h
+		convertLetter = h;
+		break;
+	case(105): // ascii i
+		convertLetter = i;
+		break;
+	case(109): // ascii m
+		convertLetter = m;
+		break;
+	case(112): // ascii p
+		convertLetter = p;
+		break;
+	case(113): // ascii q
+		convertLetter = q;
+		break;
+	case(114): // ascii r
+		convertLetter = r;
+		break;
+	case(116): // ascii t
+		convertLetter = t;
+		break;
+	case(46): // ascii .
+		convertLetter = ldecimal;
+		break;
+	default:
+		convertLetter = l0;
+		break;
+	}
+	return fontMap[convertLetter];
 }
 
 const uint32_t* font::getSineVis() {

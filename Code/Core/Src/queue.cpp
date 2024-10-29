@@ -15,13 +15,13 @@ signalQueue::signalQueue() {
 	tail = 0;
 }
 
-bool signalQueue::enqueue(signalInfo msg) {
+bool signalQueue::enqueue(struct signalInfo msg) {
 	bool ok = false;
 	uint8_t nextTail = tail;
 	rollingMath(&nextTail);
 	if(nextTail != head) { //act as normal
 		buffer[tail] = msg; //put the message in the buffer
-		rollingMath(&tail); //increment the tail
+		tail = nextTail; //increment the tail
 		ok = true; //value added successfully
 	} else {
 		ok = false; //queue is full / if increased tail = head and dequeue wont know
@@ -31,7 +31,7 @@ bool signalQueue::enqueue(signalInfo msg) {
 }
 
 
-bool signalQueue::dequeue(signalInfo *msg) {
+bool signalQueue::dequeue(struct signalInfo *msg) {
 	bool ok = false;
 	if(head==tail) {
 		ok = false; //no values in queue
@@ -62,13 +62,13 @@ displayQueue::displayQueue() {
 	tail = 0;
 }
 
-bool displayQueue::enqueue(displayInfo msg) {
+bool displayQueue::enqueue(struct displayInfoValues msg) {
 	bool ok = false;
 	uint8_t nextTail = tail;
 	rollingMath(&nextTail);
 	if(nextTail != head) { //act as normal
 		buffer[tail] = msg; //put the message in the buffer
-		rollingMath(&tail); //increment the tail
+		tail  = nextTail; //increment the tail
 		ok = true; //value added successfully
 	} else {
 		ok = false; //queue is full / if increased tail = head and dequeue wont know
@@ -78,7 +78,7 @@ bool displayQueue::enqueue(displayInfo msg) {
 }
 
 
-bool displayQueue::dequeue(displayInfo *msg) {
+bool displayQueue::dequeue(struct displayInfoValues *msg) {
 	bool ok = false;
 	if(head==tail) {
 		ok = false; //no values in queue
@@ -116,7 +116,7 @@ bool inputQueue::enqueue(inputValues msg) {
 	rollingMath(&nextTail);
 	if(nextTail != head) { //act as normal
 		buffer[tail] = msg; //put the message in the buffer
-		rollingMath(&tail); //increment the tail
+		tail= nextTail; //increment the tail
 		ok = true; //value added successfully
 	} else {
 		ok = false; //queue is full / if increased tail = head and dequeue wont know

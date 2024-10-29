@@ -28,7 +28,7 @@
 
 
 //Variables
-#define DISPLAY_QUEUE_SIZE 3
+#define DISPLAY_QUEUE_SIZE 10
 #define INPUT_QUEUE_SIZE 3
 #define SIGNAL_QUEUE_SIZE 3
 #define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
@@ -55,11 +55,15 @@
 
 
 
-
+#include "stm32l4xx_ll_spi.h"
+#include "stm32l4xx_ll_gpio.h"
+#include "stm32l4xx_ll_bus.h"
+#include "stm32l4xx_ll_utils.h"
 
 
 
 enum WaveShape{SINE, SQUARE, PULSE, ECHO};
+enum letterMappngs{l0,l1,l2,l3,l4,l5,l6,l7,l8,l9,A,F,S,e,f,h,i,m,p,q,r,t,ldecimal};
 
 struct inputValues
 	{
@@ -80,9 +84,14 @@ struct signalInfo{
 	WaveShape wave = SINE;
 };
 
-struct displayInfo{
-	signalInfo *ChannelAInfo;
-	signalInfo *ChannelBInfo;
+struct displayInfoValues{
+	uint32_t Afrequency = 0; //signal was tested to 80khz, 65k is not enough
+	uint16_t Aamp = 0; //0-3.3 represented as 0 -4095
+	WaveShape Awave = SINE;
+	uint32_t Bfrequency = 0; //signal was tested to 80khz, 65k is not enough
+	uint16_t Bamp = 0; //0-3.3 represented as 0 -4095
+	uint8_t BshiftAmount = 0; //shift amount from - 255
+	WaveShape Bwave = SINE;
 };
 
 
@@ -103,7 +112,7 @@ struct dacSetup{
 #include "olivia.h"
 #include "nathan.h"
 
-#include "stm32l4xx_ll_i2c.h"
+
 #include "shane.h"
 
 #include "memoryBarrier.h"
