@@ -7,7 +7,7 @@
 
 #ifndef SRC_MEMORYBARRIER_H_
 #define SRC_MEMORYBARRIER_H_
-#include "main.h"
+
 #define memoryBarrierSize 32
 
 class memoryChecker{
