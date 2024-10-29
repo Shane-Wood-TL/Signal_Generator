@@ -7,34 +7,20 @@
 
 #include "allIncludes.h"
 
-KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, int8_t AmpKnobInc1, int8_t FreqKnobInc1, int8_t AmpKnobInc2, int8_t FreqKnobInc2, int8_t DelayKnobInc2, int8_t AmpKnobDec1, int8_t FreqKnobDec1, int8_t AmpKnobDec2, int8_t FreqKnobDec2, int8_t DelayKnobDec2){
+KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2){
 
 	gpio_name_1 = GpioName1;
 	pin_number_1 = PinNumber1;
 	gpio_name_2 = GpioName2;
 	pin_number_2 = PinNumber2;
 
-	amp_knob_inc1 = AmpKnobInc1;
-	freq_knob_inc1 = FreqKnobInc1;
-
-	amp_knob_inc2 = AmpKnobInc2;
-	freq_knob_inc2 = FreqKnobInc2;
-	delay_knob_inc2 = DelayKnobInc2;
-
-	amp_knob_dec1 = AmpKnobDec1;
-	freq_knob_dec1 = FreqKnobDec1;
-
-	amp_knob_dec2 = AmpKnobDec2;
-	freq_knob_dec2 = FreqKnobDec2;
-	delay_knob_dec2 = DelayKnobDec2;
-
 	assert(gpio_name_1 != nullptr);
 	assert(gpio_name_2 != nullptr);
 }
 
-void KnobDriver::UpdateKnob(struct inputValues *queue_data){
+int8_t KnobDriver::UpdateKnob(){
 
-	assert(queue_data != nullptr);
+	int8_t KnobUpdateValue = 0;
 
 	static bool PreviousStatePin1 = false;
 	static bool PreviousStatePin2 = false;
@@ -47,31 +33,16 @@ void KnobDriver::UpdateKnob(struct inputValues *queue_data){
 	else KnobCurrentStatePin2 = false;
 
 	if ((KnobCurrentStatePin1 == true) && (PreviousStatePin1 == false) && (KnobCurrentStatePin2 == false)){
-		queue_data -> AmpKnob1 = amp_knob_inc1;
-		queue_data -> FreqKnob1 = freq_knob_inc1;
-		queue_data -> AmpKnob2 = amp_knob_inc2;
-		queue_data -> FreqKnob2 = freq_knob_inc2;
-		queue_data -> DelayKnob2 = delay_knob_inc2;
+		KnobUpdateValue = 1;
 	}
 	else if ((KnobCurrentStatePin2 == true) && (PreviousStatePin2 == false) && (KnobCurrentStatePin1 == false)){
-		queue_data -> AmpKnob1 = amp_knob_dec1;
-		queue_data -> FreqKnob1 = freq_knob_dec1;
-		queue_data -> AmpKnob2 = amp_knob_dec2;
-		queue_data -> FreqKnob2 = freq_knob_dec2;
-		queue_data -> DelayKnob2 = delay_knob_dec2;
-	}
-	else{
-		queue_data -> AmpKnob1 = 0;
-		queue_data -> FreqKnob1 = 0;
-		queue_data -> AmpKnob2 = 0;
-		queue_data -> FreqKnob2 = 0;
-		queue_data -> DelayKnob2 = 0;
+		KnobUpdateValue = -1;
 	}
 
 	PreviousStatePin1 = KnobCurrentStatePin1;
 	PreviousStatePin2 = KnobCurrentStatePin2;
 
-	return;
+	return KnobUpdateValue;
 }
 
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
@@ -137,9 +108,10 @@ void InputDriver::checkForUpdates(){
 
     inputValues queue_data = {0};
 
-	AmpKnob -> UpdateKnob(&queue_data);
-    FreqKnob -> UpdateKnob(&queue_data);
-    ShiftKnob -> UpdateKnob(&queue_data);
+    queue_data.AmpKnob1 = AmpKnob -> UpdateKnob();
+	//AmpKnob -> UpdateKnob(&queue_data);
+    //FreqKnob -> UpdateKnob(&queue_data);
+    //ShiftKnob -> UpdateKnob(&queue_data);
 	channelSwitcher->UpdateSwitch(&queue_data);
 	modeSwitcher -> UpdateButton(&queue_data);
 

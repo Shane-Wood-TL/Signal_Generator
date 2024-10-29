@@ -17,19 +17,9 @@ private:
 	uint8_t pin_number_1;
 	GPIO_TypeDef* gpio_name_2;
 	uint8_t pin_number_2;
-	int8_t amp_knob_inc1;
-	int8_t freq_knob_inc1;
-	int8_t amp_knob_inc2;
-	int8_t freq_knob_inc2;
-	int8_t delay_knob_inc2;
-	int8_t amp_knob_dec1;
-	int8_t freq_knob_dec1;
-	int8_t amp_knob_dec2;
-	int8_t freq_knob_dec2;
-	int8_t delay_knob_dec2;
 public:
-	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2, int8_t AmpKnobInc1, int8_t FreqKnobInc1, int8_t AmpKnobInc2, int8_t FreqKnobInc2, int8_t DelayKnobInc2, int8_t AmpKnobDec1, int8_t FreqKnobDec1, int8_t AmpKnobDec2, int8_t FreqKnobDec2, int8_t DelayKnobDec2);
-	void UpdateKnob(struct inputValues *queue_data);
+	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
+	int8_t UpdateKnob();
 };
 
 class ButtonDriver
