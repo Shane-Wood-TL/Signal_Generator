@@ -13,13 +13,53 @@ extern DAC_HandleTypeDef hdac1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
 
+/*extern TIM_HandleTypeDef htim7;
 
+extern "C" void TIM7_IRQHandler(void) {
+    static Semaphore button;
+	static Semaphore knobs;
+	static Semaphore switches;
+	inputValues values = {0,false,0,0,0,0,0};
+	static bool previousStateButton = false;
+	static bool switchChange = false;
+	if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE) != RESET) {
+		if(__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE) != RESET) {
+			__HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE); // Clear the interrupt flag
+	        // Button press detection
+	        if(values.isButtonPressed != previousStateButton) {
+	        	button.enqueue(1);
+	            previousStateButton = values.isButtonPressed;
+	        }
+
+	        // Knob change detection
+	        if(values.AmpKnob1 != 0 || values.AmpKnob2 != 0 ||
+	        	values.FreqKnob1 != 0 || values.FreqKnob2 != 0 ||
+	            values.DelayKnob2 != 0) {
+	            knobs.enqueue(1);
+	        }
+
+	        // Switch change detection
+	        if(values.Switch != switchChange) {
+	        	switches.enqueue(1);
+	            switchChange = values.Switch; // Update the tracked switch state
+	        }
+	    }
+	}
+}*/
 
 void cpp_main(void){
 	//set up the queues
 	inputQueue inputQueueInstance;
 	signalQueue channel1;
 	signalQueue channel2;
+	Semaphore button;
+	Waves waves(&inputQueueInstance, &channel1, &channel2);
+	/*Semaphore switchs;
+	Semaphore knobs;*/
+	//button.enqueue(1);
+
+
+
 	displayQueue displayQueueInstance;
 
 	//Waves waves(&inputQueueInstance, &channel1, &channel2);
