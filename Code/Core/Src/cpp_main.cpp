@@ -13,7 +13,7 @@ extern DAC_HandleTypeDef hdac1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
 
-/*extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim7;
 
 extern "C" void TIM7_IRQHandler(void) {
     static Semaphore button;
@@ -45,9 +45,10 @@ extern "C" void TIM7_IRQHandler(void) {
 	        }
 	    }
 	}
-}*/
+}
 
 void cpp_main(void){
+	htim7.Instance->CR1 |= TIM_CR1_CEN;
 	//set up the queues
 	inputQueue inputQueueInstance;
 	signalQueue channel1;
@@ -62,13 +63,11 @@ void cpp_main(void){
 
 	displayQueue displayQueueInstance;
 
-	//Waves waves(&inputQueueInstance, &channel1, &channel2);
-
 	//applicationLayer mainHandler(&inputQueueInstance, &channel1, &channel2);
 
 	dacDriver DriverCh1(&hdac1,DAC_CHANNEL_1,&htim2,&channel1);
 	dacDriver DriverCh2(&hdac1,DAC_CHANNEL_2,&htim6,&channel2);
-	outputDriver outputDriverI(&DriverCh1, &DriverCh2, &displayQueueInstance);
+	outputDriver outputDriverI(&DriverCh1, &DriverCh2, &displayQueueInstance);//
 
 	//simple memory barrier to catch memory issues (indexing past where another objects were allocated to)
 	uint32_t memoryBarrier[32] = {1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111};
@@ -86,9 +85,9 @@ void cpp_main(void){
 
 
 	//start spi + setup display
-	display mainDisplay(&hspi3, &displayQueueInstance);
+	display mainDisplay(&hspi3, &displayQueueInstance);//
 	//draw freq + amp to the display
-	mainDisplay.getNewValues();
+	mainDisplay.getNewValues();//
 
 	uint8_t wasteofTime = 0;
 	while(1){
@@ -97,8 +96,8 @@ void cpp_main(void){
 		wasteofTime = 0;
 		inputQueueInstance.enqueue(test);
 		//mainHandler.update();
-		outputDriverI.update();
-		mainDisplay.getNewValues();
+		//outputDriverI.update();
+		//mainDisplay.getNewValues();
 		wasteofTime++;
 	}
 }
