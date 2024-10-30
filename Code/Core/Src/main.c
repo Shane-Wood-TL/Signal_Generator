@@ -108,12 +108,13 @@ int main(void)
   MX_SPI3_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-
+  //TIM7->DIER|=TIM_DIER_UIE_Msk;
   /* USER CODE END 2 */
-
+  HAL_TIM_Base_Start_IT(&htim7);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   cpp_main();
+
   while (1)
   {
     /* USER CODE END WHILE */

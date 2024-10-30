@@ -290,6 +290,7 @@ void Waves::setDelay()
 	delayValue = delayValue+count;
 }
 
+
 //Semaphore Class
 Semaphore::Semaphore(){}
 
