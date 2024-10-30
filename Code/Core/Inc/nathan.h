@@ -17,6 +17,8 @@ private:
 	uint8_t pin_number_1;
 	GPIO_TypeDef* gpio_name_2;
 	uint8_t pin_number_2;
+	bool previousStatePin1;
+	bool previousStatePin2;
 public:
 	KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2);
 	int8_t UpdateKnob();
@@ -56,7 +58,7 @@ class InputDriver
 public:
 	InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI,inputQueue *inputQueueInstanceI,Semaphore *KnobSemaphoreI);
 	void checkForUpdates();
-	inputValues queue_data{};
+	inputValues queue_data{}; //struct of all update data that gets enqueued into inputQueue
 };
 
 
