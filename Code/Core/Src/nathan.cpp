@@ -14,35 +14,44 @@ KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef
 	gpio_name_2 = GpioName2;
 	pin_number_2 = PinNumber2;
 
+	previousStatePin1 = false;
+	previousStatePin2 = false;
+
 	assert(gpio_name_1 != nullptr);
 	assert(gpio_name_2 != nullptr);
 }
 
 int8_t KnobDriver::UpdateKnob(){
 
-	int8_t KnobUpdateValue = 0;
+	int8_t knobUpdateValue = 0;
 
-	static bool PreviousStatePin1 = false;
-	static bool PreviousStatePin2 = false;
-	bool KnobCurrentStatePin1;
-	bool KnobCurrentStatePin2;
+	bool knobCurrentStatePin1;
+	bool knobCurrentStatePin2;
 
-	if ((gpio_name_1 -> IDR & (1<<pin_number_1)) == 0) KnobCurrentStatePin1 = true;
-	else KnobCurrentStatePin1 = false;
-	if ((gpio_name_2 -> IDR & (1<<pin_number_2)) == 0) KnobCurrentStatePin2 = true;
-	else KnobCurrentStatePin2 = false;
-
-	if ((KnobCurrentStatePin1 == true) && (PreviousStatePin1 == false) && (KnobCurrentStatePin2 == false)){
-		KnobUpdateValue = 1;
+	if ((gpio_name_1 -> IDR & (1<<pin_number_1)) == 0){
+		knobCurrentStatePin1 = true;
 	}
-	else if ((KnobCurrentStatePin2 == true) && (PreviousStatePin2 == false) && (KnobCurrentStatePin1 == false)){
-		KnobUpdateValue = -1;
+	else{
+		knobCurrentStatePin1 = false;
+	}
+	if ((gpio_name_2 -> IDR & (1<<pin_number_2)) == 0){
+		knobCurrentStatePin2 = true;
+	}
+	else{
+		knobCurrentStatePin2 = false;
 	}
 
-	PreviousStatePin1 = KnobCurrentStatePin1;
-	PreviousStatePin2 = KnobCurrentStatePin2;
+	if ((knobCurrentStatePin1 == true) && (previousStatePin1 == false) && (knobCurrentStatePin2 == false) && (previousStatePin2 == false)){
+		knobUpdateValue = 1;
+	}
+	else if ((knobCurrentStatePin2 == true) && (previousStatePin2 == false) && (knobCurrentStatePin1 == false) && (previousStatePin1 == false)){
+		knobUpdateValue = -1;
+	}
 
-	return KnobUpdateValue;
+	previousStatePin1 = knobCurrentStatePin1;
+	previousStatePin2 = knobCurrentStatePin2;
+
+	return knobUpdateValue;
 }
 
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
@@ -52,21 +61,32 @@ ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 }
 
 void ButtonDriver::UpdateButton(struct inputValues *queue_data){
+	bool semaContents;
+	bool semaStatus = ButtonSemaphoreInstance -> dequeue(&semaContents);
 
-	static bool ButtonPreviousState = false;
-	bool ButtonCurrentState;
+	if ((semaStatus == true) && (semaContents == true)){
+		static bool ButtonPreviousState = false;
+		bool ButtonCurrentState;
 
-	if ((gpio_name -> IDR & (1<<pin_number)) == 0) ButtonCurrentState = true;
-	else ButtonCurrentState = false;
+		if ((gpio_name -> IDR & (1<<pin_number)) == 0){
+			ButtonCurrentState = true;
+		}
+		else{
+			ButtonCurrentState = false;
+		}
 
-	if ((ButtonCurrentState == true) && (ButtonPreviousState == false)){
-		queue_data -> isButtonPressed = true;
+		if ((ButtonCurrentState == true) && (ButtonPreviousState == false)){
+			queue_data -> isButtonPressed = true;
+		}
+		else{
+			queue_data -> isButtonPressed = false;
+		}
+
+		ButtonPreviousState = ButtonCurrentState;
 	}
 	else{
 		queue_data -> isButtonPressed = false;
 	}
-
-	ButtonPreviousState = ButtonCurrentState;
 
 	return;
 }
@@ -78,17 +98,31 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 }
 
 void SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
+	bool semaContents;
+	bool semaStatus = SwitchSemaphoreInstance -> dequeue(&semaContents);
+	int8_t previousSwitchState = false;
 
-	bool SwitchCurrentState;
+	if ((semaStatus == true) && (semaContents == true)){
+		bool SwitchCurrentState;
 
-	if ((gpio_name -> IDR & (1<<pin_number)) == 0) SwitchCurrentState = true;
-	else SwitchCurrentState = false;
+		if ((gpio_name -> IDR & (1<<pin_number)) == 0){
+			SwitchCurrentState = true;
+		}
+		else{
+			SwitchCurrentState = false;
+		}
 
-	if (SwitchCurrentState == true){
-		queue_data -> Switch = 1;
+		if (SwitchCurrentState == true){
+			queue_data -> Switch = 1;
+			previousSwitchState = 1;
+		}
+		else{
+			queue_data -> Switch = 0;
+			previousSwitchState = 0;
+		}
 	}
 	else{
-		queue_data -> Switch = 0;
+		queue_data -> Switch = previousSwitchState;
 	}
 
 	return;
@@ -105,18 +139,31 @@ InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver
 }
 
 void InputDriver::checkForUpdates(){
-
     inputValues queue_data = {0};
 
-    int8_t freq_value = FreqKnob -> UpdateKnob();
-    queue_data.FreqKnob1 = freq_value;
-    queue_data.FreqKnob2 = freq_value;
+	bool knobSemaContents;
+	bool knobSemaStatus = KnobSemaphoreInstance -> dequeue(&knobSemaContents);
 
-    int8_t amp_value = AmpKnob -> UpdateKnob();
-    queue_data.AmpKnob1 = amp_value;
-    queue_data.AmpKnob2 = amp_value;
+	if ((knobSemaStatus == true) && (knobSemaContents == true)){
+		int8_t freq_value = FreqKnob -> UpdateKnob();
+		queue_data.FreqKnob1 = freq_value;
+		queue_data.FreqKnob2 = freq_value;
 
-    queue_data.DelayKnob2 = ShiftKnob -> UpdateKnob();
+		int8_t amp_value = AmpKnob -> UpdateKnob();
+		queue_data.AmpKnob1 = amp_value;
+		queue_data.AmpKnob2 = amp_value;
+
+		queue_data.DelayKnob2 = ShiftKnob -> UpdateKnob();
+	}
+	else{
+		queue_data.FreqKnob1 = 0;
+		queue_data.FreqKnob2 = 0;
+
+		queue_data.AmpKnob1 = 0;
+		queue_data.AmpKnob2 = 0;
+
+		queue_data.DelayKnob2 = 0;
+	}
 
 	modeSwitcher -> UpdateButton(&queue_data);
 	channelSwitcher->UpdateSwitch(&queue_data);
