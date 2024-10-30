@@ -75,6 +75,14 @@ void cpp_main(void){
 	memoryChecker mainMemoryChecker(memoryBarrier);
 
 
+	SwitchDriver channel(GPIOA, 7, nullptr); //fill nullptr with semaphore switch
+	ButtonDriver mode(GPIOB, 0, nullptr); //fill nullptr with semaphore button
+
+	KnobDriver freq(GPIOA, 12, GPIOA, 11);
+	KnobDriver amp(GPIOA, 10, GPIOA, 9);
+	KnobDriver shift(GPIOA, 8, GPIOB, 1);
+
+	InputDriver input(&amp, &freq, &shift, &channel, &mode, &inputQueueInstance, nullptr); //fill nullptr with semaphore knob
 
 
 	//start spi + setup display
@@ -84,6 +92,7 @@ void cpp_main(void){
 
 	uint8_t wasteofTime = 0;
 	while(1){
+		input.checkForUpdates(); //updates all input, needs semaphores
 		struct inputValues test = {0,true,0,0,0,0,0};
 		wasteofTime = 0;
 		inputQueueInstance.enqueue(test);
