@@ -61,6 +61,9 @@ void Waves::update()
 	}else if(waveType1 == SQUARE and waveSelect == true and channelSelect == 0){
 		waveType1 = SINE;
 	}
+	else{
+		waveType1 = SINE;
+	}
 	//Channel 2 wave type select
 	//Button is false don't change the wave type
 	if(waveType2 == SINE and waveSelect == false and channelSelect == 1){
@@ -80,6 +83,9 @@ void Waves::update()
 	}else if(waveType2 == PULSE and waveSelect == true and channelSelect == 1){
 		waveType2 = ECHO;
 	}else if(waveType2 == ECHO and waveSelect == true and channelSelect == 1){
+		waveType2 = SINE;
+	}
+	else{
 		waveType2 = SINE;
 	}
 
@@ -292,7 +298,7 @@ void Waves::setDelay()
 
 
 //Semaphore Class
-Semaphore::Semaphore(){}
+//Semaphore::Semaphore(){}
 
 bool Semaphore::enqueue(bool msg) {
 	bool ok = false;
@@ -330,5 +336,33 @@ void Semaphore::rollingMath(uint8_t *position){
         *position+=1;
     }
 }
+/*bool Semaphore::enqueue(bool msg)
+{
+	bool ok = false;
+    if (tail == QUEUE_BUFFER_SIZE) {
+        ok = false;
+    }
+    else{
+        buffer[tail] = msg;
+        tail = tail + 1;
+        ok = true;
+    }
+    return ok;
+}
+
+bool Semaphore::dequeue(bool* msg)
+{
+	bool ok = false;
+    if (tail == 0) {
+        ok = false;
+    }
+    else{
+        *msg = buffer[head];
+        tail = tail - 1;
+        ok = true;
+    }
+    return ok;
+}*/
+
 
 

@@ -52,7 +52,7 @@ class Semaphore{
     uint32_t activeValues = 0; //the amount of active values
 
 public:
-    Semaphore(); //constructor
+    //Semaphore(); //constructor
     bool enqueue(bool msg); //add values
     bool dequeue(bool* msg); //remove values
     void rollingMath(uint8_t *position); //does the math to handle rollovers
