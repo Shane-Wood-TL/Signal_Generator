@@ -145,28 +145,22 @@ void InputDriver::checkForUpdates(){
 	bool knobSemaStatus = KnobSemaphoreInstance -> dequeue(&knobSemaContents);
 
 	if ((knobSemaStatus == true) && (knobSemaContents == true)){
-		int8_t freq_value = FreqKnob -> UpdateKnob();
-		queue_data.FreqKnob1 = freq_value;
-		queue_data.FreqKnob2 = freq_value;
+		queue_data.FreqKnob = FreqKnob -> UpdateKnob();
 
-		int8_t amp_value = AmpKnob -> UpdateKnob();
-		queue_data.AmpKnob1 = amp_value;
-		queue_data.AmpKnob2 = amp_value;
+		queue_data.AmpKnob = AmpKnob -> UpdateKnob();
 
-		queue_data.DelayKnob2 = ShiftKnob -> UpdateKnob();
+		queue_data.DelayKnob = ShiftKnob -> UpdateKnob();
 	}
 	else{
-		queue_data.FreqKnob1 = 0;
-		queue_data.FreqKnob2 = 0;
+		queue_data.FreqKnob = 0;
 
-		queue_data.AmpKnob1 = 0;
-		queue_data.AmpKnob2 = 0;
+		queue_data.AmpKnob = 0;
 
-		queue_data.DelayKnob2 = 0;
+		queue_data.DelayKnob = 0;
 	}
 
 	modeSwitcher -> UpdateButton(&queue_data);
-	channelSwitcher->UpdateSwitch(&queue_data);
+	channelSwitcher -> UpdateSwitch(&queue_data);
 
 	inputQueueInstance -> enqueue(queue_data);
 

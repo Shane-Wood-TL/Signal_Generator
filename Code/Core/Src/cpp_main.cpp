@@ -71,9 +71,9 @@ void cpp_main(void){
 	//bool z = 0;
 	while(1){
 		input.checkForUpdates(); //updates all input, needs semaphores
-		struct inputValues test = {0,true,0,0,0,0,0};
+		//struct inputValues test = {0,true,0,0,0,0,0}; too many initializers for 'inputValues'
 		wasteofTime = 0;
-		inputQueueInstance.enqueue(test);
+		//inputQueueInstance.enqueue(test); test struct has been commented out
 
 		//button.dequeue(&x);
 		//knobs.dequeue(&z);
