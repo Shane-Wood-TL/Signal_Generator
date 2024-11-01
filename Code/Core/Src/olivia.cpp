@@ -17,7 +17,7 @@ Waves::Waves(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *Sig
 }
 
 Waves::~Waves(){}
-
+/*
 void Waves::update()
 {
 	inputValues values;
@@ -278,7 +278,7 @@ void Waves::setPulse()
 		}
 	}
 }
-
+*/
 void Waves::setDelay()
 {
     uint16_t count = 0;
