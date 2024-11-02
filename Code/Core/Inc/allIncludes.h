@@ -9,10 +9,6 @@
 #define SRC_ALLINCLUDES_H_
 
 
-//Pin definitions
-#include "pinout.h"
-
-
 //Variables
 #define waveFormRes 255 //how many steps per wavelength
 
@@ -20,7 +16,18 @@
 #define FCLK 80000000UL //system clock speed
 #define timerPSC 0 //timer prescaling value
 
+#define maxFreq 1000
+#define minFreq 1
 
+#define maxAmp 4095
+#define minAmp 1
+
+#define maxShift 255
+#define minShift 0
+
+
+//Pin definitions
+#include "pinout.h"
 
 
 //C includes

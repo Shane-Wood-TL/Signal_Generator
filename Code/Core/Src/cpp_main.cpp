@@ -35,7 +35,7 @@ void cpp_main(void){
 	signalQueue channel1;
 	signalQueue channel2;
 
-	Waves waves(&inputQueueInstance, &channel1, &channel2);
+	//Waves waves(&inputQueueInstance, &channel1, &channel2);
 
 
 	displayQueue displayQueueInstance;
@@ -51,14 +51,14 @@ void cpp_main(void){
 	memoryChecker mainMemoryChecker(memoryBarrier);
 
 
-	SwitchDriver channel(GPIOA, 7, nullptr); //fill nullptr with semaphore switch
-	ButtonDriver mode(GPIOB, 0, nullptr); //fill nullptr with semaphore button
+	SwitchDriver channel(GPIOA, 7, &switches); //fill nullptr with semaphore switch
+	ButtonDriver mode(GPIOB, 0, &button); //fill nullptr with semaphore button
 
 	KnobDriver freq(GPIOA, 12, GPIOA, 11);
-	KnobDriver amp(GPIOA, 10, GPIOA, 9);
+	KnobDriver amp(GPIOA, 9, GPIOA, 10);
 	KnobDriver shift(GPIOA, 8, GPIOB, 1);
 
-	InputDriver input(&amp, &freq, &shift, &channel, &mode, &inputQueueInstance, nullptr); //fill nullptr with semaphore knob
+	InputDriver input(&amp, &freq, &shift, &channel, &mode, &inputQueueInstance, &knobs); //fill nullptr with semaphore knob
 
 
 	//start spi + setup display
