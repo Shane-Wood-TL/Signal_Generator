@@ -12,14 +12,9 @@
 //Pin definitions
 #include "pinout.h"
 
-//Constants
-#define M_PI 3.14159
-
 
 //Variables
 #define waveFormRes 255 //how many steps per wavelength
-#define squareLength waveFormRes / 2
-#define pulseLenght waveFormRes / 12
 
 //Device Setup
 #define FCLK 80000000UL //system clock speed
@@ -29,7 +24,7 @@
 
 
 //C includes
-#include "math.h"
+#include <cassert>
 
 //Core STM includes
 #include "main.h"

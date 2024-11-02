@@ -26,17 +26,17 @@ struct inputValues
 
 struct signalInfo{
 	uint32_t signalLocations[waveFormRes] = {0}; //the data array to be written
-	uint32_t frequency = 0; //signal was tested to 80khz, 65k is not enough
+	uint16_t frequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t amp = 0; //0-3.3 represented as 0 -4095
 	uint8_t shiftAmount = 0; //shift amount from - 255
 	WaveShape wave = SINE;
 };
 
 struct displayInfoValues{
-	uint32_t Afrequency = 0; //signal was tested to 80khz, 65k is not enough
+	uint16_t Afrequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t Aamp = 0; //0-3.3 represented as 0 -4095
 	WaveShape Awave = SINE;
-	uint32_t Bfrequency = 0; //signal was tested to 80khz, 65k is not enough
+	uint16_t Bfrequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t Bamp = 0; //0-3.3 represented as 0 -4095
 	uint8_t BshiftAmount = 0; //shift amount from - 255
 	WaveShape Bwave = SINE;

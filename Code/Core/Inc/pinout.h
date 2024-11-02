@@ -29,8 +29,8 @@
 //PA10 AmpKnob1
 //PA9 AmpKnob2
 
-//PA8 ShiftKnob1
-//PB1 ShiftKnob2
+//PA8 ShiftKnob1 //D9
+//PB1 ShiftKnob2 //D6
 
 //PB0 ModeBtn
 //PA7 Switch
@@ -46,25 +46,25 @@
 
 //Knobs
 //Frequency Knob
-#define freqKnobAPort GPIOB //D6
-#define freqKnobAPin LL_GPIO_PIN_1 //D6
+#define freqKnobAPort GPIOA //D6
+#define freqKnobAPin LL_GPIO_PIN_12 //D6
 
 #define freqKnobBPort GPIOA //D9
-#define freqKnobBPin LL_GPIO_PIN_8 //D9
+#define freqKnobBPin LL_GPIO_PIN_11 //D9
 
 //Amplitude Knob
 #define ampKnobAPort GPIOA //D10
-#define ampKnobAPin LL_GPIO_PIN_11 //D10
+#define ampKnobAPin LL_GPIO_PIN_9 //D10
 
-#define ampKnobBPort GPIOB //D11
-#define ampKnobBPin LL_GPIO_PIN_5 //D11
+#define ampKnobBPort GPIOA //D11
+#define ampKnobBPin LL_GPIO_PIN_10 //D11
 
 //Shift Knob
 #define shiftKnobAPort GPIOA //A6
-#define shiftKnobAPin LL_GPIO_PIN_7 //A6
+#define shiftKnobAPin LL_GPIO_PIN_8 //A6
 
-#define shiftKnobBPort GPIOA //A5
-#define shiftKnobBPin LL_GPIO_PIN_6 //A5
+#define shiftKnobBPort GPIOB //A5
+#define shiftKnobBPin LL_GPIO_PIN_1 //A5
 
 
 #endif /* INC_SHANE_PINOUT_H_ */

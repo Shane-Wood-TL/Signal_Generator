@@ -41,10 +41,11 @@ void dacDriver::setReload() {
 
 	//no hal method
 	timerInstance->Instance->ARR = currentReloadValue;
+	timerInstance->Instance->CNT = 0;
 }
 
 
-uint32_t dacDriver::getFreq(){
+uint16_t dacDriver::getFreq(){
 	return currentSignal.frequency;
 }
 uint16_t dacDriver::getAmp(){
@@ -68,3 +69,10 @@ void dacDriver::enableTimer(){
 	timerInstance->Instance->CR1 |= TIM_CR1_CEN;
 }
 
+void dacDriver::restartDMA(){
+	setReload();
+	HAL_StatusTypeDef DMA = HAL_DAC_Stop_DMA(hdac, DacChannel);
+	//check if it turned it off here
+	DMA = HAL_DAC_Start_DMA(hdac, DacChannel, currentSignal.signalLocations,
+			waveFormRes, DAC_ALIGN_12B_R);
+}

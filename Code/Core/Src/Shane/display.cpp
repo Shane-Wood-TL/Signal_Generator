@@ -40,19 +40,14 @@ void display::initDisplay() {
 //send commands to the display
 void display::sendCommand(uint8_t command) {
 	LL_GPIO_ResetOutputPin(dcPort, dcPin);
-	if(count != 1){
-		LL_SPI_TransmitData8(hspi1->Instance, command); // Send the command
-		while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
+	LL_SPI_TransmitData8(hspi1->Instance, command); // Send the command
+	while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
         //max time for while loop
         //Need to find bits / s based on SPI speed
         // 10 Mbits / s, Data size = 8 bits
         // 10,000,000 / 8 = 1,250,000 messages per second
         //8 x 10^-7 s
         // 0.8 uS max time per message / while loop
-	}else{
-		HAL_SPI_Transmit(hspi1, &command, 1, HAL_MAX_DELAY); //let HAL set up the SPI port for the first time
-		count=1;
-	}
 }
 
 //set write data to the display

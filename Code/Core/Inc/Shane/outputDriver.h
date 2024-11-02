@@ -14,6 +14,8 @@ class outputDriver{
 	dacDriver *DACchannel2;
 	displayQueue *displayInfoQ;
 	struct displayInfoValues soonDisplayInfo;
+	uint16_t oldFreq1;
+	uint16_t oldFreq2;
 public:
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, displayQueue *displayInfoQI);
 	void update();
