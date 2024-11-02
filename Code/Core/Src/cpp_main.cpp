@@ -18,8 +18,8 @@ static Semaphore button;
 static Semaphore knobs;
 static Semaphore switches;
 extern "C" void myTIM7_IRQHandler(void) {
-	if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE) != RESET) {
-		if(__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE) != RESET) {
+	if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE)){
+		if(__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE)){// != RESET) {
 			__HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE); // Clear the interrupt flag
 			button.enqueue(1);
 			knobs.enqueue(1);
@@ -34,6 +34,7 @@ void cpp_main(void){
 	inputQueue inputQueueInstance;
 	signalQueue channel1;
 	signalQueue channel2;
+
 	Waves waves(&inputQueueInstance, &channel1, &channel2);
 
 
@@ -64,13 +65,21 @@ void cpp_main(void){
 	display mainDisplay(&hspi3, &displayQueueInstance);
 	//draw freq + amp to the display
 	mainDisplay.getNewValues();
-
 	uint8_t wasteofTime = 0;
+	//bool x = 0;
+	//bool y = 0;
+	//bool z = 0;
 	while(1){
 		input.checkForUpdates(); //updates all input, needs semaphores
-		struct inputValues test = {0,true,0,0,0,0,0};
+		//struct inputValues test = {0,true,0,0,0,0,0}; too many initializers for 'inputValues'
 		wasteofTime = 0;
-		inputQueueInstance.enqueue(test);
+		//inputQueueInstance.enqueue(test); test struct has been commented out
+
+		//button.dequeue(&x);
+		//knobs.dequeue(&z);
+		//switches.dequeue(&y);
+
+		//waves.update();
 		//mainHandler.update();
 		outputDriverI.update();
 		mainDisplay.getNewValues();

@@ -17,11 +17,9 @@ struct inputValues
 	{
 		int8_t Switch;
 		bool isButtonPressed;
-		int8_t AmpKnob1;
-		int8_t FreqKnob1;
-		int8_t AmpKnob2;
-		int8_t FreqKnob2;
-		int8_t DelayKnob2;
+		int8_t AmpKnob;
+		int8_t FreqKnob;
+		int8_t DelayKnob;
 	};
 
 struct signalInfo{
