@@ -11,6 +11,7 @@
 signalShifter::signalShifter() {
 	head = 0;
 	tail = 0;
+	static_assert(waveFormRes > 0);
 }
 //enqueue a point
 bool signalShifter::enqueue(uint32_t msg) {
@@ -91,7 +92,7 @@ Waves::Waves(){
 }
 
 void Waves::setSine(){
-	sinePlot.amp = 4095;
+	sinePlot.amp = 3971;
 	sinePlot.frequency = 100;
 	sinePlot.shiftAmount = 0;
 	sinePlot.wave = SINE;
@@ -155,12 +156,19 @@ void Waves::scale(signalInfo *toScale, uint16_t newAmp){
 	}
 
 	for(uint8_t i = 0; i < waveFormRes; i++){
-		toScale->signalLocations[i] = (uint32_t)(tempWave.signalLocations[i]*newAmp/4096);
+		if(toScale->wave != SINE){
+			toScale->signalLocations[i] = (uint32_t)(tempWave.signalLocations[i]*newAmp/4096);
+		}else{
+			if(newAmp >= 3971){
+				newAmp = 3971;
+			}
+			toScale->signalLocations[i] = (uint32_t)(tempWave.signalLocations[i]*newAmp/3971);
+		}
 	}
 	toScale->amp = newAmp;
 }
 
-void applicationLayer::checkFreq(uint32_t *freq, int8_t incAmt){
+void applicationLayer::checkFreq(uint16_t *freq, int8_t incAmt){
 	assert(freq != nullptr);
 	assert(incAmt != 0);
     uint32_t newFreq = (*freq)+ incAmt;
@@ -298,9 +306,9 @@ void applicationLayer::setAmplitude(signalInfo *signal, int8_t knobValue){
 		return;
 	}
 	else if(knobValue == 1){
-		checkAmp(&signal->amp, 62); //step by 0.05V
+		checkAmp(&signal->amp, 124); //step by 0.1V
 	}else if(knobValue == -1){
-		checkAmp(&signal->amp, -62);//ensure that amp stays a legal value
+		checkAmp(&signal->amp, -124);//ensure that amp stays a legal value
 	}else{
 		return;
 	}
@@ -338,9 +346,9 @@ void applicationLayer::updateWave(signalInfo *signal){ //get a fresh copy of the
 
 void applicationLayer::echoMode(inputValues *currentInput){
 	assert(currentInput != nullptr);
-	if(currentInput->DelayKnob2 == 1) {//increase delay by 45 deg
+	if(currentInput->DelayKnob == 1) {//increase delay by 45 deg
 		checkDelay(&currentWave2Echo.shiftAmount, 32);
-		} else if(currentInput->DelayKnob2 == -1) {
+		} else if(currentInput->DelayKnob == -1) {
 		    checkDelay(&currentWave2Echo.shiftAmount, -32);
 		}
 
@@ -360,7 +368,7 @@ void applicationLayer::echoMode(inputValues *currentInput){
 }
 
 void applicationLayer::update(){
-	inputValues values;
+	static inputValues values;
 	//see if there is data + know what switch to use
 	if(InputQueueInstance->dequeue(&values)){
 		if(values.Switch == 0){
@@ -375,19 +383,19 @@ void applicationLayer::update(){
 		if(values.isButtonPressed){
 			updateWave(&currentWave1);
 		}
-		setFrequency(&currentWave1, values.FreqKnob1);
-		setAmplitude(&currentWave1, values.AmpKnob1);
+		setFrequency(&currentWave1, values.FreqKnob);
+		setAmplitude(&currentWave1, values.AmpKnob);
 	}else if(channelToChange == 2){
 		if(values.isButtonPressed){
 			updateWave(&currentWave2);
 		}
 		if(currentWave2.wave != ECHO){
-		setFrequency(&currentWave2, values.FreqKnob1); //prevent changing of values in echo
-		setAmplitude(&currentWave2, values.AmpKnob1);
+		setFrequency(&currentWave2, values.FreqKnob); //prevent changing of values in echo
+		setAmplitude(&currentWave2, values.AmpKnob);
 		}else if(currentWave2.wave == ECHO){
 			channelToChange = 1; //ensure that both ch1 and ch2 get enqueued
-			setFrequency(&currentWave1, values.FreqKnob2); //allow the changing of ch1 in echo (even if ch2 is selected)
-			setAmplitude(&currentWave1, values.AmpKnob2);
+			setFrequency(&currentWave1, values.FreqKnob); //allow the changing of ch1 in echo (even if ch2 is selected)
+			setAmplitude(&currentWave1, values.AmpKnob);
 		}
 	}
 
