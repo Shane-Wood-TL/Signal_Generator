@@ -12,14 +12,15 @@ extern SPI_HandleTypeDef hspi3;
 extern DAC_HandleTypeDef hdac1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
-
 extern TIM_HandleTypeDef htim7;
+
 static Semaphore button;
 static Semaphore knobs;
 static Semaphore switches;
+
 extern "C" void myTIM7_IRQHandler(void) {
 	if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE)){
-		if(__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE)){// != RESET) {
+		if(__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE)){
 			__HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE); // Clear the interrupt flag
 			button.enqueue(1);
 			knobs.enqueue(1);
@@ -35,12 +36,9 @@ void cpp_main(void){
 	signalQueue channel1;
 	signalQueue channel2;
 
-	//Waves waves(&inputQueueInstance, &channel1, &channel2);
-
-
 	displayQueue displayQueueInstance;
 
-	//applicationLayer mainHandler(&inputQueueInstance, &channel1, &channel2);
+	applicationLayer mainHandler(&inputQueueInstance, &channel1, &channel2);
 
 	dacDriver DriverCh1(&hdac1,DAC_CHANNEL_1,&htim2,&channel1);
 	dacDriver DriverCh2(&hdac1,DAC_CHANNEL_2,&htim6,&channel2);
@@ -66,18 +64,18 @@ void cpp_main(void){
 	//draw freq + amp to the display
 	mainDisplay.getNewValues();
 	uint8_t wasteofTime = 0;
-	//bool x = 0;
-	//bool y = 0;
-	//bool z = 0;
+
 	while(1){
 		input.checkForUpdates();
 		//struct inputValues test = {0,true,0,0,0,0,0}; too many initializers for 'inputValues'
 		wasteofTime = 0;
 		//inputQueueInstance.enqueue(test); test struct has been commented out
 
+
 		//button.dequeue(&x);
 		//knobs.dequeue(&z);
 		//switches.dequeue(&y);
+
 
 		//waves.update();
 		//mainHandler.update();
@@ -86,9 +84,6 @@ void cpp_main(void){
 		wasteofTime++;
 	}
 }
-
-
-
 
 //simple memory barrier to catch memory issues (indexing past where another objects were allocated to)
 //uint32_t memoryBarrier[32] = {1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111, 1,11,111,1111,1,11,111,1111};

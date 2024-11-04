@@ -11,6 +11,10 @@
 
 //Variables
 #define waveFormRes 255 //how many steps per wavelength
+#define squareLength waveFormRes / 2
+#define pulseLenght waveFormRes / 12
+#define maxFreq 1000
+#define minFreq 1
 
 //Device Setup
 #define FCLK 80000000UL //system clock speed
