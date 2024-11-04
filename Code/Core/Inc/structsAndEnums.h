@@ -15,11 +15,11 @@ enum letterMappngs{l0,l1,l2,l3,l4,l5,l6,l7,l8,l9,A,F,S,e,f,h,i,m,p,q,r,t,ldecima
 
 struct inputValues
 	{
-		int8_t Switch;
-		bool isButtonPressed;
-		int8_t AmpKnob;
-		int8_t FreqKnob;
-		int8_t DelayKnob;
+		int8_t Switch; //current logic level of the switch input
+		bool isButtonPressed; //is true on edges of the button input
+		int8_t AmpKnob; //is 1 on increase, -1 on decrease, and 0 on no change for the amplitude knob input
+		int8_t FreqKnob; //is 1 on increase, -1 on decrease, and 0 on no change for the frequency knob input
+		int8_t DelayKnob; //is 1 on increase, -1 on decrease, and 0 on no change for the delay/shift knob input
 	};
 
 struct signalInfo{

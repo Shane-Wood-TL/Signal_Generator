@@ -51,8 +51,8 @@ void cpp_main(void){
 	memoryChecker mainMemoryChecker(memoryBarrier);
 
 
-	SwitchDriver channel(GPIOA, 7, &switches); //fill nullptr with semaphore switch
-	ButtonDriver mode(GPIOB, 0, &button); //fill nullptr with semaphore button
+	SwitchDriver channel(GPIOA, 7, &switches);
+	ButtonDriver mode(GPIOB, 0, &button);
 
 	KnobDriver freq(GPIOA, 12, GPIOA, 11);
 	KnobDriver amp(GPIOA, 9, GPIOA, 10);
@@ -70,7 +70,7 @@ void cpp_main(void){
 	//bool y = 0;
 	//bool z = 0;
 	while(1){
-		input.checkForUpdates(); //updates all input, needs semaphores
+		input.checkForUpdates();
 		//struct inputValues test = {0,true,0,0,0,0,0}; too many initializers for 'inputValues'
 		wasteofTime = 0;
 		//inputQueueInstance.enqueue(test); test struct has been commented out
