@@ -1,6 +1,6 @@
 /*
- * font.h
- *
+ * @file font.h
+ * @brief This file contains the definition of the font class
  *  Created on: Oct 6, 2024
  *      Author: Shane Wood
  */
@@ -10,7 +10,10 @@
 #include "allIncludes.h"
 
 /**
+ * @class font
  * @brief 12x16 pixel font.
+ * 
+ * @details Contains the data for all used letters and symbols and has the ability to retrive the pixel data
  */
 class font{
 private:
@@ -32,7 +35,7 @@ private:
 	0x03F0, //001111110000,
 	0x0000, //000000000000,
 	0x0000  //000000000000,
-	};
+	}; ///< Pixel font data for 0
 
 
 	const uint16_t one[16] = {
@@ -52,7 +55,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 1
 
 	const uint16_t two[16] = {
 	0x03F0, //001111110000
@@ -71,7 +74,7 @@ private:
 	0x0FFC, //111111111100
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 2
 
 	const uint16_t three[16] = {
 	0x0FFC, //111111111100
@@ -90,7 +93,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 3
 
 	const uint16_t four[16] = {
 	0x0030, //000000110000
@@ -109,7 +112,7 @@ private:
 	0x0030, //000000110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 4
 
 	const uint16_t five[16] = {
 	0x0FFC, //111111111100
@@ -128,7 +131,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 5
 
 	const uint16_t six[16] = {
 	0x00F0, //000011110000
@@ -147,7 +150,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 6
 
 	const uint16_t seven[16] = {
 	0x0FFC, //111111111100
@@ -166,7 +169,7 @@ private:
 	0x0300, //001100000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 7
 
 	const uint16_t eight[16] = {
 	0x03F0, //001111110000
@@ -185,7 +188,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 8
 
 	const uint16_t nine[16] = {
 	0x03F0, //001111110000
@@ -204,7 +207,7 @@ private:
 	0x03C0, //001111000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for 9
 
 	const uint16_t capA[16] = {
 	0x03F0, //001111110000
@@ -223,7 +226,7 @@ private:
 	0x0C0C, //110000001100
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for A
 
 	const uint16_t capF[16] = {
 	0x0FFC, //111111111100
@@ -242,7 +245,7 @@ private:
 	0x0C00, //110000000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for F
 
 	const uint16_t capS[16] = {
 	0x03FC, //001111111100
@@ -261,7 +264,7 @@ private:
 	0x0FF0, //111111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	}; ///< Pixel font data for S
 
 	const uint16_t lowE[16] = {
 	0x0000, //000000000000
@@ -280,7 +283,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for e
 
 	const uint16_t lowF[16] = {
 	0x00F0, //000011110000
@@ -299,7 +302,7 @@ private:
 	0x0300, //001100000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for f
 
 	const uint16_t lowH[16] = {
 	0x0C00, //110000000000
@@ -318,7 +321,7 @@ private:
 	0x0C0C, //110000001100
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for h
 
 	const uint16_t lowI[16] = {
 	0x00C0, //000011000000
@@ -337,7 +340,7 @@ private:
 	0x03F0, //001111110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for i
 
 	const uint16_t lowM[16] = {
 	0x0000, //000000000000
@@ -356,7 +359,7 @@ private:
 	0x0C0C, //110000001100
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for m
 
 	const uint16_t lowP[16] = {
 	0x0000, //000000000000
@@ -375,7 +378,7 @@ private:
 	0x0C00, //110000000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for p
 
 	const uint16_t lowQ[16] = {
 	0x0000, //000000000000
@@ -394,7 +397,7 @@ private:
 	0x000C, //000000001100
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for q
 
 	const uint16_t lowR[16] = {
 	0x0000, //000000000000
@@ -413,7 +416,7 @@ private:
 	0x0C00, //110000000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for r
 
 	const uint16_t lowT[16] = {
 	0x0300, //001100000000
@@ -432,7 +435,7 @@ private:
 	0x00F0, //000011110000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for t
 
 	const uint16_t Decimal[16] = {
 	0x0000, //000000000000
@@ -451,7 +454,7 @@ private:
 	0x03C0, //001111000000
 	0x0000, //000000000000
 	0x0000  //000000000000
-	};
+	};///< Pixel font data for decimal point
 
 	uint32_t squareWaveVis[14] = {
 	0xFFC01, //11111111110000000001
@@ -468,7 +471,7 @@ private:
 	0x80401, //10000000010000000001
 	0x80401, //10000000010000000001
 	0x807FF, //10000000011111111111
-	};
+	};///< Pixel font data for square wave symbol
 
 
 	uint32_t pulseWaveVis[14] = {
@@ -486,7 +489,7 @@ private:
 	0x0600, //00000000011000000000
 	0x0600, //00000000011000000000
 	0xFFFFF, //11111111111111111111
-	};
+	};///< Pixel font data for pulse wave symbol
 
 	uint32_t sineWaveVis[14] = {
 	0x0000, //00000000000000000000
@@ -503,11 +506,13 @@ private:
 	0x00F8, //00000000000011111000
 	0x0070, //00000000000001110000
 	0x0000, //00000000000000000000
-	};
+	}; ///< Pixel font data for sine wave symbol
 
 	//starting at all 0's so that if a non-existant char is attempted to be used
 	//it will just display a blank
-	const uint16_t *fontMap[23] = {nullptr}; //ASCII table
+	const uint16_t *fontMap[23] = {nullptr}; ///<Font map for all uses letters and numbers
+
+
 	/**
 		* @brief Populates the fontMap array with values for each
 		* letter in the font using the private member variables
@@ -516,10 +521,6 @@ private:
 	 	* This allows for fontMap to be indexed using uint8_t's, but when called by getLetter ASCII values, to acquire
 	 	* the font data for a single letter or symbol
 	 	*/
-
-
-
-
 	void initializeFontMap();
     /**
     * @brief Populates the font map
