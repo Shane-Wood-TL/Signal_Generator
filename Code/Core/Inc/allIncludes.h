@@ -1,8 +1,9 @@
 /*
- * allIncludes.h
+ * @file allIncludes.h
+ * @brief This file contains all defines and includes for the entire project
  *
  *  Created on: Sep 26, 2024
- *      Author: townl
+ *      Author: Shane Wood
  */
 
 #ifndef SRC_ALLINCLUDES_H_
@@ -17,8 +18,8 @@
 #define minFreq 1
 
 //Device Setup
-#define FCLK 80000000UL //system clock speed
-#define timerPSC 0 //timer prescaling value
+#define FCLK 50000000UL //system clock speed
+#define timerPSC 3 //timer prescaling value
 
 #define maxFreq 1000
 #define minFreq 1
@@ -46,6 +47,9 @@
 
 //Our includes
 
+#define TOGGLE GPIOB->ODR ^= (1<<4);
+#define WRITEON GPIOB->ODR |= (1<<4);
+#define WRITEOFF GPIOB->ODR &= ~(1<<4);
 //structures and enum definitions (shared)
 #include "structsAndEnums.h"
 
@@ -53,7 +57,6 @@
 #include "Shane/queue.h"
 #include "Shane/font.h"
 #include "Shane/display.h"
-#include "Shane/memoryBarrier.h"
 #include "Shane/dacDriver.h"
 #include "Shane/outputDriver.h"
 
@@ -63,5 +66,7 @@
 //Nathan's Files
 #include "nathan.h"
 
+//Shane's Files
+#include "Shane/memoryBarrier.h" //needs semaphore class
 
 #endif /* SRC_ALLINCLUDES_H_ */

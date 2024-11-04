@@ -40,6 +40,10 @@ font::font() {
 }
 
 const uint16_t* font::getLetter(const uint8_t letter) {
+	if(!(letter >=0 && letter <= 255)){
+		return nullptr;
+	}
+	assert(letter >=0 && letter <= 255);
 	uint8_t convertLetter = 0;
 	switch (letter){
 	case(48): // ascii 0

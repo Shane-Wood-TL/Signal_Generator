@@ -9,8 +9,8 @@
 
 void display::initDisplay() {
 	LL_SPI_Enable(hspi1->Instance); //make sure that SPI is on
-    LL_GPIO_SetOutputPin(rstPort, rstPin); //set = not in reset mode
-
+    //set = not in reset mode
+    rstPortV->ODR |= (1<<rstPinV);
     //list of init commands
 	sendCommand(0xAE);	//Turn Display off
 	sendCommand(0xA8);  //Set MUX ratio
@@ -33,13 +33,22 @@ void display::initDisplay() {
 	sendCommand(0x8D);  //Enable Charge Pump Regulator
 	sendCommand(0x14);  //Enable Charge Pump Regulator
 	sendCommand(0xAF);  //Turn Display On
+
+	drawWordsNorm(0);
+	writeBuffer();
+	drawWordsNorm(1);
 	return;
 }
 
 
 //send commands to the display
 void display::sendCommand(uint8_t command) {
-	LL_GPIO_ResetOutputPin(dcPort, dcPin);
+	uint8_t commandSize = sizeof(command);
+	if(commandSize!= 1 or command < 0){
+		return;
+	}
+	assert(commandSize == 1);
+	dcPort->ODR &= ~(1<<dcPinV);
 	LL_SPI_TransmitData8(hspi1->Instance, command); // Send the command
 	while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
         //max time for while loop
@@ -52,9 +61,13 @@ void display::sendCommand(uint8_t command) {
 
 //set write data to the display
 void display::sendData(uint8_t *data, uint16_t len) {
+	if(len == 0 || data == nullptr){
+		return;
+	}
+	assert(data != nullptr);
 	assert(len >= 1);
-    LL_GPIO_SetOutputPin(dcPort, dcPin);
 
+    dcPort->ODR |= (1<<dcPinV);
     for (uint16_t i = 0; i < len; i++) {
         LL_SPI_TransmitData8(hspi1->Instance, data[i]); // Send each byte
         while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
@@ -70,12 +83,16 @@ void display::sendData(uint8_t *data, uint16_t len) {
 
 
 //draw a pixel to the display buffer
-void display::drawPixel(const uint8_t x, const uint8_t y, const bool color) {
-	if (x >= SSD1306HorizontalRes or y >= SSD1306VerticalRes) {
+void display::drawPixel(const uint8_t x, const uint8_t y) {
+	if ((x > SSD1306HorizontalRes) || (y > SSD1306VerticalRes)) {
 			return;  //drawing a pixel out of range
+	}
+	if(x < 0 || y < 0){
+		return;
 	}
 
 	assert (x < SSD1306HorizontalRes && y < SSD1306VerticalRes);
+	assert (x >= 0 && y >=0);
 
 	uint8_t pixelInPage = (1 << (y % 8)); //limit the pixel from 0 to 7 with a 1 in the position 0000_0001, 0000_0010, etc
 
@@ -85,24 +102,23 @@ void display::drawPixel(const uint8_t x, const uint8_t y, const bool color) {
 	//repeat for pages 0-8
 	//leading to a total size of 128*8 = 1024 page "strips" each containing the data for 8 pixels
 	uint16_t bufferIndex = uint16_t(x + (y / 8) * SSD1306HorizontalRes);
-	if (color) {
-		buffer[bufferIndex] |= pixelInPage;
-	} else {
-		buffer[bufferIndex] &= ~pixelInPage;
-	}
+//	if(bufferIndex > 1023){
+//		return;
+//	}
+	//assert(bufferIndex < 1024);
+	buffer[bufferIndex] |= pixelInPage;
 	return;
 }
 
 //write a letter to the display buffer
 void display::writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_t yPos) {
-
 	const uint16_t *matrix = mainFont.getLetter(letter);
 	if (matrix != nullptr) { //ensure that font exists before writing
 		assert(matrix !=nullptr);
-		for (int i = 0; i < 16; i++) { //16 tall
-			for (int j = 0; j < 12; j++) { // 12 wide
+		for (uint8_t i = 0; i < 16; i++) { //16 tall
+			for (uint8_t j = 0; j < 12; j++) { // 12 wide
 				if ((matrix[i]) & (1 << (12 - j))) {
-					drawPixel(xPos + j, yPos + i, true);
+					drawPixel(xPos + j, yPos + i);
 				}
 			}
 		}
@@ -114,11 +130,16 @@ void display::writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_
 
 void display::writeSymbol(const uint32_t *symbol, const uint8_t xPos, const uint8_t yPos) {
 	assert(symbol != nullptr);
-
-	for (int i = 0; i < 14; i++) { //14 tall
-		for (int j = 0; j < 20; j++) { // 20 wide
+	if ((xPos > SSD1306HorizontalRes) || (yPos > SSD1306VerticalRes)) {
+				return;
+		}
+		if(xPos < 0 || yPos < 0){
+			return;
+		}
+	for (uint8_t i = 0; i < 14; i++) { //14 tall
+		for (uint8_t j = 0; j < 20; j++) { // 20 wide
 			if ((symbol[i]) & (1 << (20 - j))) {
-				drawPixel(xPos + j, yPos + i, true);
+				drawPixel(xPos + j, yPos + i);
 			}
 		}
 	}
@@ -135,9 +156,19 @@ void display::clearBuffer() {
 }
 
 //set up the display
-display::display(SPI_HandleTypeDef *hspi1I,displayQueue *displayQueueI) {
+display::display(SPI_HandleTypeDef *hspi1I,displayQueue *displayQueueI, GPIO_TypeDef *dcPortI, uint8_t dcPinI, GPIO_TypeDef *rstPortI, uint8_t rstPinI) {
+	if(hspi1I == nullptr || displayQueueI== nullptr || dcPortI == nullptr || rstPortI == nullptr){
+		NVIC_SystemReset();
+	}else if(dcPinI < 0 || rstPinI < 0){
+		NVIC_SystemReset();
+	}
+	assert(hspi1I != nullptr || displayQueueI!= nullptr || dcPortI != nullptr || rstPortI != nullptr);
 	hspi1 = hspi1I;
 	displayQueueInstance = displayQueueI;
+	dcPortV = dcPortI;
+	dcPinV = dcPinI;
+	rstPortV = rstPortI;
+	rstPinV = rstPinI;
 	initDisplay();
 }
 
@@ -152,62 +183,128 @@ void display::writeBuffer() {
 	return;
 }
 
-void display::drawWordsNorm() {
-	//Write Freq, and Amp to the display
-	for(uint8_t i = 0; i < 2; i++){
-		for(uint8_t j = 0; j < 4;j++){
-			writeLetter(freqList[j],letterPositions[j],letterPositions[i*2]);
-		}
-		for(uint8_t k = 0; k < 3;k++){
-			writeLetter(ampList[k],letterPositions[k],letterPositions[(i*2)+1]);
-		}
+void display::writeValues(uint8_t page, bool echo){
+	if(echo != true && echo != false){
+		return;
+	}else if(page > 8 || page < 0){
+		return;
 	}
+	assert((page >= 0) and (page < 8));
+	assert(echo == true || echo == false);
+    sendCommand(0x22);
+    sendCommand(page);
+    sendCommand(page);
+
+    sendCommand(0x21);
+
+    if(echo && (page == 4 || page == 5)){ //shift
+        sendCommand(0x58);
+        sendCommand(0x7F);
+        sendData(&buffer[128 * page + 87], 39);
+    }else if((page == 0 || page == 1 || page == 4 || page ==5)){ //freq
+    	sendCommand(0x43);
+    	sendCommand(0x7F);
+    	sendData(&buffer[128 * page + 67], 60);
+    }else{ //amp + wave
+    	sendCommand(0x2F);
+    	sendCommand(0x7F);
+    	sendData(&buffer[128 * page + 47], 80);
+    }
 }
 
-void display::drawWordsShift() {
+void display::drawWordsNorm(uint8_t row) {
+	if(!(row == 0 || row==1)){
+			return;
+	}
+	assert((row == 0 || row==1));
 	//Write Freq, and Amp to the display
-		for(uint8_t i = 0; i < 4;i++){
-			writeLetter(freqList[i],letterPositions[i],letterPositions[0]);
+		for(uint8_t j = 0; j < 4;j++){
+			writeLetter(freqList[j],letterPositions[j],letterPositions[row*2]);
 		}
-		for(uint8_t i = 0; i < 3;i++){
-			writeLetter(ampList[i],letterPositions[i],letterPositions[1]);
+		for(uint8_t k = 0; k < 3;k++){
+			writeLetter(ampList[k],letterPositions[k],letterPositions[(row*2)+1]);
 		}
+		if(row==1){
+			writeSection(4, 0x00, 0x60);
+			sendData(&buffer[(128 * 4)], 96);
+			writeSection(5, 0x00, 0x60);
+			sendData(&buffer[(128 * 5)], 96);
+			writeSection(6, 0x00, 0x60);
+			sendData(&buffer[(128 * 6)], 96);
+			writeSection(7, 0x00, 0x60);
+		    sendData(&buffer[(128 * 7)], 96);
+			normalWriting = true;
+		}
+
+}
+void display::writeSection(uint8_t page, uint8_t columnStart, uint8_t columnStop){
+	if(page > 8 || page < 0){
+			return;
+	}else if(columnStart > SSD1306HorizontalRes || columnStop > SSD1306HorizontalRes){
+		return;
+	}
+	assert(page >0 && page < 8);
+	sendCommand(0x22);
+	sendCommand(page);
+	sendCommand(page);
+	sendCommand(0x21);
+	sendCommand(columnStart);
+	sendCommand(columnStop);
+	return;
+}
+void display::drawWordsShift() {
 		for(uint8_t i = 0; i < 5;i++){
 			writeLetter(shiftList[i],letterPositions[i],letterPositions[2]);
 		}
+		writeSection(4, 0x00, 0x60);
+		sendData(&buffer[(128 * 4)], 96);
+		writeSection(5, 0x00, 0x60);
+		sendData(&buffer[(128 * 5)], 96);
+		writeSection(6, 0x00, 0x60);
+		sendData(&buffer[(128 * 6)], 96);
+		writeSection(7, 0x00, 0x60);
+	    sendData(&buffer[(128 * 7)], 96);
+	    normalWriting = false;
 }
 
 void display::convertAmp(const uint16_t amp, const uint8_t Channel) {
+	if(amp > 4096){
+		return;
+	}
 	uint8_t row;
 	if (Channel == 0) {
-		row = 15;
+		row = 16;
 	}else if(Channel == 1){
-		row = 47;
+		row = 48;
 	}else{
 		return; //Channel is not valid
 	}
-	assert(row == 15 || row==47);
+	assert(row == 16 || row==48);
+	assert(amp < 4096);
 
 	uint16_t place0 = uint16_t(amp * 3300 / 4095);
 	uint8_t place1 = (uint8_t) (place0 / 1000);
 	uint8_t place2 = (uint8_t) ((place0 - place1 * 1000) / 100);
-	uint8_t place3 = (uint8_t) ((place0 - place1 * 1000 - place2 * 100) / 10);
 
-	writeLetter('0' + (place1), 47, row);
-	writeLetter('.', 59, row);
-	writeLetter('0' + (place2), 71, row);
-	writeLetter('0' + (place3), 83, row);
+	writeLetter('0' + (place1), 59, row);
+	writeLetter('.', 71, row);
+	writeLetter('0' + (place2), 83, row);
 }
 
 void display::convertFreq(const uint32_t currentFreq, const uint8_t Channel) {
 	uint8_t row;
+	if(currentFreq < 1){
+		return;
+	}
 	if (Channel == 0) { //handle ch1 and ch2 frequencies
 		row = 0;
-	} else {
-		row = 31;
+	} else if(Channel == 1){
+		row = 32;
+	}else{
+		return;
 	}
-	assert(row == 0 || row==31);
-
+	assert(row == 0 || row==32);
+	assert(currentFreq >= 1);
 	uint32_t tempSums[4];
 	uint8_t finalValues[5];
 
@@ -223,7 +320,7 @@ void display::convertFreq(const uint32_t currentFreq, const uint8_t Channel) {
 	finalValues[4] = uint8_t((currentFreq - tempSums[3]));
 
 	uint8_t firstPlace = 4;
-	const uint8_t freqNumberPositions[] = { 67, 79, 91, 103, 115 };
+	const uint8_t freqNumberPositions[] = { 67, 79, 91, 103, 115};
 	for (uint8_t i = 0; i < 5; i++) {
 		if (finalValues[i] != 0) {
 			firstPlace = i;
@@ -237,10 +334,16 @@ void display::convertFreq(const uint32_t currentFreq, const uint8_t Channel) {
 }
 
 void display::convertShift(const uint8_t signal){
+		if(signal > 255 || signal < 0){
+			return;
+		}
+		assert(signal >= 0 && signal < 256);
 		//attempting to keep as much resolution as possible
 		//180 * 360 < 2^16 -1 therefore the uint16_t will not be fully used
 		//but it will also allow for slightly more resolution than just whole numbers
-		uint16_t currentShift = (uint16_t)((signal)*(360.0/waveFormRes));
+		//uint16_t currentShift = (uint16_t)(((signal*360.0)/(double)(waveFormRes)));
+		const uint16_t angleList[9] = {0, 45, 90, 135, 180, 225, 270, 315, 360};
+		uint16_t currentShift = angleList[(uint8_t)((signal+1) / 32)];
 		if(currentShift > 360){
 			return;
 		}
@@ -249,7 +352,7 @@ void display::convertShift(const uint8_t signal){
 		finalValues[1] = (uint8_t)((currentShift-finalValues[0]*100) / 10);
 		finalValues[2] = (uint8_t)(currentShift-finalValues[0]*100-finalValues[1]*10);
 		uint8_t firstPlace = 2;
-		const uint8_t shiftNumberPositions[] = {75, 87, 99};
+		const uint8_t shiftNumberPositions[] = {91, 103, 115};
 		for (uint8_t i = 0; i < 3; i++) {
 			if (finalValues[i] != 0) {
 				firstPlace = i;
@@ -257,10 +360,15 @@ void display::convertShift(const uint8_t signal){
 			}
 		}
 		for (uint8_t i = firstPlace; i < 3; i++) {
-			writeLetter('0' + finalValues[i], shiftNumberPositions[i], 31);
+			writeLetter('0' + finalValues[i], shiftNumberPositions[i], 32);
 		}
 }
 void display::displaySignalType(const WaveShape shape, const uint8_t Channel) {
+	if(shape !=SINE && shape != SQUARE && shape!= PULSE && shape !=ECHO){
+		return;
+	}else if(Channel != 0 && Channel != 1){
+		return;
+	}
 	uint8_t row = 16;
 	if (Channel == 1) {
 		row = 48;
@@ -285,31 +393,71 @@ void display::displaySignalType(const WaveShape shape, const uint8_t Channel) {
 }
 
 void display::getNewValues() {
-	displayInfoValues displayedInfo;
-	if (displayQueueInstance->dequeue(&displayedInfo)) {
-		clearBuffer();
+	static uint8_t currentState = 0; //state 0 = update buffer, state 1 = write top half, state 2 = write bottom half
+	static displayInfoValues displayedInfo;
+	static bool echo = false;
+	switch(currentState){
+	case(0):{
+		bool newData =displayQueueInstance->dequeue(&displayedInfo);
+		if (newData == true) {
+			clearBuffer();
+			currentState = 1;
+			if(displayedInfo.Bwave==ECHO){
+				echo = true;
+			}else{
+				echo = false;
+			}
+		}
+		break;
+	}case(1):{
 		convertFreq(displayedInfo.Afrequency, 0);
 		convertAmp(displayedInfo.Aamp, 0);
 		displaySignalType(displayedInfo.Awave, 0);
-		if (displayedInfo.Bwave != ECHO) {
+		currentState = 2;
+		break;
+	}case(2):{
+		if (!echo) {
 			convertFreq(displayedInfo.Bfrequency, 1);
 			convertAmp(displayedInfo.Bamp, 1);
 			displaySignalType(displayedInfo.Bwave, 1);
-			drawWordsNorm(); //temporary
-		} else {
+		}else{
 			convertShift(displayedInfo.BshiftAmount);
-			drawWordsShift();
 			assert(
 					displayedInfo.Aamp
-							== displayedInfo.Bamp);
+					== displayedInfo.Bamp);
 			assert(
 					displayedInfo.Afrequency
-							== displayedInfo.Bfrequency);
+					== displayedInfo.Bfrequency);
 		}
-		writeBuffer();
-		return;
-	} else {
-		return;
+		currentState = 3;
+		break;
+	}case(3):{
+		if (!echo) {
+			if(normalWriting !=true){
+				drawWordsNorm(1);
+			}
+		}else{
+			if(normalWriting != false){
+				drawWordsShift();
+			}
+		}
+		currentState = 4;
+		break;
+	}case(4):{
+		writeValues(0, echo);
+		writeValues(1, echo);
+		writeValues(2, echo);
+		writeValues(3,echo);
+		writeValues(4,echo);
+		writeValues(5,echo);
+		writeValues(6,echo);
+		writeValues(7,echo);
+		currentState = 0;
+		break;
+	}default:{
+		currentState = 0;
 	}
+	}
+	return;
 }
 
