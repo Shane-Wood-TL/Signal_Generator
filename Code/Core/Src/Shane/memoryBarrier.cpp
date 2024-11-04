@@ -10,9 +10,14 @@
 
 
 memoryChecker::memoryChecker(uint32_t *memoryBarrierI, uint8_t barrierSizeV){
+//	if(memoryBarrierI == nullptr || barrierSizeV <= 0){
+//		NVIC_SystemReset();
+//	}
+//	assert(memoryBarrierI != nullptr);
+//	assert(barrierSizeV > 0);
     memoryBarrier = memoryBarrierI;
     barrierSize = barrierSizeV;
-    assert(barrierSize % 4 == 0);
+	assert(barrierSize % 4 == 0);
 };
 
 void memoryChecker::checkMemory(){
@@ -42,6 +47,10 @@ void memoryChecker::checkMemory(){
 
 
 overallMemoryChecker::overallMemoryChecker(memoryChecker *smallBarrierAI,memoryChecker *smallBarrierBI,memoryChecker *smallBarrierCI,memoryChecker *smallBarrierDI,memoryChecker *largeBarrierI, Semaphore *memorySemaphoreI){
+	if(smallBarrierAI == nullptr || smallBarrierBI == nullptr || smallBarrierCI == nullptr || smallBarrierDI == nullptr || largeBarrierI == nullptr || memorySemaphoreI == nullptr){
+		NVIC_SystemReset();
+	}
+	assert(smallBarrierAI != nullptr && smallBarrierBI != nullptr && smallBarrierCI != nullptr && smallBarrierDI != nullptr && largeBarrierI != nullptr && memorySemaphoreI != nullptr);
 	smallBarrierA = smallBarrierAI;
 	smallBarrierB = smallBarrierBI;
 	smallBarrierC = smallBarrierCI;

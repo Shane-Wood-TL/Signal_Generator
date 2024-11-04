@@ -13,7 +13,6 @@ dacDriver::dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I,
 		NVIC_SystemReset();
 	}
 	assert(hdacI != nullptr);
-	//assert(DacChannel1I == 0 || DacChannel1I == 16);
 	assert(timer1I != nullptr);
 	assert(channel1I != nullptr);
 	hdac = hdacI;
@@ -68,10 +67,12 @@ bool dacDriver::update() {
 
 	bool newValue = signalQueueInstance->dequeue(&currentSignal);
 	if (newValue) {
-		//assert(currentSignal.frequency > 0);
+		assert(currentSignal.frequency > 0);
 		if (oldFreq != currentSignal.frequency) {
 			setReload(); //set new period
 		}
+	}else{
+		return false;
 	}
 	//ensure that something is in current signal
 	return newValue;
