@@ -57,7 +57,7 @@ class applicationLayer{
     	signalInfo currentWave2; //wave data that is not lost in echo mode
     	signalInfo currentWave2Echo; //wave data for echo mode
     	uint8_t channelToChange = 1;
-    	void checkFreq(uint32_t *freq,int8_t incAmt);
+    	void checkFreq(uint16_t *freq,int8_t incAmt);
     	void checkAmp(uint16_t *amp,int8_t incAmt);
     	void checkDelay(uint8_t *shift,int8_t incAmt);
     	void increaseWaveType(WaveShape *currentWave);
