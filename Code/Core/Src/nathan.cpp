@@ -59,6 +59,9 @@ int8_t KnobDriver::UpdateKnob(){
 	previousStatePin1 = knobCurrentStatePin1;
 	previousStatePin2 = knobCurrentStatePin2;
 
+	//Sanity check
+	assert((knobUpdateValue == 1) or (knobUpdateValue == -1) or (knobUpdateValue == 0));
+
 	return knobUpdateValue;
 }
 
@@ -70,6 +73,10 @@ ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 	//Assigns a GPIO pin to for use by the button
 	gpio_name = GpioName;
 	pin_number = PinNumber;
+
+	//Sanity check
+	assert(gpio_name != nullptr);
+	assert(ButtonSemaphoreInstance != nullptr);
 }
 
 void ButtonDriver::UpdateButton(struct inputValues *queue_data){
@@ -90,6 +97,9 @@ void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 		else{
 			ButtonCurrentState = false;
 		}
+
+		//Sanity check
+		assert((ButtonCurrentState == true) or (ButtonCurrentState == false));
 
 		if ((ButtonCurrentState == true) && (ButtonPreviousState == false)){
 			queue_data -> isButtonPressed = true;
@@ -117,6 +127,10 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 	//Assigns a GPIO pin to for use by the switch
 	gpio_name = GpioName;
 	pin_number = PinNumber;
+
+	//Sanity check
+	assert(gpio_name != nullptr);
+	assert(SwitchSemaphoreInstance != nullptr);
 }
 
 int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
@@ -138,6 +152,9 @@ int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 		else{
 			SwitchCurrentState = false;
 		}
+
+		//Sanity check
+		assert((SwitchCurrentState == true) or (SwitchCurrentState == false));
 
 		//Insert current logic level into inputValues struct and assign previousSwitchState to the current logic level
 		if (SwitchCurrentState == true){
@@ -171,6 +188,15 @@ InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver
 
 	//input to the knob semaphore instance, what will communicate that it is time for the knob drivers to run
 	KnobSemaphoreInstance = KnobSemaphoreI;
+
+	//Sanity check
+	assert(AmpKnob != nullptr);
+	assert(FreqKnob != nullptr);
+	assert(ShiftKnob != nullptr);
+	assert(channelSwitcher != nullptr);
+	assert(modeSwitcher != nullptr);
+	assert(inputQueueInstance != nullptr);
+	assert(KnobSemaphoreInstance != nullptr);
 }
 
 void InputDriver::checkForUpdates(){
@@ -204,6 +230,9 @@ void InputDriver::checkForUpdates(){
 	//Update Button and Switch instances
 	modeSwitcher -> UpdateButton(&queue_data);
 	switchPresentState = channelSwitcher -> UpdateSwitch(&queue_data);
+
+	//Sanity check
+	assert((switchPresentState == 1) or (switchPresentState == 0));
 
 	//Check all values of the inputValues struct. The instant a change value is found, enqueue the inputValues struct. Otherwise, skip the enqueueing step
 	if (queue_data.FreqKnob != 0){
