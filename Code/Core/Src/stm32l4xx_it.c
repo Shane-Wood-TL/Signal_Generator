@@ -47,6 +47,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 void myTIM7_IRQHandler();
+void myTIM16_IRQHandler();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/

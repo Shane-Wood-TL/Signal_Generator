@@ -9,18 +9,22 @@
 
 dacDriver::dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I,
 		TIM_HandleTypeDef *timer1I, signalQueue *channel1I) {
+	//check inputs
 	if (hdacI == nullptr || timer1I == nullptr || channel1I == nullptr) {
 		NVIC_SystemReset();
 	}
+	//use asserts
 	assert(hdacI != nullptr);
 	assert(timer1I != nullptr);
 	assert(channel1I != nullptr);
+
+	//assign parameters to member varaibles
 	hdac = hdacI;
 	DacChannel = DacChannel1I;
 	timerInstance = timer1I;
 	signalQueueInstance = channel1I;
 
-	//ensure that something is in current signal
+	//ensure that DMA is started, with it looking at the correct location
 	HAL_StatusTypeDef DMA = HAL_DAC_Start_DMA(hdac, DacChannel,
 			currentSignal.signalLocations,
 			waveFormRes, DAC_ALIGN_12B_R);
@@ -31,35 +35,46 @@ dacDriver::dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I,
 		break;
 	}
 	default: {
-		return;
 		break;
 	}
 	}
+	//start the timer for the DAC
+	enableTimer();
 }
 
 void dacDriver::setReload() {
+	//calculate the new reload value based on prescaling, clock speed and waveForm resolution
 	currentReloadValue = (uint32_t) FCLK
 			/ ((timerPSC + 1) * (currentSignal.frequency) * waveFormRes);
 
-	//hal method
-	//__HAL_TIM_SET_AUTORELOAD(timerInstance, currentReloadValue);
 
-	//no hal method
 	timerInstance->Instance->ARR = currentReloadValue;
 	timerInstance->Instance->CNT = 0; //reset count incase it is above reload value
 }
 
-uint16_t dacDriver::getFreq() {
-	return currentSignal.frequency;
+void dacDriver::getFreq(uint16_t *freq) {
+	if(freq != nullptr){
+		assert(freq != nullptr);
+	*freq = currentSignal.frequency;
+	}
 }
-uint16_t dacDriver::getAmp() {
-	return currentSignal.amp;
+void dacDriver::getAmp(uint16_t *amp) {
+	if(amp != nullptr){
+	assert(amp != nullptr);
+	*amp = currentSignal.amp;
+	}
 }
-uint8_t dacDriver::getShift() {
-	return currentSignal.shiftAmount;
+void dacDriver::getShift(uint8_t *shift) {
+	if(shift != nullptr){
+	assert(shift != nullptr);
+	*shift =  currentSignal.shiftAmount;
+	}
 }
-WaveShape dacDriver::getWave() {
-	return currentSignal.wave;
+void dacDriver::getWave(WaveShape *shape) {
+	if(shape != nullptr){
+	assert(shape != nullptr);
+	*shape = currentSignal.wave;
+	}
 }
 
 bool dacDriver::update() {

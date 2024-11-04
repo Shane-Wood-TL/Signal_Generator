@@ -156,19 +156,21 @@ void display::clearBuffer() {
 }
 
 //set up the display
-display::display(SPI_HandleTypeDef *hspi1I,displayQueue *displayQueueI, GPIO_TypeDef *dcPortI, uint8_t dcPinI, GPIO_TypeDef *rstPortI, uint8_t rstPinI) {
-	if(hspi1I == nullptr || displayQueueI== nullptr || dcPortI == nullptr || rstPortI == nullptr){
+display::display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI, ssd1306Setup *setup){
+	if(hspi1I == nullptr || displayQueueI== nullptr || setup == nullptr){
 		NVIC_SystemReset();
-	}else if(dcPinI < 0 || rstPinI < 0){
+	}else if(setup->dcPinI < 0 || setup->rstPinI < 0){
 		NVIC_SystemReset();
 	}
-	assert(hspi1I != nullptr || displayQueueI!= nullptr || dcPortI != nullptr || rstPortI != nullptr);
+	assert(hspi1I != nullptr || displayQueueI!= nullptr || setup->dcPortI != nullptr || setup->rstPortI != nullptr);
 	hspi1 = hspi1I;
 	displayQueueInstance = displayQueueI;
-	dcPortV = dcPortI;
-	dcPinV = dcPinI;
-	rstPortV = rstPortI;
-	rstPinV = rstPinI;
+	dcPortV = setup->dcPortI;
+	dcPinV = setup->dcPinI;
+	rstPortV =setup->rstPortI;
+	rstPinV = setup->rstPinI;
+	horizontalRes = setup->SSD1306HorizontalR;
+	verticalRes = setup->SSD1306VerticalR;
 	initDisplay();
 }
 
@@ -333,8 +335,8 @@ void display::convertFreq(const uint32_t currentFreq, const uint8_t Channel) {
 	return;
 }
 
-void display::convertShift(const uint8_t signal){
-		if(signal > 255 || signal < 0){
+void display::convertShift(const uint16_t signal){
+		if(signal > 256 || signal < 0){
 			return;
 		}
 		assert(signal >= 0 && signal < 256);
@@ -342,8 +344,9 @@ void display::convertShift(const uint8_t signal){
 		//180 * 360 < 2^16 -1 therefore the uint16_t will not be fully used
 		//but it will also allow for slightly more resolution than just whole numbers
 		//uint16_t currentShift = (uint16_t)(((signal*360.0)/(double)(waveFormRes)));
-		const uint16_t angleList[9] = {0, 45, 90, 135, 180, 225, 270, 315, 360};
-		uint16_t currentShift = angleList[(uint8_t)((signal+1) / 32)];
+		//const uint16_t angleList[9] = {0, 45, 90, 135, 180, 225, 270, 315, 360};
+		//uint16_t currentShift = angleList[(uint8_t)((signal+1) / 32)];
+		uint16_t currentShift =(uint16_t)(45*signal/32.0);
 		if(currentShift > 360){
 			return;
 		}
