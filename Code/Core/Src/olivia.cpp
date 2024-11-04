@@ -12,7 +12,6 @@ signalShifter::signalShifter() {
 	head = 0;
 	tail = 0;
 }
-
 //enqueue a point
 bool signalShifter::enqueue(uint32_t msg) {
 	assert(msg >= 0 && msg <= 4095);
@@ -378,7 +377,6 @@ void applicationLayer::update(){
 		}
 		setFrequency(&currentWave1, values.FreqKnob1);
 		setAmplitude(&currentWave1, values.AmpKnob1);
-
 	}else if(channelToChange == 2){
 		if(values.isButtonPressed){
 			updateWave(&currentWave2);

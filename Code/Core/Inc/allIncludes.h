@@ -9,13 +9,6 @@
 #define SRC_ALLINCLUDES_H_
 
 
-//Pin definitions
-#include "pinout.h"
-
-//Constants
-#define M_PI 3.14159
-
-
 //Variables
 #define waveFormRes 255 //how many steps per wavelength
 #define squareLength waveFormRes / 2
@@ -27,11 +20,22 @@
 #define FCLK 80000000UL //system clock speed
 #define timerPSC 0 //timer prescaling value
 
+#define maxFreq 1000
+#define minFreq 1
 
+#define maxAmp 4095
+#define minAmp 1
+
+#define maxShift 255
+#define minShift 0
+
+
+//Pin definitions
+#include "pinout.h"
 
 
 //C includes
-#include "math.h"
+#include <cassert>
 
 //Core STM includes
 #include "main.h"

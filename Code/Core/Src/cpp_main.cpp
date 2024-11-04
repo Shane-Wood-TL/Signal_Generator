@@ -71,6 +71,12 @@ void cpp_main(void){
 		wasteofTime = 0;
 		//inputQueueInstance.enqueue(test); test struct has been commented out
 
+
+		//button.dequeue(&x);
+		//knobs.dequeue(&z);
+		//switches.dequeue(&y);
+
+
 		//waves.update();
 		//mainHandler.update();
 		outputDriverI.update();

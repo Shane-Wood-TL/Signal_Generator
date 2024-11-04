@@ -25,10 +25,11 @@ class dacDriver{
 		//signalInfo* getSignalInfo();
 		void update();
 		void enableTimer();
-		uint32_t getFreq();
+		uint16_t getFreq();
 		uint16_t getAmp();
 		uint8_t getShift();
 		WaveShape getWave();
+		void restartDMA();
 };
 
 
