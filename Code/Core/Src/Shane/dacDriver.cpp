@@ -51,7 +51,7 @@ void dacDriver::setReload() {
 			/ ((timerPSC + 1) * (currentSignal.frequency) * waveFormRes);
 
 
-	//set tje reload value
+	//set the reload value
 	timerInstance->Instance->ARR = currentReloadValue;
 	timerInstance->Instance->CNT = 0; //reset count in-case it is above reload value
 	return;

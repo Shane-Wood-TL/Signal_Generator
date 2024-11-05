@@ -27,15 +27,15 @@ public:
 	 * 
 	 * @param DACchannel1I The dacDriver for channel 1
 	 * @param DACchannel2I The dacDriver for channel 2
-	 * @param displayInfoQI The queue for passing infomation to the display
+	 * @param displayInfoQI The queue for passing information to the display
 	 */
 	outputDriver(dacDriver *DACchannel1I,dacDriver *DACchannel2I, displayQueue *displayInfoQI);
 
 	/**
 	 * @brief update and resync the dacDrivers
 	 * 
-	 * @details Waves will get out of sync when frequinces are changed. To fix this when waves are brough back to the same frequency
-	 * they are resynced back together by restarting DMA. The same thing occurs for ECHO as the timing inbetween the waves needs to be exact
+	 * @details Waves will get out of sync when frequencies are changed. To fix this when waves are brought back to the same frequency
+	 * they are resynced back together by restarting DMA. The same thing occurs for ECHO as the timing in-between the waves needs to be exact
 	 */
 	void update();
 };

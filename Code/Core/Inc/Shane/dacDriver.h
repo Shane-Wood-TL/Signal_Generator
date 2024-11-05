@@ -3,14 +3,15 @@
  * @brief This file contains the definition of the dacDriver class
  * @author Shane Wood
  * @date Sep 15, 2024
+ * <a href="https://deepbluembedded.com/stm32-dac-sine-wave-generation-stm32-dac-dma-timer-example/">DAC Tutorial</a>
+ * <a href="https://github.com/STMicroelectronics/STM32CubeL4/blob/master/Projects/NUCLEO-L432KC/Examples/DAC/DAC_SignalsGeneration/readme.txt">STM Example</a>
  */
 
 #ifndef INC_SHANE_DACDRIVER_H_
 #define INC_SHANE_DACDRIVER_H_
 
 #include "allIncludes.h"
-//https://github.com/STMicroelectronics/STM32CubeL4/blob/master/Projects/NUCLEO-L432KC/Examples/DAC/DAC_SignalsGeneration/readme.txt
-//https://deepbluembedded.com/stm32-dac-sine-wave-generation-stm32-dac-dma-timer-example/
+
 
 /**
  * @class dacDriver
@@ -36,7 +37,7 @@ class dacDriver{
 	void setReload();
 
 	/**
-	 * @brief enable the timer instance
+	 * @brief Enable the timer instance
 	 */
 	void enableTimer();
 	public:

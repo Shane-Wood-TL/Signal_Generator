@@ -239,7 +239,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
   myTIM16_IRQHandler();
   return;
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
-  //HAL_TIM_IRQHandler(&htim16);
+  HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */

@@ -59,7 +59,6 @@ private:
 	 * 
 	 * @param x a const uint8_t that is the horizontal position of the pixel
 	 * @param y a const uint8_t that is the vertical position of the pixel
-	 * @param color a const bool that chooses to add or remove a pixel from the buffer
 	 */
 	void drawPixel(const uint8_t x, const uint8_t y);
 
@@ -90,6 +89,8 @@ private:
 
 	/**
 	 * @brief Write the entire buffer to the display
+	 *
+	 * @details This is fairly slow so it is only done once during initialization
 	 */
 	void writeBuffer();
 
@@ -97,6 +98,8 @@ private:
 	 * @brief Write the specified page to the display
 	 *
 	 * @parma page a uint8_t for the page to be written 0-7
+	 *
+	 * @details writes to the locations where the values for freq, amp, and shift go
 	 */
 	void writeValues(const uint8_t page,const bool echo);
 
@@ -107,7 +110,7 @@ private:
 	void drawWordsNorm(const uint8_t row);
 
 	/**
-	 * @brief Draw freq, shift for ch1 and shift for ch2 to the display
+	 * @brief Draw freq, amp for ch1 and shift for ch2 to the display
 	 */
 	void drawWordsShift();
 
@@ -116,6 +119,8 @@ private:
 	 * 
 	 * @param currentFreq A const uint32_t that is the current frequency as a number.
 	 * @param Channel A const uint8_t that specifics if the frequency is being converted for channel 1 or 2.
+	 *
+	 * @details Breaks up the freq into separate chars(uint8_t), which are then added to the buffer
 	 */
 	void convertFreq(const uint32_t currentFreq, const uint8_t Channel);
 
@@ -124,6 +129,8 @@ private:
 	 * 
 	 * @param amp A const uint16_t that is the current amplitude as a number (0-4095).
 	 * @param Channel A const uint8_t that specifics if the amplitude is being converted for channel 1 or 2
+	 *
+	 * @details Breaks up the amp into separate chars(uint8_t), which are then added to the buffer
 	 */
 	void convertAmp(const uint16_t amp, const uint8_t Channel);
 
@@ -136,7 +143,7 @@ private:
 	void displaySignalType(const WaveShape shape, const uint8_t Channel);
 
 	/**
-	 * @brief Convert the 0-255 for shift to degrees display
+	 * @brief Convert the 0-255 for shift to 0-360 degrees display
 	 * 
 	 * @param signal A const uint8_t that is the current shift in steps
 	 */

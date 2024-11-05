@@ -25,12 +25,12 @@ class memoryChecker{
      * @brief Constructs a memoryBarrier object
      * 
      * @param memoryBarrierI A uint32_t containing the repeating numbers as a list.
-     * @param barrierSizeV A uint8_t specifiying the length of memoryBarrierI.
+     * @param barrierSizeV A uint8_t specifying the length of memoryBarrierI.
      */
     memoryChecker(uint32_t *memoryBarrierI, uint8_t barrierSizeV);
 
     /**
-     * @brief Check memoryBarrier to ensure the pattern is stil true
+     * @brief Check memoryBarrier to ensure the pattern is still true
      * 
      * @note If the barrier is no longer repeating as expected; it will issue a NVIC reboot.
      */
@@ -43,12 +43,12 @@ class memoryChecker{
  */
 class overallMemoryChecker{
 private:
-	memoryChecker *smallBarrierA;
-	memoryChecker *smallBarrierB;
-	memoryChecker *smallBarrierC;
-	memoryChecker *smallBarrierD;
-	memoryChecker *largeBarrier;
-	Semaphore *memorySemaphore;
+	memoryChecker *smallBarrierA; ///<first small barrier
+	memoryChecker *smallBarrierB;///<second small barrier
+	memoryChecker *smallBarrierC;///<third small barrier
+	memoryChecker *smallBarrierD;///<fourth small barrier
+	memoryChecker *largeBarrier;///<large barrier
+	Semaphore *memorySemaphore; ///<semaphore letting the barrier know when to run
 public:
 	/**
 	 * @brief Constructor for the overall memory barrier

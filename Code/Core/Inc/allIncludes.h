@@ -12,12 +12,13 @@
 
 //Variables
 #define waveFormRes 256 //how many steps per wavelength
-#define squareLength waveFormRes / 2
-#define pulseLenght waveFormRes / 12
+
+
 //Device Setup
 #define FCLK 72000000UL //system clock speed
-#define timerPSC 4 //timer prescaling value
+#define timerPSC 4 //timer pre-scaling value
 
+//waveform generation settings
 #define maxFreq 1000
 #define minFreq 1
 
@@ -28,21 +29,26 @@
 #define minShift 0
 
 //queue sizes
-#define DISPLAY_QUEUE_SIZE 3
-#define INPUT_QUEUE_SIZE 3
-#define SIGNAL_QUEUE_SIZE 3
+#define DISPLAY_QUEUE_SIZE 5
+#define INPUT_QUEUE_SIZE 5
+#define SIGNAL_QUEUE_SIZE 5
 #define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
-
-//Pin definitions
-#include "pinout.h"
-
-
-//C includes
-#define assert(x) while(!(x))
 
 //SSD1306 setup
 #define SSD1306VerticalRes 64           //64 pixels tall
 #define SSD1306HorizontalRes 128    //128 pixels across{}
+
+//assert define
+#define assert(x) while(!(x))
+
+#define TOGGLE GPIOB->ODR ^= (1<<4);
+#define WRITEON GPIOB->ODR |= (1<<4);
+#define WRITEOFF GPIOB->ODR &= ~(1<<4);
+
+
+//Pin definitions
+#include "pinout.h"
+
 
 //Core STM includes
 #include "main.h"
@@ -53,9 +59,7 @@
 
 //Our includes
 
-#define TOGGLE GPIOB->ODR ^= (1<<4);
-#define WRITEON GPIOB->ODR |= (1<<4);
-#define WRITEOFF GPIOB->ODR &= ~(1<<4);
+
 //structures and enum definitions (shared)
 #include "structsAndEnums.h"
 
