@@ -471,7 +471,7 @@ void applicationLayer::update(){
 		}
 	}
 	if((!enqueued1) || (!enqueued2)){
-		NVIC_SystemReset(); //queues are full, something is wrong
+		return; //queues are full, do not reset
 	}
 }
 
