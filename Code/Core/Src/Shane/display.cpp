@@ -51,13 +51,17 @@ void display::sendCommand(const uint8_t command) {
 	assert(commandSize == 1);
 	dcPort->ODR &= ~(1<<dcPinV); //sending command
 	LL_SPI_TransmitData8(hspi1->Instance, command); // Send the command
-	while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
-	//max time for while loop
+	uint16_t MAXDELAY = 65535;
+	for (uint16_t j = 0; j < MAXDELAY; j++){
+				if(LL_SPI_IsActiveFlag_TXE(hspi1->Instance)){
+					break;
+				}
+			}
+	//max time for TXE loop
 	//Need to find bits / s based on SPI speed
-	// 10 Mbits / s, Data size = 8 bits
-	// 10,000,000 / 8 = 1,250,000 messages per second
-	//8 x 10^-7 s
-	// 0.8 uS max time per message / while loop
+	// 36 Mbits / s, Data size = 8 bits
+	// 10,000,000 / 8 = 4,500,000 messages per second
+	//2.2 x 10^-7 s
 }
 
 //set write data to the display
@@ -67,18 +71,20 @@ void display::sendData(const uint8_t *data,const uint16_t len) {
 	}
 	assert(data != nullptr);
 	assert(len >= 1);
-
 	dcPort->ODR |= (1<<dcPinV); //sending data
 	for (uint16_t i = 0; i < len; i++) {
+		uint16_t MAXDELAY = 65535;
 		LL_SPI_TransmitData8(hspi1->Instance, data[i]); // Send each byte
-		while (!LL_SPI_IsActiveFlag_TXE(hspi1->Instance));
-		//max time for while loop
+		for (uint16_t j = 0; j < MAXDELAY; j++){
+			if(LL_SPI_IsActiveFlag_TXE(hspi1->Instance)){
+				break;
+			}
+		}
+		//max time for TXE loop
 		//Need to find bits / s based on SPI speed
-		// 10 Mbits / s, Data size = 8 bits
-		// 10,000,000 / 8 = 1,250,000 messages per second
-		//8 x 10^-7 s
-		// 0.8 uS max time per message / while loop
-
+		// 36 Mbits / s, Data size = 8 bits
+		// 10,000,000 / 8 = 4,500,000 messages per second
+		//2.2 x 10^-7 s
 	}
 }
 
