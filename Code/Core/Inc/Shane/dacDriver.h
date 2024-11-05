@@ -76,7 +76,7 @@ class dacDriver{
 		 * @brief Gets the current phase shift
 		 * @param shift A uint8_t that will represen the phase shift of the current signal.
 		 */
-		void getShift(uint8_t *shift);
+		void getShift(uint16_t *shift);
 
 		/**
 		* @brief Gets the current wave shape

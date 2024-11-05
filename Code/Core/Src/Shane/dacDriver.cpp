@@ -64,7 +64,7 @@ void dacDriver::getAmp(uint16_t *amp) {
 	*amp = currentSignal.amp;
 	}
 }
-void dacDriver::getShift(uint8_t *shift) {
+void dacDriver::getShift(uint16_t *shift) {
 	if(shift != nullptr){
 	assert(shift != nullptr);
 	*shift =  currentSignal.shiftAmount;

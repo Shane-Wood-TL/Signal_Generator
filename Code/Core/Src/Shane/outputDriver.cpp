@@ -25,7 +25,7 @@ void outputDriver::update() {
 		uint16_t newFreq2;
 		uint16_t newAmp1;
 		uint16_t newAmp2;
-		uint8_t newShift2;
+		uint16_t newShift2;
 		WaveShape ch1NewShape;
 		WaveShape ch2NewShape;
 

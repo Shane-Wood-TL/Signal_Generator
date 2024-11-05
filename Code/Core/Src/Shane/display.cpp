@@ -245,7 +245,7 @@ void display::writeSection(uint8_t page, uint8_t columnStart, uint8_t columnStop
 	}else if(columnStart > SSD1306HorizontalRes || columnStop > SSD1306HorizontalRes){
 		return;
 	}
-	assert(page >0 && page < 8);
+	assert(page >= 0 && page < 8);
 	sendCommand(0x22);
 	sendCommand(page);
 	sendCommand(page);
@@ -339,7 +339,7 @@ void display::convertShift(const uint16_t signal){
 		if(signal > 256 || signal < 0){
 			return;
 		}
-		assert(signal >= 0 && signal < 256);
+		assert(signal >= 0 && signal <= 256);
 		//attempting to keep as much resolution as possible
 		//180 * 360 < 2^16 -1 therefore the uint16_t will not be fully used
 		//but it will also allow for slightly more resolution than just whole numbers
