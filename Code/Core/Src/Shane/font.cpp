@@ -33,17 +33,20 @@ void font::initializeFontMap() {
 	fontMap[r] = lowR;
 	fontMap[t] = lowT;
 	fontMap[ldecimal] = Decimal;
+	return;
 }
 
 font::font() {
 	initializeFontMap();
+	return;
 }
 
 const uint16_t* font::getLetter(const uint8_t letter) {
-	if(!(letter >=0 && letter <= 255)){
+	uint8_t sizeOfLetter = sizeof(letter);
+	if(sizeOfLetter != 1){
 		return nullptr;
 	}
-	assert(letter >=0 && letter <= 255);
+	assert((letter >=0) && (letter <= 255));
 	uint8_t convertLetter = 0;
 	switch (letter){
 	case(48): // ascii 0
@@ -122,12 +125,16 @@ const uint16_t* font::getLetter(const uint8_t letter) {
 	return fontMap[convertLetter];
 }
 
+//return sine symbol
 const uint32_t* font::getSineVis() {
 	return sineWaveVis;
 }
+//return square symbol
 const uint32_t* font::getSquareVis() {
 	return squareWaveVis;
 }
+
+//return pulse
 const uint32_t* font::getPulseVis() {
 	return pulseWaveVis;
 }

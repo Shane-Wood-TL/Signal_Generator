@@ -10,10 +10,6 @@
 
 #include "allIncludes.h"
 
-//SSD1306 setup
-#define SSD1306VerticalRes 64           //64 pixels tall
-#define SSD1306HorizontalRes 128    //128 pixels across
-
 
 /**
  * @class display
@@ -48,7 +44,7 @@ private:
 	 *
 	 * @param command a uint8_t that is the command that will be written to the SPI bus
 	 */
-	void sendCommand(uint8_t command);
+	void sendCommand(const uint8_t command);
 
 	/**
 	 * @brief Write data to the display
@@ -56,7 +52,7 @@ private:
 	 * @param data a uint8_t that is data that will be written to the display using SPI
 	 * @param len a uint16_t that is the len of the data being written
 	 */
-	void sendData(uint8_t *data, uint16_t len);
+	void sendData(const uint8_t *data, const uint16_t len);
 
 	/**
 	 * @brief Draw pixel to the display buffer
@@ -102,13 +98,13 @@ private:
 	 *
 	 * @parma page a uint8_t for the page to be written 0-7
 	 */
-	void writeValues(uint8_t page, bool echo);
+	void writeValues(const uint8_t page,const bool echo);
 
 
 	/**
 	 * @brief Draw freq, shift for ch1 and ch2 to the display
 	 */
-	void drawWordsNorm(uint8_t row);
+	void drawWordsNorm(const uint8_t row);
 
 	/**
 	 * @brief Draw freq, shift for ch1 and shift for ch2 to the display
@@ -153,7 +149,7 @@ private:
 	 * @param columnStart a uint8_t the column where data will start being written [0-127]
 	 * @param columnStart a uint8_t the column where data will stop being written [0-127]
 	 */
-	void writeSection(uint8_t page, uint8_t columnStart, uint8_t columnStop);
+	void writeSection(const uint8_t page, const uint8_t columnStart, const uint8_t columnStop);
 public:
 	/**
 	 * @brief Constructs a display object.
@@ -165,7 +161,7 @@ public:
 	 * @param rstPortI a GPIO_Typedef, the port where the reset pin is located
 	 * @param rstPinI a uint32_t bit mask for the pin number for rst
 	 */
-	display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI, ssd1306Setup *setup);
+	display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI, const ssd1306Setup *setup);
 
 
 	/**

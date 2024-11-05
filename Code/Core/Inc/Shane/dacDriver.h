@@ -49,7 +49,7 @@ class dacDriver{
 		 * 
 		 * @details Sets up a dacDriver, starts DMA at 12bit resolution
 		 */
-		dacDriver(DAC_HandleTypeDef *hdacI, uint32_t DacChannel1I, TIM_HandleTypeDef *timer1Il, signalQueue *channel1I);
+		dacDriver(DAC_HandleTypeDef *hdacI, const uint32_t DacChannel1I, TIM_HandleTypeDef *timer1Il, signalQueue *channel1I);
 
 		/**
 		 * @brief updates the output signal if new data is available

@@ -8,7 +8,9 @@
 #include "allIncludes.h"
 
 KnobDriver::KnobDriver(GPIO_TypeDef* GpioName1, uint8_t PinNumber1, GPIO_TypeDef* GpioName2, uint8_t PinNumber2){
-
+	if((GpioName1 == nullptr) ||  (GpioName2 == nullptr) || (PinNumber1 > 12) || (PinNumber2 > 12)){
+		NVIC_SystemReset();
+	}
 	//Assigns pin A (=1) and pin B (=2) on the knob to a GPIO pin on the board
 	gpio_name_1 = GpioName1;
 	pin_number_1 = PinNumber1;
@@ -66,7 +68,9 @@ int8_t KnobDriver::UpdateKnob(){
 }
 
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
-
+	if((GpioName == nullptr) ||  (ButtonSemaphoreI == nullptr) || (PinNumber > 12)){
+			NVIC_SystemReset();
+		}
 	//Assigns the semaphore that triggers a run of the state machine
 	assert(GpioName != nullptr);
 	assert(ButtonSemaphoreI != nullptr);
@@ -85,6 +89,9 @@ void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 
 	//Both variables are true if the semaphore declares it is time for the button to check for an input
 	assert(queue_data != nullptr);
+	if(queue_data == nullptr){
+		return;
+	}
 	bool semaContents;
 	bool semaStatus = ButtonSemaphoreInstance -> dequeue(&semaContents);
 
@@ -123,7 +130,9 @@ void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 }
 
 SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI){
-
+	if((GpioName == nullptr)|| (PinNumber > 12) || (SwitchSemaphoreI == nullptr)){
+			NVIC_SystemReset();
+	}
 	//Assigns the semaphore that triggers a run of the state machine
 	assert(GpioName != nullptr);
 	assert(SwitchSemaphoreI != nullptr);
@@ -142,6 +151,9 @@ int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 
 	//Both variables are true if the semaphore declares it is time for the switch to check for an input
 	assert(queue_data != nullptr);
+	if(queue_data == nullptr){
+		return 0;
+	}
 	bool semaContents;
 	bool semaStatus = SwitchSemaphoreInstance -> dequeue(&semaContents);
 
@@ -181,7 +193,9 @@ int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 }
 
 InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI, inputQueue *inputQueueInstanceI, Semaphore *KnobSemaphoreI){
-
+	if((AmpKnobI == nullptr)|| (FreqKnobI == nullptr)|| (ShiftKnobI == nullptr)|| (channelSwitcherI == nullptr)|| (modeSwitcherI == nullptr)|| (inputQueueInstanceI == nullptr)|| (KnobSemaphoreI == nullptr)){
+		NVIC_SystemReset();
+	}
 	//pointers to 3 knobs, 1 button, 1 switch drivers
 	assert(AmpKnobI != nullptr);
 	assert(FreqKnobI != nullptr);
@@ -215,7 +229,7 @@ InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver
 void InputDriver::checkForUpdates(){
 
 	//initialize struct to 0
-    inputValues queue_data = {0};
+    inputValues queue_data1 = {0,false,0,0,0};
 
     //Variables needed to determine if there is change in logic levels of the switch, a basic state machine
     static int8_t switchPastState = 0;
@@ -229,40 +243,40 @@ void InputDriver::checkForUpdates(){
 
 		//Update all knob instances
 		assert((knobSemaStatus == true) && (knobSemaContents == true));
-		queue_data.FreqKnob = FreqKnob -> UpdateKnob();
-		queue_data.AmpKnob = AmpKnob -> UpdateKnob();
-		queue_data.DelayKnob = ShiftKnob -> UpdateKnob();
+		queue_data1.FreqKnob = FreqKnob -> UpdateKnob();
+		queue_data1.AmpKnob = AmpKnob -> UpdateKnob();
+		queue_data1.DelayKnob = ShiftKnob -> UpdateKnob();
 	}
 	else{
 
 		//Insert a "no change" value into the inputValue struct if the semaphore doesn't allow the knobs to check for an input
-		queue_data.FreqKnob = 0;
-		queue_data.AmpKnob = 0;
-		queue_data.DelayKnob = 0;
+		queue_data1.FreqKnob = 0;
+		queue_data1.AmpKnob = 0;
+		queue_data1.DelayKnob = 0;
 	}
 
 	//Update Button and Switch instances
-	modeSwitcher -> UpdateButton(&queue_data);
-	switchPresentState = channelSwitcher -> UpdateSwitch(&queue_data);
+	modeSwitcher -> UpdateButton(&queue_data1);
+	switchPresentState = channelSwitcher -> UpdateSwitch(&queue_data1);
 
 	//Sanity check
 	assert((switchPresentState == 1) or (switchPresentState == 0));
 
 	//Check all values of the inputValues struct. The instant a change value is found, enqueue the inputValues struct. Otherwise, skip the enqueueing step
-	if (queue_data.FreqKnob != 0){
-		inputQueueInstance -> enqueue(queue_data);
+	if (queue_data1.FreqKnob != 0){
+		inputQueueInstance -> enqueue(queue_data1);
 	}
-	else if (queue_data.AmpKnob != 0){
-		inputQueueInstance -> enqueue(queue_data);
+	else if (queue_data1.AmpKnob != 0){
+		inputQueueInstance -> enqueue(queue_data1);
 	}
-	else if (queue_data.DelayKnob != 0){
-		inputQueueInstance -> enqueue(queue_data);
+	else if (queue_data1.DelayKnob != 0){
+		inputQueueInstance -> enqueue(queue_data1);
 	}
-	else if (queue_data.isButtonPressed != false){
-		inputQueueInstance -> enqueue(queue_data);
+	else if (queue_data1.isButtonPressed != false){
+		inputQueueInstance -> enqueue(queue_data1);
 	}
 	else if (switchPastState != switchPresentState){
-		inputQueueInstance -> enqueue(queue_data);
+		inputQueueInstance -> enqueue(queue_data1);
 	}
 
 	switchPastState = switchPresentState;

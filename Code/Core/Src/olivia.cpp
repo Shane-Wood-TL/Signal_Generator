@@ -15,6 +15,10 @@ signalShifter::signalShifter() {
 }
 //enqueue a point
 bool signalShifter::enqueue(uint32_t msg) {
+	if(msg > 4095){
+		return false;
+	}
+	assert(msg <= 4095);
 	if(full){
 		return false;
 	}else{
@@ -44,8 +48,11 @@ bool signalShifter::dequeue(uint32_t *msg) {
 	}
 }
 
-//use circular queue, to shift indecies
+//use circular queue, to shift indices
 void signalShifter::rollingMath(uint8_t *position){
+	if(position == nullptr){
+		return;
+	}
 	assert(position != nullptr);
 	assert(!(*position > waveFormRes));
     //if it is at the max value go back to 0
@@ -62,6 +69,10 @@ void signalShifter::shiftWaveform(uint32_t *currentPositions, uint32_t *newPosit
 	assert(currentPositions != nullptr);
 	assert(newPositions != nullptr);
 	assert(shiftAmt >= 0);
+	uint8_t sizeOfShift = sizeof(shiftAmt);
+	if((currentPositions == nullptr) || (newPositions == nullptr) || (sizeOfShift != 1)){
+		return;
+	}
 	//enqueue the entire waveform
     for(uint16_t i = 0; i < waveFormRes; i++) {
     	bool enqueueS = enqueue(currentPositions[i]);
@@ -137,7 +148,12 @@ signalInfo Waves::getSinePlot(){
 	return sinePlot;
 }
 
-signalInfo Waves::getDelay(signalInfo toShift, uint8_t amount){
+signalInfo Waves::getDelay(signalInfo toShift, uint16_t amount){
+	if(toShift.frequency <= 0){
+		return getSinePlot();
+	}else if(amount ==0){
+		return toShift;
+	}
 	signalInfo modifiedWave;
 	modifiedWave.shiftAmount = amount;
 	//handle the shifting
@@ -148,6 +164,9 @@ signalInfo Waves::getDelay(signalInfo toShift, uint8_t amount){
 }
 
 void Waves::scale(signalInfo *toScale, uint16_t newAmp){
+	if((toScale == nullptr) || (newAmp >= 4096)){
+		return;
+	}
 	//get a new copy of the wave, and adjust it's amplitude
 	assert(toScale != nullptr);
 	signalInfo tempWave;
@@ -173,6 +192,9 @@ void Waves::scale(signalInfo *toScale, uint16_t newAmp){
 }
 
 void applicationLayer::checkFreq(uint16_t *freq, int8_t incAmt){
+	if((freq == nullptr) || (incAmt==0)){
+		return;
+	}
 	assert(freq != nullptr);
 	assert(incAmt != 0);
     uint32_t newFreq = (*freq)+ incAmt;
@@ -193,6 +215,9 @@ void applicationLayer::checkFreq(uint16_t *freq, int8_t incAmt){
 
 //safely increase /decrease the amplitude
 void applicationLayer::checkAmp(uint16_t *amp, int8_t incAmt){
+	if((amp == nullptr) || (incAmt == 0)){
+		return;
+	}
 	assert(amp != nullptr);
 	assert(incAmt != 0);
 	uint16_t newAmp = (*amp)+ incAmt;
@@ -212,6 +237,9 @@ void applicationLayer::checkAmp(uint16_t *amp, int8_t incAmt){
 
 //safely increase / decrease the amplitude
 void applicationLayer::checkDelay(uint16_t *shift, int8_t incAmt){
+	if((shift == nullptr) || (incAmt == 0)){
+		return;
+	}
 	assert(shift != nullptr);
 	assert(incAmt != 0);
 	uint16_t newShift = (*shift) + incAmt;
@@ -229,8 +257,11 @@ void applicationLayer::checkDelay(uint16_t *shift, int8_t incAmt){
 	*shift = newShift;
 }
 
-//contstructor ....
+//constructor ....
 applicationLayer::applicationLayer(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *SignalQueue2){
+	if((InputQueue == nullptr) || (SignalQueue1 == nullptr) || (SignalQueue2 == nullptr)){
+		NVIC_SystemReset();
+	}
 	assert(InputQueue != nullptr);
 	assert(SignalQueue1 != nullptr);
 	assert(SignalQueue2 != nullptr);
@@ -246,6 +277,9 @@ applicationLayer::applicationLayer(inputQueue *InputQueue, signalQueue *SignalQu
 
 //go to the next wave type
 void applicationLayer::increaseWaveType(WaveShape *currentWave){
+	if(currentWave == nullptr){
+		return;
+	}
 	assert(currentWave != nullptr);
 	switch (*currentWave){
 	case(SINE):{
@@ -279,6 +313,9 @@ void applicationLayer::increaseWaveType(WaveShape *currentWave){
 
 //update the freq based on the knob
 void applicationLayer::setFrequency(signalInfo *signal, int8_t knobValue){
+	if(signal == nullptr){
+		return;
+	}
 	assert(signal != nullptr);
 	int8_t amtToChangeBy = 0;
 	if(knobValue == 0){
@@ -305,6 +342,9 @@ void applicationLayer::setFrequency(signalInfo *signal, int8_t knobValue){
 
 //update amp based on the knob
 void applicationLayer::setAmplitude(signalInfo *signal, int8_t knobValue){
+	if(signal == nullptr){
+		return;
+	}
 	assert(signal != nullptr);
 	if(knobValue == 0){
 		return;
@@ -321,6 +361,9 @@ void applicationLayer::setAmplitude(signalInfo *signal, int8_t knobValue){
 }
 
 void applicationLayer::updateWave(signalInfo *signal){ //get a fresh copy of the wave to modify
+	if(signal == nullptr){
+		return;
+	}
 	assert(signal != nullptr);
 	signalInfo newWave;
 	newWave.amp = signal->amp;
@@ -349,6 +392,9 @@ void applicationLayer::updateWave(signalInfo *signal){ //get a fresh copy of the
 }
 
 void applicationLayer::echoMode(inputValues *currentInput){
+	if(currentInput==nullptr){
+		return;
+	}
 	assert(currentInput != nullptr);
 	if(currentInput->DelayKnob == 1) {//increase delay by 45 deg
 		checkDelay(&currentWave2Echo.shiftAmount, 32);
@@ -431,6 +477,9 @@ void applicationLayer::update(){
 
 //Semaphore Class
 bool Semaphore::enqueue(bool msg) {
+	if(msg != true && msg !=false){
+		return false;
+	}
 	bool ok = false;
 	uint8_t nextTail = tail;
 	rollingMath(&nextTail);
@@ -446,6 +495,9 @@ bool Semaphore::enqueue(bool msg) {
 }
 
 bool Semaphore::dequeue(bool *msg) {
+	if(msg==nullptr){
+		return false;
+	}
 	bool ok = false;
 	if(head==tail) {
 		ok = false; //no values in queue
@@ -458,6 +510,9 @@ bool Semaphore::dequeue(bool *msg) {
 }
 
 void Semaphore::rollingMath(uint8_t *position){
+	if(position == nullptr){
+		return;
+	}
     //if it is at the max value go back to 0
     if((*position) >= QUEUE_BUFFER_SIZE-1){ //fail safe it position somehow gets larger
         *position = 0;

@@ -38,7 +38,11 @@
 
 
 //C includes
-#include <cassert>
+#define assert(x) while(!(x))
+
+//SSD1306 setup
+#define SSD1306VerticalRes 64           //64 pixels tall
+#define SSD1306HorizontalRes 128    //128 pixels across{}
 
 //Core STM includes
 #include "main.h"

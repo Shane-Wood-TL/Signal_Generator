@@ -26,9 +26,9 @@ class signalShifter{
     	*
     	* @param currentPositions an unsigned integer which is a specific value in an array
     	*
-    	* newPositions an unsigned integer which is a specific value in an array based on a shifted version of the currentPositions array
+    	* @param newPositions an unsigned integer which is a specific value in an array based on a shifted version of the currentPositions array
     	*
-    	* shiftAmt is an unsigned integer that dictates the amount of values that are removed from the front of the currentPositions array and
+    	* @param shiftAmt is an unsigned integer that dictates the amount of values that are removed from the front of the currentPositions array and
     	* moved to the back of the array to create the newPositions array
     	*/
     	void shiftWaveform(uint32_t *currentPositions, uint32_t *newPositions, uint8_t shiftAmt);
@@ -101,18 +101,18 @@ public:
 	/**
 	* @brief Shifts the original wave by a certain amount in echo mode
 	*
-	* @param a struct signalInfo toShift an array of values that is going to be modified
-	* an unsigned integer amount which dictates the amount to shift the toShift wave
+	* @param toShift a struct signalInfo toShift an array of values that is going to be modified
+	* @param amount an unsigned integer amount which dictates the amount to shift the toShift wave
 	*
 	* @return a struct signalInfo instance called modifiedWave based on the toShift wave
 	*/
-	signalInfo getDelay(signalInfo toShift, uint8_t amount);
+	signalInfo getDelay(signalInfo toShift, uint16_t amount);
 
 	/**
 	* @brief makes a new copy of the wave and adjusts the amplitude
 	*
-	* @param a struct signalInfo toScale an array of values that is going to be modified
-	* an unsigned integer newAmp
+	* @param toScale a struct signalInfo toScale an array of values that is going to be modified
+	* @param newAmp unsigned integer newAmp
 	*/
 	void scale(signalInfo *toScale, uint16_t newAmp);
 private:
@@ -150,9 +150,9 @@ class applicationLayer{
 
 		/**
 		 * @brief constructs a applicationLayer object
-		 * @param struct of inputQueue instance InputQueueInstance allows input values to be read
-		 * struct of signalQueue instance called SignalQueueInstance1 allows signal values to be written
-		 * struct of signalQueue instance called SignalQueueInstance2 allows signal values to be written
+		 * @param InputQueue struct of inputQueue instance InputQueueInstance allows input values to be read
+		 * @param SignalQueue1 struct of signalQueue instance called SignalQueueInstance1 allows signal values to be written
+		 * @param SignalQueue2 struct of signalQueue instance called SignalQueueInstance2 allows signal values to be written
 		 */
 		applicationLayer(inputQueue *InputQueue, signalQueue *SignalQueue1, signalQueue *SignalQueue2);
 
@@ -173,21 +173,21 @@ class applicationLayer{
     	/**
     	* @brief checks if the frequency is within the min and max so it can increase and decrease safely
     	* @param freq is an unsigned integer that tracks the current value of the frequency
-    	* incAmt is an unsigned integer it is the amount to increase or decrease the current frequency by
+    	* @param incAmt is an unsigned integer it is the amount to increase or decrease the current frequency by
     	*/
     	void checkFreq(uint16_t *freq,int8_t incAmt);
 
     	/**
     	* @brief checks if the amplitude is within the min and max so it can increase and decrease safely
        	* @param amp is an unsigned integer that tracks the current value of the amplitude
-    	* incAmt is an unsigned integer it is the amount to increase or decrease the current amplitude by
+    	* @param incAmt is an unsigned integer it is the amount to increase or decrease the current amplitude by
        	*/
     	void checkAmp(uint16_t *amp,int8_t incAmt);
 
     	/**
     	* @brief checks if the delay is within the min and max so it can increase and decrease safely
     	* @param shift is an unsigned integer that tracks the current value of the shift
-    	* incAmt is an unsigned integer the amount to increase or decrease the current shift by
+    	* @param incAmt is an unsigned integer the amount to increase or decrease the current shift by
     	*/
     	void checkDelay(uint16_t *shift,int8_t incAmt);
 
@@ -202,7 +202,7 @@ class applicationLayer{
     	* @brief checks the knob frequency values and changes the frequency by 1, 10, or 100
     	*
     	* @param signal is a struct signalInfo that tracks the current value of the frequency
-        * knobValue is a signed integer that dictates if the frequency can increase, decrease, or stay the same
+        * @param knobValue is a signed integer that dictates if the frequency can increase, decrease, or stay the same
     	*/
     	void setFrequency(signalInfo *signal, int8_t knobValue);
 
@@ -210,7 +210,7 @@ class applicationLayer{
     	* @brief checks the knob amplitude values and changes the amplitude by a .1V step
     	*
     	* @param signal is a struct signalInfo that tracks the current value of the amplitude
-    	* knobValue is a signed integer that dictates if the amplitude can increase, decrease, or stay the same
+    	* @param knobValue is a signed integer that dictates if the amplitude can increase, decrease, or stay the same
     	*/
     	void setAmplitude(signalInfo *signal, int8_t knobValue);
 
