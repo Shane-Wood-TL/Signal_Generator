@@ -36,10 +36,17 @@ struct displayInfoValues{
 	WaveShape Awave = SINE;
 	uint16_t Bfrequency = 0; //signal was tested to 80khz, 65k is not enough
 	uint16_t Bamp = 0; //0-3.3 represented as 0 -4095
-	uint8_t BshiftAmount = 0; //shift amount from - 255
+	uint16_t BshiftAmount = 0; //shift amount from - 255
 	WaveShape Bwave = SINE;
 };
 
-
+struct ssd1306Setup{
+	uint8_t SSD1306VerticalR;
+	uint8_t SSD1306HorizontalR;
+	GPIO_TypeDef *dcPortI;
+	uint8_t dcPinI;
+	GPIO_TypeDef *rstPortI;
+	uint8_t rstPinI;
+};
 
 #endif /* INC_SHANE_STRUCTSANDENUMS_H_ */

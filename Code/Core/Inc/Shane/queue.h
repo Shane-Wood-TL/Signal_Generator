@@ -1,8 +1,8 @@
 /**
  * @file queue.h
  * @brief This file contains the definitions for the signalQueue, displayQueue, and inputQueue
- *  Created on: Sep 26, 2024
- *      Author: Shane Wood
+ * @author Shane Wood
+ * @date Sep 15, 2024
  */
 
 #ifndef INC_QUEUE_H_
@@ -10,11 +10,6 @@
 
 
 #include "allIncludes.h"
-
-#define DISPLAY_QUEUE_SIZE 3
-#define INPUT_QUEUE_SIZE 3
-#define SIGNAL_QUEUE_SIZE 3
-#define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
 
 /**
  * @class signalQueue

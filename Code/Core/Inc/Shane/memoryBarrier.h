@@ -1,8 +1,8 @@
 /**
  * @file memoryBarrier.h
- * @brief This file scontains the definition of the memoryBarrier class
- *  Created on: Sep 15, 2024
- *      Author: Shane Wood
+ * @brief This file contains the definition of the memoryChecker and overallMemoryChecker classes
+ * @author Shane Wood
+ * @date Sep 15, 2024
  */
 
 #ifndef SRC_MEMORYBARRIER_H_
@@ -13,7 +13,7 @@
  * @class memeoryChecker
  * @brief Memory checker based on repeating list
  * 
- * @details Checks for 1,11,111,1111 in a list repeating for as long as barrierSize
+ * @details Checks for 1,11,111,1111 in a list repeating for as long as barrierSize, barrierSize needs to be divisible by 4
  */
 class memoryChecker{
     private:
@@ -66,7 +66,8 @@ public:
 	/**
 	 * @brief Update check one of the memory barriers
 	 *
-	 * @details Cycles through one of the memory barriers if the semaphore is set, will cycle through the next during the next cycle
+	 * @details Cycles through one of the memory barriers if the semaphore is set,
+	 *  will cycle through the next barrier during the next time the semaphore is set.
 	 */
 	void checkMemory();
 };
