@@ -1,8 +1,8 @@
 /**
  * @file display.h
  * @brief This file contains the definition of the display class
- * Created on: Oct 29, 2024
- *      Author: Shane Wood
+ * @author Shane Wood
+ * @date Sep 15, 2024
  */
 
 #ifndef INC_SHANE_DISPLAY_H_
@@ -13,7 +13,7 @@
 //SSD1306 setup
 #define SSD1306VerticalRes 64           //64 pixels tall
 #define SSD1306HorizontalRes 128    //128 pixels across
-#define SSD1306Pages SSD1306VerticalRes/8 //each page is a vertical 8 bits
+
 
 /**
  * @class display
@@ -35,14 +35,16 @@ private:
 	 uint8_t dcPinV;///< pin number for the D/C pin
 	 GPIO_TypeDef *rstPortV; ///< Port for the reset pin
 	 uint8_t rstPinV; ///< pin for the reset pin
-	 bool normalWriting = true;
+	 bool normalWriting = true; ///< detect if shift or freq + amp is written for ch2
+	 uint8_t horizontalRes; ///< horizontal res of the screen
+	 uint8_t verticalRes; ///< vertical res of the screen
 	/**
 	 *@brief set up the i2c display (ssd1306)
 	*/
 	void initDisplay();
 
 	/**
-	 *  @brief Send commands to the display
+	 * @brief Send commands to the display
 	 *
 	 * @param command a uint8_t that is the command that will be written to the SPI bus
 	 */
@@ -142,13 +144,20 @@ private:
 	 * 
 	 * @param signal A const uint8_t that is the current shift in steps
 	 */
-	void convertShift(const uint8_t signal);
+	void convertShift(const uint16_t signal);
 
+	/**
+	 * @brief Write only a section to the display
+	 *
+	 * @param page a uint8_t The page [0-7] that will have data written to it
+	 * @param columnStart a uint8_t the column where data will start being written [0-127]
+	 * @param columnStart a uint8_t the column where data will stop being written [0-127]
+	 */
 	void writeSection(uint8_t page, uint8_t columnStart, uint8_t columnStop);
 public:
 	/**
 	 * @brief Constructs a display object.
-	 * 
+	 *
 	 * @param hspi11I a SPI_HandleTypeDef, the spi bus that the display is using
 	 * @param displayQueueI a displayQueue, the location where the display will get data to write to the screen
 	 * @param dcPortI a GPIO_Typedef, the port where the Data/command pin is located
@@ -156,7 +165,7 @@ public:
 	 * @param rstPortI a GPIO_Typedef, the port where the reset pin is located
 	 * @param rstPinI a uint32_t bit mask for the pin number for rst
 	 */
-	display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI, GPIO_TypeDef *dcPortI, uint8_t dcPinI, GPIO_TypeDef *rstPortI, uint8_t rstPinI);
+	display(SPI_HandleTypeDef *hspi1I, displayQueue *displayQueueI, ssd1306Setup *setup);
 
 
 	/**

@@ -68,6 +68,8 @@ int8_t KnobDriver::UpdateKnob(){
 ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *ButtonSemaphoreI){
 
 	//Assigns the semaphore that triggers a run of the state machine
+	assert(GpioName != nullptr);
+	assert(ButtonSemaphoreI != nullptr);
 	ButtonSemaphoreInstance = ButtonSemaphoreI;
 
 	//Assigns a GPIO pin to for use by the button
@@ -82,6 +84,7 @@ ButtonDriver::ButtonDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 
 	//Both variables are true if the semaphore declares it is time for the button to check for an input
+	assert(queue_data != nullptr);
 	bool semaContents;
 	bool semaStatus = ButtonSemaphoreInstance -> dequeue(&semaContents);
 
@@ -122,6 +125,8 @@ void ButtonDriver::UpdateButton(struct inputValues *queue_data){
 SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore *SwitchSemaphoreI){
 
 	//Assigns the semaphore that triggers a run of the state machine
+	assert(GpioName != nullptr);
+	assert(SwitchSemaphoreI != nullptr);
 	SwitchSemaphoreInstance = SwitchSemaphoreI;
 
 	//Assigns a GPIO pin to for use by the switch
@@ -136,6 +141,7 @@ SwitchDriver::SwitchDriver(GPIO_TypeDef* GpioName, uint8_t PinNumber, Semaphore 
 int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 
 	//Both variables are true if the semaphore declares it is time for the switch to check for an input
+	assert(queue_data != nullptr);
 	bool semaContents;
 	bool semaStatus = SwitchSemaphoreInstance -> dequeue(&semaContents);
 
@@ -177,6 +183,13 @@ int8_t SwitchDriver::UpdateSwitch(struct inputValues *queue_data){
 InputDriver::InputDriver(KnobDriver *AmpKnobI, KnobDriver *FreqKnobI, KnobDriver *ShiftKnobI, SwitchDriver *channelSwitcherI, ButtonDriver *modeSwitcherI, inputQueue *inputQueueInstanceI, Semaphore *KnobSemaphoreI){
 
 	//pointers to 3 knobs, 1 button, 1 switch drivers
+	assert(AmpKnobI != nullptr);
+	assert(FreqKnobI != nullptr);
+	assert(ShiftKnobI != nullptr);
+	assert(channelSwitcherI != nullptr);
+	assert(modeSwitcherI != nullptr);
+	assert(inputQueueInstanceI != nullptr);
+	assert(KnobSemaphoreI != nullptr);
 	AmpKnob = AmpKnobI;
 	FreqKnob = FreqKnobI;
 	ShiftKnob = ShiftKnobI;
@@ -215,6 +228,7 @@ void InputDriver::checkForUpdates(){
 	if ((knobSemaStatus == true) && (knobSemaContents == true)){
 
 		//Update all knob instances
+		assert((knobSemaStatus == true) && (knobSemaContents == true));
 		queue_data.FreqKnob = FreqKnob -> UpdateKnob();
 		queue_data.AmpKnob = AmpKnob -> UpdateKnob();
 		queue_data.DelayKnob = ShiftKnob -> UpdateKnob();

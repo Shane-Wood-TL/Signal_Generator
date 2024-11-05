@@ -14,10 +14,9 @@
 #define waveFormRes 256 //how many steps per wavelength
 #define squareLength waveFormRes / 2
 #define pulseLenght waveFormRes / 12
-
 //Device Setup
-#define FCLK 50000000UL //system clock speed
-#define timerPSC 3 //timer prescaling value
+#define FCLK 80000000UL //system clock speed
+#define timerPSC 4 //timer prescaling value
 
 #define maxFreq 1000
 #define minFreq 1
@@ -28,6 +27,11 @@
 #define maxShift 256
 #define minShift 0
 
+//queue sizes
+#define DISPLAY_QUEUE_SIZE 3
+#define INPUT_QUEUE_SIZE 3
+#define SIGNAL_QUEUE_SIZE 3
+#define QUEUE_BUFFER_SIZE 2 //currently only the semaphore is using this
 
 //Pin definitions
 #include "pinout.h"

@@ -1,8 +1,8 @@
 /**
  * @file outputDriver.h
  * @brief This file contains the definition of the outputDriver class
- *  Created on: Oct 29, 2024
- *      Author: Shane Wood
+ * @author Shane Wood
+ * @date Sep 15, 2024
  */
 
 #ifndef INC_SHANE_OUTPUTDRIVER_H_

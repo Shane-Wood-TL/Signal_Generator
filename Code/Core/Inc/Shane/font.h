@@ -1,8 +1,8 @@
-/*
+/**
  * @file font.h
  * @brief This file contains the definition of the font class
- *  Created on: Oct 6, 2024
- *      Author: Shane Wood
+ * @author Shane Wood
+ * @date Sep 15, 2024
  */
 
 #ifndef INC_FONT_H_

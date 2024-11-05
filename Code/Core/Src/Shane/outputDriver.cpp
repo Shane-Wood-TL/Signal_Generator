@@ -9,47 +9,34 @@ outputDriver::outputDriver(dacDriver *DACchannel1I, dacDriver *DACchannel2I,
 	displayInfoQ = displayInfoQI;
 	DACchannel1 = DACchannel1I;
 	DACchannel2 = DACchannel2I;
-	DACchannel1->enableTimer();
-	DACchannel2->enableTimer();
 	update();
 }
 
 void outputDriver::update() {
-	oldFreq1 = DACchannel1->getFreq();
-	oldFreq2 = DACchannel2->getFreq();
-	WaveShape oldShape = DACchannel2->getWave();
+	DACchannel1->getFreq(&oldFreq1);
+	DACchannel2->getFreq(&oldFreq2);
+	WaveShape oldShape;
+	DACchannel2->getWave(&oldShape);
 	bool update1 = DACchannel1->update();
 	bool update2 = DACchannel2->update();
 
 	if(update1 || update2){
-		uint16_t newAmp1 = DACchannel1->getAmp();
-		uint16_t newAmp2 = DACchannel2->getAmp();
-		uint16_t newFreq1 =DACchannel1->getFreq();
-		uint16_t newFreq2 = DACchannel2->getFreq();
-		uint8_t newShift2 = DACchannel2->getShift();
-		WaveShape ch1NewShape = DACchannel1->getWave();
-		WaveShape ch2NewShape = DACchannel2->getWave();
-		if(newAmp1 > 4095){
-			newAmp1 = 4095;
-		}
-		if(newAmp2 > 4095){
-					newAmp2 = 4095;
-		}
-		if(newFreq1 <= 0){
-			newFreq1 = 1;
-		}
-		if(newFreq2 <= 0){
-			newFreq1 = 2;
-		}
-		if(newShift2 > 255){
-			newShift2 = 255;
-		}
-		if((ch1NewShape != SINE && ch1NewShape != SQUARE && ch1NewShape != PULSE) || (ch1NewShape == ECHO)){
-			ch1NewShape = SINE;
-		}
-		if((ch2NewShape != SINE && ch2NewShape != SQUARE && ch2NewShape != PULSE) && ch2NewShape != ECHO){
-			ch2NewShape = SINE;
-		}
+		uint16_t newFreq1;
+		uint16_t newFreq2;
+		uint16_t newAmp1;
+		uint16_t newAmp2;
+		uint8_t newShift2;
+		WaveShape ch1NewShape;
+		WaveShape ch2NewShape;
+
+		DACchannel1->getAmp(&newAmp1);
+		DACchannel2->getAmp(&newAmp2);
+		DACchannel1->getFreq(&newFreq1);
+		DACchannel2->getFreq(&newFreq2);
+		DACchannel2->getShift(&newShift2);
+		DACchannel1->getWave(&ch1NewShape);
+		DACchannel2->getWave(&ch2NewShape);
+
 		displayInfoValues toWrite = {newFreq1,newAmp1,ch1NewShape,
 				newFreq2,newAmp2,newShift2,ch2NewShape};
 		if((ch2NewShape == ECHO) && (oldShape != ECHO)){
