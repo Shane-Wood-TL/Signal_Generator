@@ -12,7 +12,7 @@
 
 /**
  * @brief KnobDriver class determines if there is an input on any knobs present in the system (This system uses three knobs).
- * A single knob needs two input GPIO pins with pull-up resistors, designate these with the constructor.
+ * @details A single knob needs two input GPIO pins with pull-up resistors, designate these with the constructor.
  * A GPIO name (ex: A, B, H,...), and the pin's number (11, 1, 5,...).
  * Two private member variables for each GPIO pin's previous state (1 or 0) are required to run a state machine for multiple knobs simultaneously.
  * Member function "UpdateKnob" reads the knob's pins for input with a simple state machine and then returns the output (1 for increase, -1 for decrease, 0 for no activity).
@@ -36,7 +36,7 @@ public:
 
 /**
  * @brief ButtonDriver class determines if there is an input on the button present in the system (This system uses one button).
- * Each button uses one GPIO input pin with a pull-up resistor which is designated by the constructor, a GPIO name (A, H, G,...) and a pin number (1, 3, 12,...).
+ * @details Each button uses one GPIO input pin with a pull-up resistor which is designated by the constructor, a GPIO name (A, H, G,...) and a pin number (1, 3, 12,...).
  * Also requires a pointer to a semaphore (created by another class). These are all assigned in the constructor.
  * The "UpdateButton" member function reads the designated pin for input and with a simple state machine it checks for a falling edge.
  * If it recognizes a falling edge it will change a the "isButtonPressed" value to 1 in an inputValues struct.
@@ -58,7 +58,7 @@ public:
 
 /**
  * @brief SwitchDriver class determines if there is an input on the switch present in the system (This system uses one switch).
- * Each switch uses one GPIO input pin with a pull-up resistor which is designated by the constructor, a GPIO name (A, H, G,...) and a pin number (1, 3, 12,...).
+ * @details Each switch uses one GPIO input pin with a pull-up resistor which is designated by the constructor, a GPIO name (A, H, G,...) and a pin number (1, 3, 12,...).
  * Also requires a pointer to a semaphore (created by another class). These are all assigned in the constructor.
  * The "UpdateSwitch" member function reads the designated pin for input.
  * It passes the switch logic level to the "Switch" location in an inputValues struct.
@@ -81,7 +81,7 @@ public:
 
 /**
  * @brief InputDriver class holds pointers to all the other classes and uses them in an update function.
- * The constructor for this class hold a pointer to three KnobDriver classes, one SwitchDriver class, and one ButtonDriver class.
+ * @details The constructor for this class hold a pointer to three KnobDriver classes, one SwitchDriver class, and one ButtonDriver class.
  * It also holds a pointer to an inputQueue instance, which is the location that all the inputs will be enqueued to,
  * as well as a semaphore instance for the Knobs which will run all three knobs at the same time.
  * The InputDriver class also initializes an inputValues struct which is where all the data from the inputs will be placed to be enqueued.
