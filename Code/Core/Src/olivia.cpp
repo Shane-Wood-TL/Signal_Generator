@@ -15,7 +15,6 @@ signalShifter::signalShifter() {
 }
 //enqueue a point
 bool signalShifter::enqueue(uint32_t msg) {
-	assert(msg >= 0 && msg <= 4095);
 	if(full){
 		return false;
 	}else{
@@ -32,6 +31,9 @@ bool signalShifter::enqueue(uint32_t msg) {
 //dequeue a point
 bool signalShifter::dequeue(uint32_t *msg) {
 	assert(msg != nullptr);
+	if(msg == nullptr){
+		return false;
+	}
 	if(full == false && head == tail){
 		return false;
 	}else{
@@ -44,6 +46,7 @@ bool signalShifter::dequeue(uint32_t *msg) {
 
 //use circular queue, to shift indecies
 void signalShifter::rollingMath(uint8_t *position){
+	assert(position != nullptr);
 	assert(!(*position > waveFormRes));
     //if it is at the max value go back to 0
     if((*position) >= waveFormRes-1){ //fail safe it position somehow gets larger
@@ -59,9 +62,8 @@ void signalShifter::shiftWaveform(uint32_t *currentPositions, uint32_t *newPosit
 	assert(currentPositions != nullptr);
 	assert(newPositions != nullptr);
 	assert(shiftAmt >= 0);
-	uint32_t temp;
 	//enqueue the entire waveform
-    for(uint8_t i = 0; i < waveFormRes; i++) {
+    for(uint16_t i = 0; i < waveFormRes; i++) {
     	bool enqueueS = enqueue(currentPositions[i]);
     	if(!enqueueS){
     		return;
@@ -70,6 +72,7 @@ void signalShifter::shiftWaveform(uint32_t *currentPositions, uint32_t *newPosit
 
     // Perform the shift by dequeuing and enqueuing the required number of times
     for(uint16_t i = 0; i < waveFormRes-shiftAmt; i++) {
+    	uint32_t temp;
     	bool dequeueS;
     	bool enququeS;
         dequeueS = dequeue(&temp);  // Remove the front element
@@ -80,7 +83,7 @@ void signalShifter::shiftWaveform(uint32_t *currentPositions, uint32_t *newPosit
     }
 
     // Extract the shifted values into the newPositions array
-    for(uint8_t i = 0; i  < waveFormRes; i++) {
+    for(uint16_t i = 0; i  < waveFormRes; i++) {
         dequeue(&newPositions[i]);
     }
 }
@@ -96,7 +99,7 @@ void Waves::setSine(){
 	sinePlot.frequency = 100;
 	sinePlot.shiftAmount = 0;
 	sinePlot.wave = SINE;
-	for (uint8_t i = 0; i < waveFormRes; i++){
+	for (uint16_t i = 0; i < waveFormRes; i++){
 		//copy the table into the struct
 		sinePlot.signalLocations[i] = sineWaveTable[i];
 	}
@@ -107,7 +110,7 @@ void Waves::setSquare(){
 	squarePlot.frequency = 100;
 	squarePlot.shiftAmount = 0;
 	squarePlot.wave = SQUARE;
-	for (uint8_t i = 0; i < waveFormRes; i++){
+	for (uint16_t i = 0; i < waveFormRes; i++){
 		squarePlot.signalLocations[i] = squareWaveTable[i];
 	}
 }
@@ -117,7 +120,7 @@ void Waves::setPulse(){
 	pulsePlot.frequency = 100;
 	pulsePlot.shiftAmount = 0;
 	pulsePlot.wave = PULSE;
-	for (uint8_t i = 0; i < waveFormRes; i++){
+	for (uint16_t i = 0; i < waveFormRes; i++){
 		pulsePlot.signalLocations[i] = pulseWaveTable[i];
 	}
 }
@@ -146,6 +149,7 @@ signalInfo Waves::getDelay(signalInfo toShift, uint8_t amount){
 
 void Waves::scale(signalInfo *toScale, uint16_t newAmp){
 	//get a new copy of the wave, and adjust it's amplitude
+	assert(toScale != nullptr);
 	signalInfo tempWave;
 	if(toScale->wave == SINE){
 		tempWave = getSinePlot();
@@ -155,7 +159,7 @@ void Waves::scale(signalInfo *toScale, uint16_t newAmp){
 		tempWave = getPulsePlot();
 	}
 
-	for(uint8_t i = 0; i < waveFormRes; i++){
+	for(uint16_t i = 0; i < waveFormRes; i++){
 		if(toScale->wave != SINE){
 			toScale->signalLocations[i] = (uint32_t)(tempWave.signalLocations[i]*newAmp/4096);
 		}else{
@@ -207,13 +211,13 @@ void applicationLayer::checkAmp(uint16_t *amp, int8_t incAmt){
 }
 
 //safely increase / decrease the amplitude
-void applicationLayer::checkDelay(uint8_t *shift, int8_t incAmt){
+void applicationLayer::checkDelay(uint16_t *shift, int8_t incAmt){
 	assert(shift != nullptr);
 	assert(incAmt != 0);
-	uint8_t newShift = (*shift) + incAmt;
+	uint16_t newShift = (*shift) + incAmt;
 	if (incAmt > 0){
-		if(newShift < *shift || newShift > 255){
-			*shift = 255;
+		if(newShift < *shift || newShift > 256){
+			*shift = 256;
 			return;
 		}
 	}else{
@@ -356,7 +360,7 @@ void applicationLayer::echoMode(inputValues *currentInput){
 		currentWave2Echo = waveGen.getDelay(currentWave1, currentWave2Echo.shiftAmount); //if there is shifting to be done; do it
 	}else{
 	// Copy signal locations
-		for(uint8_t i = 0; i < waveFormRes; i++) {
+		for(uint16_t i = 0; i < waveFormRes; i++) {
 			currentWave2Echo.signalLocations[i] = currentWave1.signalLocations[i];
 		}
 	}
@@ -370,12 +374,15 @@ void applicationLayer::echoMode(inputValues *currentInput){
 void applicationLayer::update(){
 	static inputValues values;
 	//see if there is data + know what switch to use
-	if(InputQueueInstance->dequeue(&values)){
+	bool newData = InputQueueInstance->dequeue(&values);
+	if(newData){
 		if(values.Switch == 0){
 				channelToChange = 1;
 			}else{
 				channelToChange = 2;
 			}
+	}else{
+		return;
 	}
 
 	//only change info for frequency, not the table
