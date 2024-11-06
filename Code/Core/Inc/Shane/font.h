@@ -514,17 +514,15 @@ private:
 
 
 	/**
-		* @brief Populates the fontMap array with values for each
-		* letter in the font using the private member variables
-		* , where the indexes are defined by the struct letterMappings letterMappings.
-	 	*
-	 	* This allows for fontMap to be indexed using uint8_t's, but when called by getLetter ASCII values, to acquire
-	 	* the font data for a single letter or symbol
-	 	*/
+	 * @brief Populates the font map
+	*Populates the fontMap array with values for each
+	* letter in the font using the private member variables
+	* , where the indexes are defined by the struct letterMappings letterMappings.
+	* This allows for fontMap to be indexed using uint8_t's, but when called by getLetter ASCII values, to acquire
+	* the font data for a single letter or symbol
+	*/
 	void initializeFontMap();
-    /**
-    * @brief Populates the font map
-    */
+
 public:
 	/**
 	* @brief The constructor for the font class
@@ -537,20 +535,23 @@ public:
 	*
 	* @param letter : const uint8_t Is the ASCII value for a letter in the font
 	* @return const uint16_t*, A pointer to the data where the font for letter is located
+	*
+	* @details, returns the pixel data for a single letter; if the letter is not found,
+	* the data for 0 is returned.
 	*/
 	const uint16_t* getLetter(const uint8_t letter);
 
 	/**
 	* @brief returns the font data needed to draw a sine wave
 	*
-	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	* @return const uint32_t*, A pointer to the data where the font for the sine symbol is located
 	*/
 	const uint32_t* getSineVis();
 
 	/**
 	* @brief returns the font data needed to draw a square wave
 	*
-	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	* @return const uint32_t*, A pointer to the data where the font for the square symbol is located
 	*/
 	const uint32_t* getSquareVis();
 
@@ -558,7 +559,7 @@ public:
 	/**
 	* @brief returns the font data needed to draw a pulse wave
 	*
-	* @return const uint32_t*, A pointer to the data where the font for symbol is located
+	* @return const uint32_t*, A pointer to the data where the font for pulse symbol is located
 	*/
 	const uint32_t* getPulseVis();
 };

@@ -43,6 +43,8 @@ private:
 	 * @brief Send commands to the display
 	 *
 	 * @param command a uint8_t that is the command that will be written to the SPI bus
+	 *
+	 * note The command is sent via SPI
 	 */
 	void sendCommand(const uint8_t command);
 
@@ -51,6 +53,8 @@ private:
 	 * 
 	 * @param data a uint8_t that is data that will be written to the display using SPI
 	 * @param len a uint16_t that is the len of the data being written
+	 *
+	 * @note The data is sent via SPI
 	 */
 	void sendData(const uint8_t *data, const uint16_t len);
 
@@ -59,6 +63,8 @@ private:
 	 * 
 	 * @param x a const uint8_t that is the horizontal position of the pixel
 	 * @param y a const uint8_t that is the vertical position of the pixel
+	 *
+	 * @note nothing is written to the display here; only to the buffer.
 	 */
 	void drawPixel(const uint8_t x, const uint8_t y);
 
@@ -68,6 +74,8 @@ private:
 	 * @param letter a const uint8_t that is the ascii value for a letter
 	 * @param xPos a const uint8_t that is the starting horizontal position for the letter
 	 * @param yPos a const uint8_t that is the starting vertical position for the letter
+	 *
+	 * @note nothing is written to the display here; only to the buffer
 	 */
 	void writeLetter(const uint8_t letter, const uint8_t xPos, const uint8_t yPos);
 
@@ -78,12 +86,14 @@ private:
 	 * @param symbol a const uint32_t that is the pixel data for a symbol
 	 * @param xPos a const uint8_t that is the starting horizontal position for the letter
 	 * @param yPos a const uint8_t that is the starting vertical position for the letter
+	 *
+	 * @note nothing is written to the display here; only to the buffer
 	 */
 	void writeSymbol(const uint32_t *symbol, const uint8_t xPos, const uint8_t yPos);
 
 
 	/**
-	 * @brief Clears the display buffer so that new data can be put into it
+	 * @brief Clears the display buffer so that new data can be put into it.
 	 */
 	void clearBuffer();
 
@@ -155,6 +165,8 @@ private:
 	 * @param page a uint8_t The page [0-7] that will have data written to it
 	 * @param columnStart a uint8_t the column where data will start being written [0-127]
 	 * @param columnStart a uint8_t the column where data will stop being written [0-127]
+	 *
+	 * @details writes only a section to the display using page and column addressing
 	 */
 	void writeSection(const uint8_t page, const uint8_t columnStart, const uint8_t columnStop);
 public:

@@ -141,7 +141,7 @@ private:
 };
 
 /**
- * @class apllicationLayer
+ * @class applicationLayer
  *
  * @brief Waves creates and updates the changes needed to output the correct results
  */

@@ -22,20 +22,20 @@ memoryChecker::memoryChecker(uint32_t *memoryBarrierI, uint8_t barrierSizeV){
 
 void memoryChecker::checkMemory(){
     bool memorySafe = true;
-        for(uint16_t i = 0; i<barrierSize;i+=4){
-              if(memoryBarrier[i]!= 1){
+        for(uint16_t i = 0; i<barrierSize;i+=4){ //check 0, 4, 8,...
+              if(memoryBarrier[i]!= 1){//check 0,4,8...
                  memorySafe = false;
                  break;
               }
-              if(memoryBarrier[i+1]!= 11){
+              if(memoryBarrier[i+1]!= 11){//check 1,5,9...
                  memorySafe = false;
                  break;
               }
-              if(memoryBarrier[i+2]!= 111){
+              if(memoryBarrier[i+2]!= 111){ //check 2,6,10,...
                  memorySafe = false;
                  break;
               }
-              if(memoryBarrier[i+3]!= 1111){
+              if(memoryBarrier[i+3]!= 1111){//check 3,7,11,...
                  memorySafe = false;
                  break;
               }

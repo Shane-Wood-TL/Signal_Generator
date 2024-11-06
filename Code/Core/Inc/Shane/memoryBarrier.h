@@ -10,14 +10,16 @@
 
 #include "allIncludes.h"
 /**
- * @class memeoryChecker
+ * @class memoryChecker
  * @brief Memory checker based on repeating list
  * 
- * @details Checks for 1,11,111,1111 in a list repeating for as long as barrierSize, barrierSize needs to be divisible by 4
+ * @details Checks for 1,11,111,1111 in a list repeating for as long as barrierSize,
+ * barrierSize needs to be divisible by 4. Reboots the mircocontrollers via NVIC if a
+ * error is found.
  */
 class memoryChecker{
     private:
-        uint32_t *memoryBarrier; ///< Memory barrier list
+        uint32_t *memoryBarrier; ///< Pointer to the Memory barrier list
         uint8_t barrierSize; ///< The length of the barrier
 
     public:
@@ -40,6 +42,9 @@ class memoryChecker{
 /**
  * @class overallMemoryChecker
  * @brief Class that holds all memory barriers
+ *
+ * @details A class that contains 5 memoryChecker class instances, each of these is
+ * ran one at a time using phased execution
  */
 class overallMemoryChecker{
 private:
@@ -59,6 +64,8 @@ public:
 	 * @param smallBarrierDI a memorychecker instance
 	 * @param largerBarrierI a memorychecker instance
 	 * @param memorySemaphoreI a semaphore instance
+	 *
+	 * @note Starts at state 0, checking smallBarrierAI
 	 */
 	overallMemoryChecker(memoryChecker *smallBarrierAI,memoryChecker *smallBarrierBI,memoryChecker *smallBarrierCI,memoryChecker *smallBarrierDI,memoryChecker *largeBarrierI, Semaphore *memorySemaphoreI);
 

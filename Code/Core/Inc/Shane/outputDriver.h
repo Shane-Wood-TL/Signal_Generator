@@ -13,7 +13,8 @@
  * @class outputDriver
  * @brief Dual channel DAC driver, and enqueues data for display
  * 
- * @details Updates the dacDriver instances, calls the dequeuing. Also ensures that the signals stay in sync when changing frequiences
+ * @details Updates the dacDriver instances, calls the dequeuing.
+ * Also ensures that the signals stay in sync when changing frequiences
  */
 class outputDriver{
 	dacDriver *DACchannel1; ///< dacDriver for channel 1
@@ -34,8 +35,10 @@ public:
 	/**
 	 * @brief update and resync the dacDrivers
 	 * 
-	 * @details Waves will get out of sync when frequencies are changed. To fix this when waves are brought back to the same frequency
-	 * they are resynced back together by restarting DMA. The same thing occurs for ECHO as the timing in-between the waves needs to be exact
+	 * @details Waves will get out of sync when frequencies are changed.
+	 * To fix this when waves are brought back to the same frequency
+	 * they are resynced back together by restarting DMA. The same thing occurs for
+	 * ECHO as the timing in-between the waves needs to be exact
 	 */
 	void update();
 };

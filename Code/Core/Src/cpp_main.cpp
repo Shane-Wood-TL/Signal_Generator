@@ -107,7 +107,7 @@ void cpp_main(void) {
 			&largerMemoryChecker, &memoryCheckerSemaphore);
 
 	while (1) {
-		TOGGLE
+		//TOGGLE
 		//WRITEON
 		//WRITEOFF
 		input.checkForUpdates(); //updates all input, needs semaphores

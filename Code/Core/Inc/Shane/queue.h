@@ -14,6 +14,8 @@
 /**
  * @class signalQueue
  * @brief Queue for the application layer to the dacDrivers
+ *
+ * @details A FIFO circular queue with size determined by the macro SIGNAL_QUEUE_SIZE
  */
 class signalQueue {
 	struct signalInfo buffer[SIGNAL_QUEUE_SIZE]; ///< the buffer of messages
@@ -51,6 +53,8 @@ public:
 /**
  * @class displayQueue
  * @brief Queue for the outputDriver to the display
+ *
+ * @details A FIFO circular queue with size determined by the macro DISPLAY_QUEUE_SIZE
  */
 class displayQueue {
 	struct displayInfoValues buffer[DISPLAY_QUEUE_SIZE];///< the buffer of messages
@@ -85,7 +89,12 @@ public:
 };
 
 
-
+/**
+ * @class inputQueue
+ * @brief Queue for the outputDriver to the display
+ *
+ * @details A FIFO circular queue with size determined by the macro INPUT_QUEUE_SIZE
+ */
 class inputQueue {
 	struct inputValues buffer[INPUT_QUEUE_SIZE];///< the buffer of messages
 	uint8_t head = 0; ///< the head of the active queue region
